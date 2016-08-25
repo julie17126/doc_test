@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="index.html" />
+    <link rel="next" title="Running the program" href="running.html" />
+    <link rel="prev" title="Welcome to LKMC’s documentation!" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="running.html" title="Running the program"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to LKMC’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<p>The code requires <a class="reference external" href="http://www.python.org/download/releases/2.7/">Python 2.7</a> to run. It also requires C and Fortran compilers to
+compile the extensions. It has been tested with the intel compilers (icc/ifort) and
+the GNU compilers (gcc/gfortran).</p>
+<p>The software <a class="reference external" href="http://pallini.di.uniroma1.it/">nauty</a> is included in the package and requires the GNU autoconf installation
+system.</p>
+<div class="section" id="python-modules">
+<h3>Python modules<a class="headerlink" href="#python-modules" title="Permalink to this headline">¶</a></h3>
+<p>This is a list of third-party Python modules that this code requires to run:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.numpy.org/">NumPy</a></li>
+<li><a class="reference external" href="http://www.scipy.org/">SciPy</a> (&gt;= 0.12.0)</li>
+<li><a class="reference external" href="http://matplotlib.org/">Matplotlib</a></li>
+<li><a class="reference external" href="http://sphinx-doc.org/">Sphinx</a> (for building the documentation)</li>
+<li><a class="reference external" href="https://pypi.python.org/pypi/numpydoc">numpydoc</a> (for building the documentation)</li>
+<li><a class="reference external" href="https://nose.readthedocs.org/en/latest/">nose</a> (for running the tests)</li>
+</ul>
+<p>These libraries can be installed in a number of ways.  For example, you may wish to use a package
+manager, such as <a class="reference external" href="https://www.macports.org/">MacPorts</a> on Mac OS X, or install them from source. If you wish to use the Python
+package manager <a class="reference external" href="http://pip.readthedocs.org/en/latest/reference/pip_install.html">pip</a> a requirements file is included in the &#8216;requirements&#8217; directory of the source
+code. To install the required libraries using pip you could run the following command:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>pip install -r requirements/requirements.txt
+</pre></div>
+</div>
+<p>which should install the required libraries and all their dependencies.</p>
+<p><strong>Note</strong>: NumPy and SciPy must be built with LAPACK support (for example from the Intel MKL). See
+<a class="reference external" href="http://www.scipy.org/scipylib/building/linux.html">here</a> for more information.</p>
+</div>
+<div class="section" id="forces-library">
+<h3>Forces library<a class="headerlink" href="#forces-library" title="Permalink to this headline">¶</a></h3>
+<p>For the force calculations we require that an external program be installed that we can call from
+our Python code. Currently we support the following codes:</p>
+<ul class="simple">
+<li>LBOMD (via the Python interface)</li>
+<li><a class="reference external" href="http://lammps.sandia.gov/doc/Section_python.html">LAMMPS</a> (via the Python/shared library interface)</li>
+<li><a class="reference external" href="http://departments.icmab.es/leem/siesta/">SIESTA</a> (built as an executable and installed in your PATH)</li>
+</ul>
+<p><strong>Note</strong>: You need to install the force library on all machines you intend to run on (i.e. all
+those that appear in the nodes file).</p>
+</div>
+<div class="section" id="additional-programmes">
+<h3>Additional programmes<a class="headerlink" href="#additional-programmes" title="Permalink to this headline">¶</a></h3>
+<p>The following additional programmes are also required:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.povray.org/">POV-Ray</a> (optional; to create images of the defects in the system at each step or
+per transition)</li>
+</ul>
+</div>
+<div class="section" id="mac-os-x-and-macports-python">
+<h3>Mac OS X and MacPorts Python<a class="headerlink" href="#mac-os-x-and-macports-python" title="Permalink to this headline">¶</a></h3>
+<p>You <em>may</em> need to add a symbolic link to &#8216;/Library/Frameworks&#8217; to make sure that the MacPorts Python
+takes precedence over the system Python when using f2py. This command will achieve this (you will
+probably need to be root):</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>ln -s /opt/local/Library/Frameworks/Python.framework /Library/Frameworks/Python.framework
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id1">
+<h2>Installation<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>There are two options for installing LKMC:</p>
+<ul class="simple">
+<li>build the code in-place and add the main directory to you PATH and PYTHONPATH</li>
+<li>install it into your Python site-packages directory, for example using a <a class="reference external" href="http://docs.python-guide.org/en/latest/dev/virtualenvs/">virtualenv</a></li>
+</ul>
+<p><strong>Note</strong>: You need to install the code using one of the above methods on all machines you intend to
+run on (i.e. all those that appear in the <a class="reference internal" href="running.html#nodes-file"><span class="std std-ref">Nodes file</span></a>).</p>
+<div class="section" id="install-in-place">
+<h3>Install in-place<a class="headerlink" href="#install-in-place" title="Permalink to this headline">¶</a></h3>
+<p>You should add the top LKMC directory (eg. <cite>$HOME/git/LKMC</cite>) to your PATH and PYTHONPATH, eg. for
+bash:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$HOME</span>/git/LKMC:<span class="nv">$PYTHONPATH</span>
+</pre></div>
+</div>
+<p>or for tcsh:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>setenv PYTHONPATH <span class="nv">$HOME</span>/git/LKMC:<span class="nv">$PYTHONPATH</span>
+</pre></div>
+</div>
+<p>and the same for PATH. These lines should be added to your shell startup files, for example
+&#8221;.profile&#8221;, &#8221;.bashrc&#8221; or &#8221;.tcshrc&#8221;.</p>
+<p>You should then copy and edit the setup.cfg file:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>cp setup.cfg.example setup.cfg
+</pre></div>
+</div>
+<p>There are comments in the file to help with choosing settings. For example, on hydra/hera you will
+have to uncomment a line in the &#8216;build_ext&#8217; section that says <cite>compiler = intelem</cite>.</p>
+<p>You should then run setup:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>python setup.py build_ext --inplace
+</pre></div>
+</div>
+<p>which should compile all the extensions.</p>
+</div>
+<div class="section" id="install-python-package">
+<h3>Install Python package<a class="headerlink" href="#install-python-package" title="Permalink to this headline">¶</a></h3>
+<p>First you should copy and edit the setup.cfg file:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>cp setup.cfg.example setup.cfg
+</pre></div>
+</div>
+<p>There are comments in the file to help with choosing settings. For example, on hydra/hera you
+will have to uncomment a line in the &#8216;build_ext&#8217; section that says &#8216;compiler = intelem&#8217;.</p>
+<p>You should then build and install the package (before installing you should run the test suite,
+see below):</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>python setup.py build
+python setup.py install
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="running-the-tests">
+<h2>Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h2>
+<p>You should run the test suite to ensure everything is working. You should also clone
+the &#8216;LKMCData&#8217; repository and place it in the same directory as this repository.
+If you don&#8217;t do this many of the (important) tests will be skipped.</p>
+<p>Fast/unit tests are run using:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>nosetests LKMC/tests -v
+</pre></div>
+</div>
+<p>Slower, more complex, tests are run using:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>nosetests LKMC/slow_tests -v
+</pre></div>
+</div>
+<p>Alternatively, you can run both the fast/unit tests and slow tests by running:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>nosetests LKMC -v
+</pre></div>
+</div>
+<p>All the tests should exit successfully.</p>
+</div>
+<div class="section" id="building-the-documentation">
+<h2>Building the documentation<a class="headerlink" href="#building-the-documentation" title="Permalink to this headline">¶</a></h2>
+<p>To build the html documentation you should run (after copying setup.cfg.example as described
+above):</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>python setup.py build_sphinx
+</pre></div>
+</div>
+<p>Following this the documentation can be found in <cite>build/sphinx/html/</cite> (open
+<cite>build/sphinx/html/index.html</cite> in your browser).</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#requirements">Requirements</a><ul>
+<li><a class="reference internal" href="#python-modules">Python modules</a></li>
+<li><a class="reference internal" href="#forces-library">Forces library</a></li>
+<li><a class="reference internal" href="#additional-programmes">Additional programmes</a></li>
+<li><a class="reference internal" href="#mac-os-x-and-macports-python">Mac OS X and MacPorts Python</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id1">Installation</a><ul>
+<li><a class="reference internal" href="#install-in-place">Install in-place</a></li>
+<li><a class="reference internal" href="#install-python-package">Install Python package</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#running-the-tests">Running the tests</a></li>
+<li><a class="reference internal" href="#building-the-documentation">Building the documentation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to LKMC&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="running.html"
+                        title="next chapter">Running the program</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/installation.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="running.html" title="Running the program"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to LKMC’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
