@@ -1,0 +1,778 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Images module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Input module" href="LKMC.Input.html" />
+    <link rel="prev" title="LKMC.Graphs module" href="LKMC.Graphs.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Input.html" title="LKMC.Input module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Graphs.html" title="LKMC.Graphs module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Images">
+<span id="lkmc-images-module"></span><h1>LKMC.Images module<a class="headerlink" href="#module-LKMC.Images" title="Permalink to this headline">¶</a></h1>
+<p>Contains the Images class and associated methods.</p>
+<p>&#64;author: Chris Scott</p>
+<dl class="class">
+<dt id="LKMC.Images.Images">
+<em class="property">class </em><code class="descclassname">LKMC.Images.</code><code class="descname">Images</code><span class="sig-paren">(</span><em>params</em>, <em>numProcs=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>The Images class contains a number of images (or states) of a system.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>params</strong> : Input.InputParams</p>
+<blockquote>
+<div><p>The input parameters object.</p>
+</div></blockquote>
+<p><strong>numProcs</strong> : int, optional</p>
+<blockquote class="last">
+<div><p>The number of processors to use for the force calculation. Defaults
+to 1.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>NAtoms</td>
+<td>(int) The total number of atoms in all the (moving) images.</td>
+</tr>
+<tr class="row-even"><td>imageNAtoms</td>
+<td>(int) The number of atoms in a single image.</td>
+</tr>
+<tr class="row-odd"><td>pos</td>
+<td>(ndarray) The positions of all the atoms from all the images.</td>
+</tr>
+<tr class="row-even"><td>fixedEndPoints</td>
+<td>(bool) Whether the end points of the band are fixed or not.</td>
+</tr>
+<tr class="row-odd"><td>interpolationMethod</td>
+<td>(str) The method that was used to interpolate the band.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Images.Images.analysePathway">
+<code class="descname">analysePathway</code><span class="sig-paren">(</span><em>tolerance</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.analysePathway"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.analysePathway" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyse the pathway (looking for multiple minima).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tolerance</strong> : float</p>
+<blockquote>
+<div><p>The tolerance used for detecting if a minima is significant. A
+typical value might be 0.1. (TODO: this needs explaining...)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>transOK</strong> : bool</p>
+<blockquote>
+<div><p>True if the transitions pathway of acceptable; False if there are
+multiple (significant) minima along the path.</p>
+</div></blockquote>
+<p><strong>firstMinIndex</strong> : int</p>
+<blockquote class="last">
+<div><p>If TransOK is False then this is the index of the image that is the
+first minimum along the path.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.calcForce">
+<code class="descname">calcForce</code><span class="sig-paren">(</span><em>NProcs=None</em>, <em>defectFlag=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.calcForce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.calcForce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the forces acting on each image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>NProcs</strong> : int, optional</p>
+<blockquote>
+<div><p>The number of processors to use for the force calculation. If set
+it overrides <cite>self.calcForceNProcs</cite>.</p>
+</div></blockquote>
+<p><strong>defectFlag</strong> : int, optional</p>
+<blockquote class="last">
+<div><p>Gets passed directly to <cite>Forces.calcForce</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.calculateTangentVector">
+<code class="descname">calculateTangentVector</code><span class="sig-paren">(</span><em>image</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.calculateTangentVector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.calculateTangentVector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the normalised tangent vector at the given image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>image</strong> : int</p>
+<blockquote>
+<div><p>The index of the image to calculate the tangent vector at
+(0 &lt;= <cite>image</cite> &lt; <cite>self.NImagesTotal</cite>).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>tau</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>The tangent vector at the image.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>We use the method from <a class="reference external" href="http://dx.doi.org/10.1063/1.1323224">http://dx.doi.org/10.1063/1.1323224</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.getBarrier">
+<code class="descname">getBarrier</code><span class="sig-paren">(</span><em>initialEnergy=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.getBarrier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.getBarrier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the forward barrier of the transition.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>initialEnergy</strong> : float, optional</p>
+<blockquote>
+<div><p>If set this is used for the relative energy calculation.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>barrier</strong> : float</p>
+<blockquote class="last">
+<div><p>The energy barrier.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If the end points are not fixed it is important to either set the
+<cite>Images.initialEnergy</cite> attribute or the <cite>initialEnergy</cite> kwarg so that
+the relative energy is calculated correctly.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.getForcePerpendicular">
+<code class="descname">getForcePerpendicular</code><span class="sig-paren">(</span><em>image</em>, <em>N</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.getForcePerpendicular"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.getForcePerpendicular" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is for compatability only, it does nothing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.getImagePos">
+<code class="descname">getImagePos</code><span class="sig-paren">(</span><em>image</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.getImagePos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.getImagePos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the position of the given image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>image</strong> : int</p>
+<blockquote>
+<div><p>The index of the image.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>imagePos</strong> : ndarray</p>
+<blockquote>
+<div><p>The vector containing the images position.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>IndexError</strong></p>
+<blockquote class="last">
+<div><p>If the specified index is out of range.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This returns a reference to the images position not a copy.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.getLength">
+<code class="descname">getLength</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.getLength"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.getLength" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the length of the band of images.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>length</strong> : float</p>
+<blockquote class="last">
+<div><p>The sum of the linear separations between images.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.getMaxEnergyImage">
+<code class="descname">getMaxEnergyImage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.getMaxEnergyImage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.getMaxEnergyImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the image with the highest energy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>maxEnergyImage</strong> : Lattice</p>
+<blockquote class="last">
+<div><p>The Lattice containing the images with the highest energy.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.getReverseBarrier">
+<code class="descname">getReverseBarrier</code><span class="sig-paren">(</span><em>finalEnergy=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.getReverseBarrier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.getReverseBarrier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the reverse barrier of the transition.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>finalEnergy</strong> : float, optional</p>
+<blockquote>
+<div><p>If set this is used for the relative energy calculation.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>barrier</strong> : float</p>
+<blockquote class="last">
+<div><p>The reverse energy barrier.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If the end points are not fixed it is important to either set the
+<cite>Images.finalEnergy</cite> attribute or the <cite>finalEnergy</cite> kwarg so that
+the relative energy is calculated correctly.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.imageSeparation">
+<code class="descname">imageSeparation</code><span class="sig-paren">(</span><em>image1</em>, <em>image2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.imageSeparation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.imageSeparation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return magnitude of separation vector between two images.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>image1</strong> : int</p>
+<blockquote>
+<div><p>The index of the first image (0 &lt;= <cite>image1</cite> &lt; self.NImagesTotal).</p>
+</div></blockquote>
+<p><strong>image2</strong> : int</p>
+<blockquote>
+<div><p>The index of the first image (0 &lt;= <cite>image2</cite> &lt; self.NImagesTotal).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>mag</strong> : float</p>
+<blockquote>
+<div><p>The magnitude of the separation between the two images.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>If image1 and image2 are not numbered correctly.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.imageSeparationVector">
+<code class="descname">imageSeparationVector</code><span class="sig-paren">(</span><em>image1</em>, <em>image2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.imageSeparationVector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.imageSeparationVector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the separation vector between two images.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>image1</strong> : int</p>
+<blockquote>
+<div><p>The index of the first image (0 &lt;= <cite>image1</cite> &lt; <cite>self.NImagesTotal</cite>).</p>
+</div></blockquote>
+<p><strong>image2</strong> : int</p>
+<blockquote>
+<div><p>The index of the first image (0 &lt;= <cite>image2</cite> &lt; <cite>self.NImagesTotal</cite>).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>sepVec</strong> : ndarray</p>
+<blockquote>
+<div><p>The separation vectors between the two images.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>If image1 and image2 are not numbered correctly.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.interpolateImages">
+<code class="descname">interpolateImages</code><span class="sig-paren">(</span><em>initialState</em>, <em>finalState</em>, <em>NImages</em>, <em>method='linear'</em>, <em>saddleState=None</em>, <em>fixedEndPoints=True</em>, <em>stepSize=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.interpolateImages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.interpolateImages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpolate a number of images between initial and final states.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>initialState</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote>
+<div><p>The initial state for the band of images.</p>
+</div></blockquote>
+<p><strong>finalState</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote>
+<div><p>The final state for the band of images.</p>
+</div></blockquote>
+<p><strong>NImages</strong> : int</p>
+<blockquote>
+<div><p>The number of images to create in total, including the initial and
+final.</p>
+</div></blockquote>
+<p><strong>method</strong> : str, optional</p>
+<blockquote>
+<div><p>The method to use for the interpolation. Currently only support
+&#8220;linear&#8221; (&#8220;cubicspl&#8221; should be added at some point).</p>
+</div></blockquote>
+<p><strong>saddleState</strong> : <cite>Lattice.Lattice</cite>, optional</p>
+<blockquote>
+<div><p>If this argument is provided we interpolate from the initial to
+here and then from here to the final.</p>
+</div></blockquote>
+<p><strong>fixedEndPoints</strong> : bool, optional</p>
+<blockquote>
+<div><p>If True then the end points (initial and final) of the band are
+fixed (i.e. they cannot move). Defaults to True.</p>
+</div></blockquote>
+<p><strong>stepSize</strong> : float, optional</p>
+<blockquote class="last">
+<div><p>If <cite>fixedEndPoints</cite> is <cite>False</cite> and this kwarg is set then we step
+either side of the saddle (towards initial/final) by this amount
+and use those points as the end points.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.normaliseForce">
+<code class="descname">normaliseForce</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.normaliseForce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.normaliseForce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalise the force vector.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.plotBarrierImage">
+<code class="descname">plotBarrierImage</code><span class="sig-paren">(</span><em>filename</em>, <em>label=None</em>, <em>ymax=None</em>, <em>useInterp=True</em>, <em>initialEnergy=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.plotBarrierImage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.plotBarrierImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the relative energies of the images against image numbers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str</p>
+<blockquote>
+<div><p>The name of the file to save the graph to (without suffix!).</p>
+</div></blockquote>
+<p><strong>label</strong> : str, optional</p>
+<blockquote>
+<div><p>Add this label for the points on the graph (eg. &#8220;NEB&#8221; or &#8220;String&#8221;).</p>
+</div></blockquote>
+<p><strong>ymax</strong> : index, optional</p>
+<blockquote>
+<div><p>Specify the index of the max image (deprecated).</p>
+</div></blockquote>
+<p><strong>useInterp</strong> : bool, optional</p>
+<blockquote>
+<div><p>Draw a curve between the points using Stineman interpolation.
+Defaults to True.</p>
+</div></blockquote>
+<p><strong>initialEnergy</strong> : float, optional</p>
+<blockquote class="last">
+<div><p>If set this is used for the relative energy calculation.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If the end points are not fixed it is important to either set the
+<cite>Images.initialEnergy</cite> attribute or the <cite>initialEnergy</cite> kwarg so that
+the relative energies are calculated correctly.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.plotBarrierSeparation">
+<code class="descname">plotBarrierSeparation</code><span class="sig-paren">(</span><em>filename</em>, <em>label=None</em>, <em>ymax=None</em>, <em>useInterp=True</em>, <em>initialEnergy=None</em>, <em>initialPos=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.plotBarrierSeparation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.plotBarrierSeparation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the relative energies of the images against image separation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str</p>
+<blockquote>
+<div><p>The name of the file to save the graph to (without suffix!).</p>
+</div></blockquote>
+<p><strong>label</strong> : str, optional</p>
+<blockquote>
+<div><p>Add this label for the points on the graph (eg. &#8220;NEB&#8221; or &#8220;String&#8221;).</p>
+</div></blockquote>
+<p><strong>ymax</strong> : index, optional</p>
+<blockquote>
+<div><p>Specify the index of the max image (deprecated).</p>
+</div></blockquote>
+<p><strong>useInterp</strong> : bool, optional</p>
+<blockquote>
+<div><p>Draw a curve between the points using Stineman interpolation.
+Defaults to True.</p>
+</div></blockquote>
+<p><strong>initialEnergy</strong> : float, optional</p>
+<blockquote>
+<div><p>If set this is used for the relative energy calculation.</p>
+</div></blockquote>
+<p><strong>initialPos</strong> : ndarray, optional</p>
+<blockquote class="last">
+<div><p>If set we use this array for the separation calculation.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If the end points are not fixed it is important to either set the
+<cite>Images.initialEnergy</cite> attribute or the <cite>initialEnergy</cite> kwarg so that
+the relative energies are calculated correctly.</p>
+<p>Image separation is the piecewise linear separation from the initial
+image. If the <cite>Images.initialPos</cite> attribute or the <cite>initialPos</cite> kwarg
+is set we use that for the separation calculation.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.postCalcForceUpdate">
+<code class="descname">postCalcForceUpdate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.postCalcForceUpdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.postCalcForceUpdate" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called at the end of calcForce and 
+should be subclassed if required (eg. in NEB).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.returnImageAsLattice">
+<code class="descname">returnImageAsLattice</code><span class="sig-paren">(</span><em>imageNumber</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.returnImageAsLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.returnImageAsLattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return one of the images as a lattice object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>imageNumber</strong> : int</p>
+<blockquote>
+<div><p>The index of the image to return (includes fixed images if any).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>imageLattice</strong> : Lattice.Lattice</p>
+<blockquote>
+<div><p>The image as a <cite>Lattice</cite> object.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>IndexError</strong></p>
+<blockquote class="last">
+<div><p>If the specified image index is out of range.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.setJobID">
+<code class="descname">setJobID</code><span class="sig-paren">(</span><em>jobID</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.setJobID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.setJobID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the job ID.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.setParams">
+<code class="descname">setParams</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.setParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.setParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.specieIndex">
+<code class="descname">specieIndex</code><span class="sig-paren">(</span><em>sym</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.specieIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.specieIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return index of given symbol in the species list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sym</strong> : str[2]</p>
+<blockquote>
+<div><p>The two-character symbol of the species to locate.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>specieIndex</strong> : int</p>
+<blockquote>
+<div><p>The index of the given species in <cite>Images.specieList</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>RuntimeError</strong></p>
+<blockquote class="last">
+<div><p>If the species list is empty.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.visualisePathway">
+<code class="descname">visualisePathway</code><span class="sig-paren">(</span><em>dozip=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.visualisePathway"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.visualisePathway" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output the Images as a sequence of Lattice files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dozip</strong> : bool, optional</p>
+<blockquote class="last">
+<div><p>Zip the files, default is True.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.visualisePathwayLattice">
+<code class="descname">visualisePathwayLattice</code><span class="sig-paren">(</span><em>dozip=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.visualisePathwayLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.visualisePathwayLattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output the Images as a sequence of Lattice files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dozip</strong> : bool, optional</p>
+<blockquote class="last">
+<div><p>Zip the files, default is True.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.writeBarrierSeparation">
+<code class="descname">writeBarrierSeparation</code><span class="sig-paren">(</span><em>filename</em>, <em>initialEnergy=None</em>, <em>initialPos=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.writeBarrierSeparation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.writeBarrierSeparation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write csv file containing details of the images.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str</p>
+<blockquote>
+<div><p>The name of the file to create.</p>
+</div></blockquote>
+<p><strong>initialEnergy</strong> : float, optional</p>
+<blockquote>
+<div><p>If set this is used for the relative energy calculation.</p>
+</div></blockquote>
+<p><strong>initialPos</strong> : ndarray, optional</p>
+<blockquote class="last">
+<div><p>If set we use this array for the separation calculation.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If the end points are not fixed it is important to either set the
+<cite>Images.initialEnergy</cite> attribute or the <cite>initialEnergy</cite> kwarg so that
+the relative energies are calculated correctly.</p>
+<p>Image separation is the piecewise linear separation from the initial
+image. If the <cite>Images.initialPos</cite> attribute or the <cite>initialPos</cite> kwarg
+is set we use that for the separation calculation.</p>
+<p>The file will contain the image number, the piecewise linear separation
+of the image from the initial image, the total energy of the image and
+the relative energy of the image with respect to the initial energy.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.writeLattice">
+<code class="descname">writeLattice</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.writeLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.writeLattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>For compatability, does nothing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.writeNebPerlOutput">
+<code class="descname">writeNebPerlOutput</code><span class="sig-paren">(</span><em>filename</em>, <em>initialEnergy=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.writeNebPerlOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.writeNebPerlOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an output file like the old Perl KMC code (deprecated).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str</p>
+<blockquote>
+<div><p>The name of the file to create.</p>
+</div></blockquote>
+<p><strong>initialEnergy</strong> : float, optional</p>
+<blockquote class="last">
+<div><p>If set this is used for the relative energy calculation.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If the end points are not fixed it is important to either set the
+<cite>Images.initialEnergy</cite> attribute or the <cite>initialEnergy</cite> kwarg so that
+the energy barrier is calculated correctly.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Images.Images.writeObject">
+<code class="descname">writeObject</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Images.html#Images.writeObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Images.Images.writeObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>For compatability, does nothing.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Graphs.html"
+                        title="previous chapter">LKMC.Graphs module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Input.html"
+                        title="next chapter">LKMC.Input module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Images.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Input.html" title="LKMC.Input module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Graphs.html" title="LKMC.Graphs module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
