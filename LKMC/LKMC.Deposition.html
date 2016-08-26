@@ -1,0 +1,424 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Deposition module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Dimer module" href="LKMC.Dimer.html" />
+    <link rel="prev" title="LKMC.Defects module" href="LKMC.Defects.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Dimer.html" title="LKMC.Dimer module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Defects.html" title="LKMC.Defects module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Deposition">
+<span id="lkmc-deposition-module"></span><h1>LKMC.Deposition module<a class="headerlink" href="#module-LKMC.Deposition" title="Permalink to this headline">¶</a></h1>
+<p>Module for running deposition simulations.</p>
+<p>Copyright Miao Yu 2014</p>
+<dl class="class">
+<dt id="LKMC.Deposition.DepoClusterAtomObject">
+<em class="property">class </em><code class="descclassname">LKMC.Deposition.</code><code class="descname">DepoClusterAtomObject</code><span class="sig-paren">(</span><em>specie</em>, <em>charge</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Deposition.html#DepoClusterAtomObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Deposition.DepoClusterAtomObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>The <cite>DepoClusterAtomObject</cite> class holds information about each atoms in the cluster.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>specie</strong> : str[2]</p>
+<blockquote>
+<div><p>The specie of the atom, eg. ‘Cd’.</p>
+</div></blockquote>
+<p><strong>charge</strong> : float</p>
+<blockquote class="last">
+<div><p>The charge of the atom.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="4%" />
+<col width="96%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>offset</td>
+<td>(ndarry, optional) The offset of the atom to the primary atom. Only for 2nd/3rd/... atoms in the cluster when the cluster contain more than one atoms.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Deposition.DepoClusterAtomObject.setOffset">
+<code class="descname">setOffset</code><span class="sig-paren">(</span><em>dim_x</em>, <em>dim_y</em>, <em>dim_z</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Deposition.html#DepoClusterAtomObject.setOffset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Deposition.DepoClusterAtomObject.setOffset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the offset of the secondary atom to the primary atom.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dim_x</strong> : float</p>
+<p><strong>dim_y</strong> : float</p>
+<p><strong>dim_z</strong> : float</p>
+<blockquote class="last">
+<div><p>X/Y/Z dimentions of offset.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Deposition.DepoClusterIndividualObject">
+<em class="property">class </em><code class="descclassname">LKMC.Deposition.</code><code class="descname">DepoClusterIndividualObject</code><span class="sig-paren">(</span><em>NAtom</em>, <em>prob</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Deposition.html#DepoClusterIndividualObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Deposition.DepoClusterIndividualObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>The <cite>DepoClusterIndividualObject</cite> class holds information about an individual deposited cluster.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>NAtoms</strong> : integer</p>
+<blockquote>
+<div><p>Number of atoms in this deposited cluster</p>
+</div></blockquote>
+<p><strong>prob</strong> : float</p>
+<blockquote class="last">
+<div><p>The Probability of chosen this cluster</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="4%" />
+<col width="96%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>atoms</td>
+<td>(list) List of <cite>DepoClusterAtomObject</cite> class which contains information about information of each atom in the cluster.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Deposition.DepoClusterIndividualObject.addAtom">
+<code class="descname">addAtom</code><span class="sig-paren">(</span><em>specie</em>, <em>charge</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Deposition.html#DepoClusterIndividualObject.addAtom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Deposition.DepoClusterIndividualObject.addAtom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add information of atoms in the cluster to the <cite>DepoClusterIndividualObject</cite> class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>specie</strong> : str[2]</p>
+<blockquote>
+<div><p>The specie of the atom, eg. ‘Cd’.</p>
+</div></blockquote>
+<p><strong>charge</strong> : float</p>
+<blockquote class="last">
+<div><p>The charge of the atom.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Deposition.DepoClustersObject">
+<em class="property">class </em><code class="descclassname">LKMC.Deposition.</code><code class="descname">DepoClustersObject</code><span class="sig-paren">(</span><em>NCluster=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Deposition.html#DepoClustersObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Deposition.DepoClustersObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>The <cite>DepoClustersObject</cite> class holds information about all the deposited cluster candidates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>NCluster</strong> : integer</p>
+<blockquote class="last">
+<div><p>Number of candidates for the deposited clusters.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="6%" />
+<col width="94%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>clusters</td>
+<td>(list) List of <cite>DepoClusterIndividualObject</cite> class which contains information about each candidate of the deposited clusters.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Deposition.DepoClustersObject.addCluster">
+<code class="descname">addCluster</code><span class="sig-paren">(</span><em>NAtoms</em>, <em>prob</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Deposition.html#DepoClustersObject.addCluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Deposition.DepoClustersObject.addCluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add information of a deposited cluster to the <cite>DepoClustersObject</cite> class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>NAtoms</strong> : integer</p>
+<blockquote>
+<div><p>Number of atoms in this deposited cluster</p>
+</div></blockquote>
+<p><strong>prob</strong> : float</p>
+<blockquote class="last">
+<div><p>The Probability of chosen this cluster</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Deposition.DepositionRunner">
+<em class="property">class </em><code class="descclassname">LKMC.Deposition.</code><code class="descname">DepositionRunner</code><span class="sig-paren">(</span><em>params</em>, <em>refState</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Deposition.html#DepositionRunner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Deposition.DepositionRunner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="LKMC.ExternalEvents.html#LKMC.ExternalEvents.ExternalEvent" title="LKMC.ExternalEvents.ExternalEvent"><code class="xref py py-class docutils literal"><span class="pre">LKMC.ExternalEvents.ExternalEvent</span></code></a></p>
+<p>Run a particle depositon.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>params</strong> : <cite>Input.InputParams</cite></p>
+<blockquote>
+<div><p>This object contains all parameters which are read from <code class="docutils literal"><span class="pre">lkmcInput.IN</span></code> by default.</p>
+</div></blockquote>
+<p><strong>refState</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote class="last">
+<div><p>This object hold information about the reference state (perfect lattice) of a system.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Deposition.DepositionRunner.addDepositionAtoms">
+<code class="descname">addDepositionAtoms</code><span class="sig-paren">(</span><em>lattice</em>, <em>velocity</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Deposition.html#DepositionRunner.addDepositionAtoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Deposition.DepositionRunner.addDepositionAtoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert cluster(s) into the initial system.
+The inserted cluster(s) are chosen randomly by <cite>readDepoIn()</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>velocity</strong> : ndarray</p>
+<blockquote>
+<div><p>Array containing the velocities of each atom in the system after thermalisation.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>velocity</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Array containing the velocities of each atom in the system after thermalisation with inserted atoms.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Deposition.DepositionRunner.readDepoIn">
+<code class="descname">readDepoIn</code><span class="sig-paren">(</span><em>lattice</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Deposition.html#DepositionRunner.readDepoIn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Deposition.DepositionRunner.readDepoIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read information of deposited clusters from file &#8220;depo.in&#8221;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>depoDirection</strong> : ndarray</p>
+<blockquote>
+<div><p>The chosen direction of velocities of the deposited cluster.</p>
+</div></blockquote>
+<p><strong>depoCluster</strong> : <cite>DepoClustersObject</cite> object</p>
+<blockquote>
+<div><p>This object holds information about the deposited cluster candidates.</p>
+</div></blockquote>
+<p><strong>chosenPosition</strong> : ndarray</p>
+<blockquote>
+<div><p>The chosen position of the deposited cluster to be inserted.</p>
+</div></blockquote>
+<p><strong>chosenTheta</strong> : float</p>
+<blockquote>
+<div><p>The chosen angle of the deposited cluster to be rotated.</p>
+</div></blockquote>
+<p><strong>chosenPhi</strong> : float</p>
+<blockquote>
+<div><p>The chosen angle of the deposited cluster to be rotated.</p>
+</div></blockquote>
+<p><strong>depoVelocity</strong> : float</p>
+<blockquote>
+<div><p>The chosen velocity of the deposited cluster, in Å/fs.</p>
+</div></blockquote>
+<p><strong>index</strong> : integer</p>
+<blockquote class="last">
+<div><p>The chosen cluster&#8217;s index number (in the <cite>DepoClustersObject</cite> object).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Deposition.DepositionRunner.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>latticeIn</em>, <em>step=None</em>, <em>clock=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Deposition.html#DepositionRunner.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Deposition.DepositionRunner.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls all of the methods to do one complete deposition simulation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>latticeIn</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote>
+<div><p>System lattice to run the deposition on.</p>
+</div></blockquote>
+<p><strong>step</strong> : int, optional</p>
+<blockquote>
+<div><p>Current KMC step, to allow changing into the appropriate working directory.</p>
+</div></blockquote>
+<p><strong>clock</strong> : float, optional</p>
+<blockquote class="last">
+<div><p>Not currently used; for compatibility with other external events.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<dl class="docutils">
+<dt>The workflow is as follows:</dt>
+<dd><ul class="first last simple">
+<li>Pre-event thermalisation</li>
+<li>Add deposition atoms</li>
+<li>Simulating the deposition</li>
+<li>Post-deposition minimisation</li>
+<li>Remove sputtered atoms</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Deposition.main">
+<code class="descclassname">LKMC.Deposition.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Deposition.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Deposition.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Defects.html"
+                        title="previous chapter">LKMC.Defects module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Dimer.html"
+                        title="next chapter">LKMC.Dimer module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Deposition.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Dimer.html" title="LKMC.Dimer module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Defects.html" title="LKMC.Defects module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
