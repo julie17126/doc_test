@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Lanczos minimum mode (LLMinMode) &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="Minimum mode (MinMode)" href="minmode.html" />
+    <link rel="prev" title="Lanczos" href="lanczos.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="minmode.html" title="Minimum mode (MinMode)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lanczos.html" title="Lanczos"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="lanczos-minimum-mode-llminmode">
+<h1>Lanczos minimum mode (LLMinMode)<a class="headerlink" href="#lanczos-minimum-mode-llminmode" title="Permalink to this headline">¶</a></h1>
+<p>Parameters for Lanczos and L-BFGS-B as a minimum mode search method.</p>
+<div class="section" id="lbfgslanczosrestart">
+<h2>LBFGSLanczosRestart<a class="headerlink" href="#lbfgslanczosrestart" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>???</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="lbfgslanczosmemory">
+<h2>LBFGSLanczosMemory<a class="headerlink" href="#lbfgslanczosmemory" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>LBFGS memory parameter.</p>
+<p>Default: 5</p>
+</div>
+<div class="section" id="lbfgslanczossubtolerance">
+<h2>LBFGSLanczosSubTolerance<a class="headerlink" href="#lbfgslanczossubtolerance" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>???</p>
+<p>Default: 1e-3</p>
+</div>
+<div class="section" id="lbfgslanczostolerance">
+<h2>LBFGSLanczosTolerance<a class="headerlink" href="#lbfgslanczostolerance" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>???</p>
+<p>Default: 1e-2</p>
+</div>
+<div class="section" id="lbfgslanczosmaxiter">
+<h2>LBFGSLanczosMaxIter<a class="headerlink" href="#lbfgslanczosmaxiter" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>???</p>
+<p>Default: 75</p>
+</div>
+<div class="section" id="lbfgslanczosloosesubtolerance">
+<h2>LBFGSLanczosLooseSubTolerance<a class="headerlink" href="#lbfgslanczosloosesubtolerance" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>???</p>
+<p>Default: 1e-4</p>
+</div>
+<div class="section" id="lbfgslanczosloosesubmaxiter">
+<h2>LBFGSLanczosLooseSubMaxIter<a class="headerlink" href="#lbfgslanczosloosesubmaxiter" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>???</p>
+<p>Default: 2</p>
+</div>
+<div class="section" id="lbfgslanczosconvgonlybytolerance">
+<h2>LBFGSLanczosConvgOnlyByTolerance<a class="headerlink" href="#lbfgslanczosconvgonlybytolerance" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>???</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="lbfgslanczosfixeigenvectorforstep">
+<h2>LBFGSLanczosFixEigenVectorForStep<a class="headerlink" href="#lbfgslanczosfixeigenvectorforstep" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: Fixes the eigenvalue and eigenvector calculated on the
+first iteration of a step.</p>
+<p>Default: 1</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Lanczos minimum mode (LLMinMode)</a><ul>
+<li><a class="reference internal" href="#lbfgslanczosrestart">LBFGSLanczosRestart</a></li>
+<li><a class="reference internal" href="#lbfgslanczosmemory">LBFGSLanczosMemory</a></li>
+<li><a class="reference internal" href="#lbfgslanczossubtolerance">LBFGSLanczosSubTolerance</a></li>
+<li><a class="reference internal" href="#lbfgslanczostolerance">LBFGSLanczosTolerance</a></li>
+<li><a class="reference internal" href="#lbfgslanczosmaxiter">LBFGSLanczosMaxIter</a></li>
+<li><a class="reference internal" href="#lbfgslanczosloosesubtolerance">LBFGSLanczosLooseSubTolerance</a></li>
+<li><a class="reference internal" href="#lbfgslanczosloosesubmaxiter">LBFGSLanczosLooseSubMaxIter</a></li>
+<li><a class="reference internal" href="#lbfgslanczosconvgonlybytolerance">LBFGSLanczosConvgOnlyByTolerance</a></li>
+<li><a class="reference internal" href="#lbfgslanczosfixeigenvectorforstep">LBFGSLanczosFixEigenVectorForStep</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lanczos.html"
+                        title="previous chapter">Lanczos</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="minmode.html"
+                        title="next chapter">Minimum mode (MinMode)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/llminmode.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="minmode.html" title="Minimum mode (MinMode)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lanczos.html" title="Lanczos"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
