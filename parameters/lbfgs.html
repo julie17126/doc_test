@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>L-BFGS &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="NEB" href="neb.html" />
+    <link rel="prev" title="Minimisation" href="minimisation.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="neb.html" title="NEB"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="minimisation.html" title="Minimisation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="l-bfgs">
+<h1>L-BFGS<a class="headerlink" href="#l-bfgs" title="Permalink to this headline">¶</a></h1>
+<p>We are using the SciPy implementation, see the <a class="reference external" href="http://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin_l_bfgs_b.html">reference
+page</a></p>
+<div class="section" id="lbfgstolerance">
+<h2>LBFGSTolerance<a class="headerlink" href="#lbfgstolerance" title="Permalink to this headline">¶</a></h2>
+<p>Float</p>
+<p>Force tolerance. Note this tolerance is calculated from the max
+value of an element in the 3N force vector, not the max force acting on
+an atom. This is &#8216;pgtol&#8217; on the
+<a class="reference external" href="http://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin_l_bfgs_b.html">website</a>.</p>
+<p>Default: 1e-3</p>
+</div>
+<div class="section" id="lbfgsmemory">
+<h2>LBFGSMemory<a class="headerlink" href="#lbfgsmemory" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>How many terms to use in the approximation to the Hessian. &#8216;m&#8217;
+on the
+<a class="reference external" href="http://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin_l_bfgs_b.html">website</a>.</p>
+<p>Default: 10</p>
+</div>
+<div class="section" id="lbfgsmaxfuncevals">
+<h2>LBFGSMaxFuncEvals<a class="headerlink" href="#lbfgsmaxfuncevals" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Maximum number of function evaluations.</p>
+<p>Default: 2000</p>
+</div>
+<div class="section" id="lbfgsmaxiter">
+<h2>LBFGSMaxIter<a class="headerlink" href="#lbfgsmaxiter" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Maximum number of iterations.</p>
+<p>Default: 1000</p>
+</div>
+<div class="section" id="lbfgsnebtolerance">
+<h2>LBFGSNEBTolerance<a class="headerlink" href="#lbfgsnebtolerance" title="Permalink to this headline">¶</a></h2>
+<p>Float</p>
+<p>Tolerance value to use when using LBFGS minimiser with NEB method.</p>
+<p>Default: 1e-2</p>
+</div>
+<div class="section" id="lbfgsnebmemory">
+<h2>LBFGSNEBMemory<a class="headerlink" href="#lbfgsnebmemory" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Memory value to use when using LBFGS minimiser with NEB method.</p>
+<p>Default: 5</p>
+</div>
+<div class="section" id="lbfgsoutputmethod">
+<h2>LBFGSOutputMethod<a class="headerlink" href="#lbfgsoutputmethod" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 0: print our custom output using a callback function at the
+end of every iteration</p>
+<p>If 1: use the default output from the Fortran
+library.</p>
+<p>Note if set to 1 and using the
+<em>`clientIndividualOutput &lt;Parameters_Server&gt;`__</em> option all LBFGS output
+will be sent to the head node file, not the individual file as I cannot
+redirect the output from the Fortran library.</p>
+<p>Default is 0</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">L-BFGS</a><ul>
+<li><a class="reference internal" href="#lbfgstolerance">LBFGSTolerance</a></li>
+<li><a class="reference internal" href="#lbfgsmemory">LBFGSMemory</a></li>
+<li><a class="reference internal" href="#lbfgsmaxfuncevals">LBFGSMaxFuncEvals</a></li>
+<li><a class="reference internal" href="#lbfgsmaxiter">LBFGSMaxIter</a></li>
+<li><a class="reference internal" href="#lbfgsnebtolerance">LBFGSNEBTolerance</a></li>
+<li><a class="reference internal" href="#lbfgsnebmemory">LBFGSNEBMemory</a></li>
+<li><a class="reference internal" href="#lbfgsoutputmethod">LBFGSOutputMethod</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="minimisation.html"
+                        title="previous chapter">Minimisation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="neb.html"
+                        title="next chapter">NEB</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/lbfgs.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="neb.html" title="NEB"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="minimisation.html" title="Minimisation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
