@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Deposition &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="Basin" href="basin.html" />
+    <link rel="prev" title="Minimum mode (MinMode)" href="minmode.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="basin.html" title="Basin"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="minmode.html" title="Minimum mode (MinMode)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="deposition">
+<h1>Deposition<a class="headerlink" href="#deposition" title="Permalink to this headline">¶</a></h1>
+<p>You can either use LBOMD or LAMMPS to do depositions. The whole section
+will only works when <em>`JOBTYPE &lt;parameters_main&gt;`__</em> is &#8216;GROWTH&#8217;.</p>
+<div class="section" id="depothermotimewhole">
+<h2>depoThermoTimeWhole<a class="headerlink" href="#depothermotimewhole" title="Permalink to this headline">¶</a></h2>
+<p>Integer &gt;= 0</p>
+<p>The time (fs) for thermalise the whole system. It&#8217;s part of
+the thermalisation process. For the purpose of fast reaching the
+temperature set in <em>`systemTemperature &lt;parameters_main&gt;`__</em>.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="depothermotimelayer">
+<h2>depoThermoTimeLayer<a class="headerlink" href="#depothermotimelayer" title="Permalink to this headline">¶</a></h2>
+<p>Integer &gt;= 0</p>
+<p>The time (fs) for thermalize the thermal region only in the
+system. Still part of the thermalisation process before actually doing
+the deposition. The thermal region should be predefined either in
+<em>`lammpsInFile &lt;parameters_lammps&gt;`__</em> (LAMMPS) or
+<em>`MDLocation &lt;parameters_main&gt;`__</em>/indenter.IN (LBOMD). The thermal
+region will be the only region to be thermalised during the deposition
+process.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="depotime">
+<h2>depoTime<a class="headerlink" href="#depotime" title="Permalink to this headline">¶</a></h2>
+<p>Integer &gt;= 0</p>
+<p>The time (fs) for doing the deposition. (i.e. the time for
+the deposited clusters impact the surface.)</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="depoatfirststep">
+<h2>depoAtFirstStep<a class="headerlink" href="#depoatfirststep" title="Permalink to this headline">¶</a></h2>
+<p>Integer &gt;= 0</p>
+<ul class="simple">
+<li>0: starting with initial state</li>
+</ul>
+<p><em>`inputDirectory &lt;parameters_main&gt;`__</em>/launch.dat;</p>
+<ul class="simple">
+<li>1 (or more): starting with initial state</li>
+</ul>
+<p><em>`inputDirectory &lt;parameters_main&gt;`__</em>/ref.dat and do deposition with 1
+(or more) cluster deposited to the system. Default: 0</p>
+</div>
+<div class="section" id="depominafterdepo">
+<h2>depoMinAfterDepo<a class="headerlink" href="#depominafterdepo" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: minimize the system after deposition.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="depobinwidth">
+<h2>depoBinWidth<a class="headerlink" href="#depobinwidth" title="Permalink to this headline">¶</a></h2>
+<p>Float The bin width (angstrom) used to remove sputter atoms, should be
+larger than the layer height. Default: 3.0</p>
+</div>
+<div class="section" id="deporate">
+<h2>depoRate<a class="headerlink" href="#deporate" title="Permalink to this headline">¶</a></h2>
+<p>Float</p>
+<p>The deposition rate (clusters per system area per second), i.e.
+the frequency of deposition during the KMC simulation.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="depothermotype">
+<h2>depoThermoType<a class="headerlink" href="#depothermotype" title="Permalink to this headline">¶</a></h2>
+<p>&#8216;NO_THERMOSTAT&#8217;, &#8216;NOSE-HOOVER&#8217; or &#8216;BERENDSEN&#8217;</p>
+<p>Only valid when
+<em>`MDType &lt;parameters_main&gt;`__</em> is &#8216;LBOMDPIPING&#8217; or &#8216;LBOMDDIRECT&#8217;. The
+thermo type when thermalising using LBOMD.</p>
+<p>Default: &#8216;BERENDSEN&#8217;</p>
+</div>
+<div class="section" id="depominuselammps">
+<h2>depoMinUseLAMMPS<a class="headerlink" href="#depominuselammps" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>Only valid when <em>`MDType &lt;parameters_main&gt;`__</em> is &#8216;LAMMPS&#8217;. If 1
+minimize the system (after deposition) using LAMMPS build in command.
+The stopping tolerance for energy/force and max iterations of minimiser
+are defined in the section of
+<a class="reference external" href="parameters_minimization">Minimization</a>. Details of minimising using
+LAMMPS see <a class="reference external" href="http://lammps.sandia.gov/doc/minimize.html">LAMMPS
+minimize</a>.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="depominstyle">
+<h2>depoMinStyle<a class="headerlink" href="#depominstyle" title="Permalink to this headline">¶</a></h2>
+<p>&#8216;cg&#8217;, &#8216;hftn&#8217;, &#8216;sd&#8217;, &#8216;quickmin&#8217; or &#8216;fire&#8217;</p>
+<p>Only valid when
+<em>`MDType &lt;parameters_main&gt;`__</em> is &#8216;LAMMPS&#8217; and
+<em>`depoMinUseLAMMPS &lt;parameters_deposition&gt;`__</em> is 1. The minimisation
+method to be used in LAMMPS. Details see <a class="reference external" href="http://lammps.sandia.gov/doc/min_style.html">LAMMPS
+min_style</a></p>
+<p>Default: &#8216;cg&#8217;</p>
+</div>
+<div class="section" id="depominmaxeval">
+<h2>depoMinMaxEval<a class="headerlink" href="#depominmaxeval" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Only valid when <em>`MDType &lt;parameters_main&gt;`__</em> is &#8216;LAMMPS&#8217; and
+<em>`depoMinUseLAMMPS &lt;parameters_deposition&gt;`__</em> is 1. The max number of
+force/energy evaluations when minimising use LAMMPS.</p>
+<p>Default: 10000</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Deposition</a><ul>
+<li><a class="reference internal" href="#depothermotimewhole">depoThermoTimeWhole</a></li>
+<li><a class="reference internal" href="#depothermotimelayer">depoThermoTimeLayer</a></li>
+<li><a class="reference internal" href="#depotime">depoTime</a></li>
+<li><a class="reference internal" href="#depoatfirststep">depoAtFirstStep</a></li>
+<li><a class="reference internal" href="#depominafterdepo">depoMinAfterDepo</a></li>
+<li><a class="reference internal" href="#depobinwidth">depoBinWidth</a></li>
+<li><a class="reference internal" href="#deporate">depoRate</a></li>
+<li><a class="reference internal" href="#depothermotype">depoThermoType</a></li>
+<li><a class="reference internal" href="#depominuselammps">depoMinUseLAMMPS</a></li>
+<li><a class="reference internal" href="#depominstyle">depoMinStyle</a></li>
+<li><a class="reference internal" href="#depominmaxeval">depoMinMaxEval</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="minmode.html"
+                        title="previous chapter">Minimum mode (MinMode)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="basin.html"
+                        title="next chapter">Basin</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/deposition.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="basin.html" title="Basin"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="minmode.html" title="Minimum mode (MinMode)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
