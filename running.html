@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Running the program &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="index.html" />
+    <link rel="next" title="Example simulations" href="examples/examples.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="examples/examples.html" title="Example simulations"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="running-the-program">
+<h1>Running the program<a class="headerlink" href="#running-the-program" title="Permalink to this headline">¶</a></h1>
+<p>The only script that should ever be called directly is &#8220;lkmc.py&#8221;, which should be in your PATH if
+you installed the code as suggested. Examples:</p>
+<ul>
+<li><p class="first">Print the version:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>lkmc.py -v
+</pre></div>
+</div>
+</li>
+<li><p class="first">To run a minimisation you would run:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>lkmc.py Minimise <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>ARGS<span class="o">]</span>
+</pre></div>
+</div>
+<p>where a list of options/args can be printed by running:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>lkmc.py Minimise -h
+</pre></div>
+</div>
+</li>
+<li><p class="first">To run a KMC simulation:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>lkmc.py KMC <span class="o">[</span>OPTIONS<span class="o">]</span> <span class="o">[</span>ARGS<span class="o">]</span>
+</pre></div>
+</div>
+<p>where a list of options/args can be printed by running:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>lkmc.py KMC -h
+</pre></div>
+</div>
+</li>
+<li><p class="first">All available options to the lkmc.py wrapper script are available by running:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>lkmc.py -h
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="section" id="nodes-file">
+<span id="id1"></span><h2>Nodes file<a class="headerlink" href="#nodes-file" title="Permalink to this headline">¶</a></h2>
+<p>If you&#8217;re planning to run a KMC simulation (instead of just do a minimisation, for example) you
+need to create a nodes file, to tell the code where to run.  Each line of the file should contain a
+hostname for each process to run on (similar to an MPI machinefile).  Blank lines and lines
+beginning with &#8216;#&#8217; are ignored. For example, a file containing only the lines:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>localhost
+localhost
+localhost
+localhost
+</pre></div>
+</div>
+<p>will run on 4 processors on your machine.</p>
+<p>In order to automatically generate such a file on hydra (PBS) or hera (slurm) you could add the
+following lines to your init scripts:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>cp -f <span class="nv">$PBS_NODEFILE</span> nodes.IN
+</pre></div>
+</div>
+<p>for hydra (PBS), or:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>srun /bin/hostname <span class="p">|</span> sort &gt; nodes.IN
+</pre></div>
+</div>
+<p>for hera (slurm).</p>
+<p><strong>Note</strong>: with the above nodes file the code will actually run on 4+2 processors.  The lines in the
+nodes file are for worker processes.  In addition to those we have the main (server) process and
+also a writer process, which handles IO intensive tasks (writing files, zipping files, plotting
+stuff, rendering images) that are carried out asynchronously. That being said, you should set the
+number of lines in the nodes file to the number of available processors; the additional 2 processes
+are not CPU intensive.</p>
+<p><strong>Important</strong>: you must ensure that you can SSH into any node that you specify in the nodes file
+without requiring a password (public key login must be configured for those nodes).</p>
+</div>
+<div class="section" id="input-files">
+<h2>Input files<a class="headerlink" href="#input-files" title="Permalink to this headline">¶</a></h2>
+<p>If you&#8217;re planning to run a KMC simulation (instead of just doing a minimisation, for example) you
+need to ensure the input files exist and are named correctly.  When running other types of
+simulations (minimisations, etc.) the input files are specified as command line arguments.</p>
+<p>The input directory specified in the input file (parameter name &#8216;inputDirectory&#8217;; defaults to
+&#8216;input&#8217;) must exist.  A reference lattice file named &#8216;ref.dat&#8217; and the initial lattice file named
+&#8216;launch.dat&#8217; must exist in the input directory.</p>
+<p>In addition you have a directory containing any input files that are required by the MD library you
+are using. The name of this directory is set in the input file and defaults to &#8216;md&#8217;.</p>
+<p>Your directory structure should look something like this for running a KMC simulation:</p>
+<div class="highlight-sh"><div class="highlight"><pre><span></span>runDir/
+runDir/lkmcInput.IN
+runDir/nodes.IN
+runDir/input/
+runDir/input/ref.dat
+runDir/input/launch.dat
+runDir/md/
+runDir/md/*MDInputFiles*
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Running the program</a><ul>
+<li><a class="reference internal" href="#nodes-file">Nodes file</a></li>
+<li><a class="reference internal" href="#input-files">Input files</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="examples/examples.html"
+                        title="next chapter">Example simulations</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/running.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="examples/examples.html" title="Example simulations"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
