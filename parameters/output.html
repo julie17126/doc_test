@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Output &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="Server" href="server.html" />
+    <link rel="prev" title="Rates" href="rates.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="server.html" title="Server"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="rates.html" title="Rates"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="output">
+<h1>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h1>
+<p>Parameters determining how much output is generated</p>
+<div class="section" id="statusupdateinterval">
+<h2>statusUpdateInterval<a class="headerlink" href="#statusupdateinterval" title="Permalink to this headline">¶</a></h2>
+<p>Integer &gt; 10 (seconds)</p>
+<p>How often to update LKMCStatus.html. This is not exact and depends on how busy
+the server is. The minimum value is 10.</p>
+<p>Default: 10</p>
+</div>
+<div class="section" id="flushstdout">
+<h2>flushSTDOUT<a class="headerlink" href="#flushstdout" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: flush STDOUT whenever a new status file is written.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="outputsaddles">
+<h2>outputSaddles<a class="headerlink" href="#outputsaddles" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: write saddle states out to a combined lattice file.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="outputfinals">
+<h2>outputFinals<a class="headerlink" href="#outputfinals" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: write final states out to a combined lattice file.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="outputbarrierdistribution">
+<h2>outputBarrierDistribution<a class="headerlink" href="#outputbarrierdistribution" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: plot the barrier distribution at each step.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="visualisepathways">
+<h2>visualisePathways<a class="headerlink" href="#visualisepathways" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: write out xyz files for each transition (NEB/String nodes).</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="plotpathways">
+<h2>plotPathways<a class="headerlink" href="#plotpathways" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: plot pathways for each transition (NEB/String).</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="outputpathwaycsvs">
+<h2>outputPathwayCSVs<a class="headerlink" href="#outputpathwaycsvs" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: write a csv file with pathway info: image number, energy,
+separation.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="writepovdefectsall">
+<h2>writePOVDefectsAll<a class="headerlink" href="#writepovdefectsall" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: store POV-Ray file for rendering all defects at each KMC
+step.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="writepovdefectschosen">
+<h2>writePOVDefectsChosen<a class="headerlink" href="#writepovdefectschosen" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: store POV-Ray file for rendering defects at each KMC step.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="renderpovdefectsall">
+<h2>renderPOVDefectsAll<a class="headerlink" href="#renderpovdefectsall" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: render all defects at each KMC step.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="renderpovdefectschosen">
+<h2>renderPOVDefectsChosen<a class="headerlink" href="#renderpovdefectschosen" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: render defects at each KMC step.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="renderpovvolumeschosen">
+<h2>renderPOVVolumesChosen<a class="headerlink" href="#renderpovvolumeschosen" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: render the chosen defects at each KMC step.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="renderdefectvolumes">
+<h2>renderDefectVolumes<a class="headerlink" href="#renderdefectvolumes" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: render defect volumes of transitions when
+<em>`debugBasin &lt;parameters_basin&gt;`__</em> is 1.</p>
+<p>Default: 0</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Output</a><ul>
+<li><a class="reference internal" href="#statusupdateinterval">statusUpdateInterval</a></li>
+<li><a class="reference internal" href="#flushstdout">flushSTDOUT</a></li>
+<li><a class="reference internal" href="#outputsaddles">outputSaddles</a></li>
+<li><a class="reference internal" href="#outputfinals">outputFinals</a></li>
+<li><a class="reference internal" href="#outputbarrierdistribution">outputBarrierDistribution</a></li>
+<li><a class="reference internal" href="#visualisepathways">visualisePathways</a></li>
+<li><a class="reference internal" href="#plotpathways">plotPathways</a></li>
+<li><a class="reference internal" href="#outputpathwaycsvs">outputPathwayCSVs</a></li>
+<li><a class="reference internal" href="#writepovdefectsall">writePOVDefectsAll</a></li>
+<li><a class="reference internal" href="#writepovdefectschosen">writePOVDefectsChosen</a></li>
+<li><a class="reference internal" href="#renderpovdefectsall">renderPOVDefectsAll</a></li>
+<li><a class="reference internal" href="#renderpovdefectschosen">renderPOVDefectsChosen</a></li>
+<li><a class="reference internal" href="#renderpovvolumeschosen">renderPOVVolumesChosen</a></li>
+<li><a class="reference internal" href="#renderdefectvolumes">renderDefectVolumes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="rates.html"
+                        title="previous chapter">Rates</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="server.html"
+                        title="next chapter">Server</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/output.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="server.html" title="Server"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="rates.html" title="Rates"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
