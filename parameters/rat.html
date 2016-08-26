@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>RAT &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="Dimer" href="dimer.html" />
+    <link rel="prev" title="ART" href="art.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="dimer.html" title="Dimer"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="art.html" title="ART"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="rat">
+<h1>RAT<a class="headerlink" href="#rat" title="Permalink to this headline">¶</a></h1>
+<p>Parameter for the Relaxation and Translation (RAT) method.</p>
+<div class="section" id="ratalpha">
+<h2>ratAlpha<a class="headerlink" href="#ratalpha" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Constant value for the translation component of each step.</p>
+<p>Default: 0.625</p>
+</div>
+<div class="section" id="ratmaxbarrier">
+<h2>ratMaxBarrier<a class="headerlink" href="#ratmaxbarrier" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Criteria to kill RAT if the barrier is higher then this value.</p>
+<p>Default: 10.0</p>
+</div>
+<div class="section" id="ratmaxmovedistance">
+<h2>ratMaxMoveDistance<a class="headerlink" href="#ratmaxmovedistance" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Criteria to kill RAT if one of the atoms moves more then this
+distance from it&#8217;s original position.</p>
+<p>Default: 10.0</p>
+</div>
+<div class="section" id="ratmaxfunceval">
+<h2>ratMaxFuncEval<a class="headerlink" href="#ratmaxfunceval" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Criteria to kill RAT if the function evaluation count reaches this
+number.</p>
+<p>Default: 1000</p>
+</div>
+<div class="section" id="ratrelaxationstep">
+<h2>ratRelaxationStep<a class="headerlink" href="#ratrelaxationstep" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Constant for the relaxation step.</p>
+<p>Default: 0.005</p>
+</div>
+<div class="section" id="ratfdotrpvalue">
+<h2>ratFdotRPvalue<a class="headerlink" href="#ratfdotrpvalue" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Used for determining whether the a saddle has been crossed. We take the
+dot product of the force vector with the separation vector of the current
+position from the initial position. When the value exceeds this parameter
+we assume we have crossed the saddle point. Setting to &gt;= 0 is sensible.</p>
+<p>Default: 0.5</p>
+</div>
+<div class="section" id="ratmaxmovecriteria">
+<h2>ratMaxMoveCriteria<a class="headerlink" href="#ratmaxmovecriteria" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Maximum movement criteria for RAT. An atom must have moved by at least this
+amount for a search to be successful.</p>
+<p>Default: 0.1</p>
+</div>
+<div class="section" id="ratmaxminsteps">
+<h2>ratMaxMinSteps<a class="headerlink" href="#ratmaxminsteps" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Maximum number of minimisation steps for RAT.</p>
+<p>Default: 5</p>
+</div>
+<div class="section" id="ratdebugmode">
+<h2>ratDebugMode<a class="headerlink" href="#ratdebugmode" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: run RAT in debug mode (developer mode).</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="timerat">
+<h2>timeRat<a class="headerlink" href="#timerat" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: use timer on RAT method.</p>
+<p>Default: 1</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">RAT</a><ul>
+<li><a class="reference internal" href="#ratalpha">ratAlpha</a></li>
+<li><a class="reference internal" href="#ratmaxbarrier">ratMaxBarrier</a></li>
+<li><a class="reference internal" href="#ratmaxmovedistance">ratMaxMoveDistance</a></li>
+<li><a class="reference internal" href="#ratmaxfunceval">ratMaxFuncEval</a></li>
+<li><a class="reference internal" href="#ratrelaxationstep">ratRelaxationStep</a></li>
+<li><a class="reference internal" href="#ratfdotrpvalue">ratFdotRPvalue</a></li>
+<li><a class="reference internal" href="#ratmaxmovecriteria">ratMaxMoveCriteria</a></li>
+<li><a class="reference internal" href="#ratmaxminsteps">ratMaxMinSteps</a></li>
+<li><a class="reference internal" href="#ratdebugmode">ratDebugMode</a></li>
+<li><a class="reference internal" href="#timerat">timeRat</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="art.html"
+                        title="previous chapter">ART</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="dimer.html"
+                        title="next chapter">Dimer</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/rat.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="dimer.html" title="Dimer"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="art.html" title="ART"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
