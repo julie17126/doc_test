@@ -1,0 +1,465 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Graphs module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Images module" href="LKMC.Images.html" />
+    <link rel="prev" title="LKMC.Globals module" href="LKMC.Globals.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Images.html" title="LKMC.Images module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Globals.html" title="LKMC.Globals module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Graphs">
+<span id="lkmc-graphs-module"></span><h1>LKMC.Graphs module<a class="headerlink" href="#module-LKMC.Graphs" title="Permalink to this headline">¶</a></h1>
+<p>Contains methods to apply graph theory on defect volumes.</p>
+<p>Copyright Tomas Lazauskas 2012
+Copyright Chris Scott 2014</p>
+<dl class="function">
+<dt id="LKMC.Graphs.applyTransformMatrix">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">applyTransformMatrix</code><span class="sig-paren">(</span><em>atomsList1</em>, <em>atomList2</em>, <em>defectVolume</em>, <em>lattice</em>, <em>transfMatrix</em>, <em>noOfCoords=3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#applyTransformMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.applyTransformMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies transformation matrix on defect volume atoms</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.checkIfTheTransMatrixIsGood">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">checkIfTheTransMatrixIsGood</code><span class="sig-paren">(</span><em>atomList1</em>, <em>defectVolume1</em>, <em>lattice1</em>, <em>cntr1</em>, <em>atomList2</em>, <em>defectVolume2</em>, <em>lattice2</em>, <em>cntr2</em>, <em>A</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#checkIfTheTransMatrixIsGood"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.checkIfTheTransMatrixIsGood" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.cmpTwoIsomorphicGraphsDreadnaut">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">cmpTwoIsomorphicGraphsDreadnaut</code><span class="sig-paren">(</span><em>graphFile1</em>, <em>graphFile2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#cmpTwoIsomorphicGraphsDreadnaut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.cmpTwoIsomorphicGraphsDreadnaut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls dreadnaut two get isomorphism between two graphs</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.convertOldVolumeFiles">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">convertOldVolumeFiles</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#convertOldVolumeFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.convertOldVolumeFiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert old defect volume files to use hash key from new nauty interface.</p>
+<p>Old files are backed up...</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.doTheMagic">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">doTheMagic</code><span class="sig-paren">(</span><em>params</em>, <em>defectVolume1</em>, <em>lattice1In</em>, <em>saddle1In</em>, <em>final1In</em>, <em>pbcInflVol1</em>, <em>defectVolume2</em>, <em>lattice2In</em>, <em>pbcInflVol2</em>, <em>noOfCoords=3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#doTheMagic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.doTheMagic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.doTheTransformation">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">doTheTransformation</code><span class="sig-paren">(</span><em>initialLattice1</em>, <em>finalLattice1</em>, <em>defectVolume1</em>, <em>atomsList1</em>, <em>lattice2</em>, <em>defectVolume2</em>, <em>atomsList2</em>, <em>transformMatrix</em>, <em>cntr1</em>, <em>cntr2</em>, <em>noOfCoords=3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#doTheTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.doTheTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does the transformation</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.findTheTransformMatrix">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">findTheTransformMatrix</code><span class="sig-paren">(</span><em>atomList1</em>, <em>defectVolume1</em>, <em>lattice1</em>, <em>atomList2</em>, <em>defectVolume2</em>, <em>lattice2</em>, <em>params</em>, <em>noOfCoords=3</em>, <em>cntr1=None</em>, <em>cntr2=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#findTheTransformMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.findTheTransformMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the transformation matrix between two graphs by solving LL</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.getCenterOfMassOfAlist">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">getCenterOfMassOfAlist</code><span class="sig-paren">(</span><em>defectVolume</em>, <em>lattice</em>, <em>noOfCoords=3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#getCenterOfMassOfAlist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.getCenterOfMassOfAlist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.getCoordinateCenter">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">getCoordinateCenter</code><span class="sig-paren">(</span><em>defectVolume1</em>, <em>lattice1</em>, <em>defectVolume2</em>, <em>lattice2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#getCoordinateCenter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.getCoordinateCenter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.getDiffMatrix2StatesVolume">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">getDiffMatrix2StatesVolume</code><span class="sig-paren">(</span><em>defectVolume</em>, <em>iniState</em>, <em>finState</em>, <em>atomList1</em>, <em>noOfCoords=3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#getDiffMatrix2StatesVolume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.getDiffMatrix2StatesVolume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a matrix of difference between two defect volumes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.getDiffVectorOfMassCntrs">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">getDiffVectorOfMassCntrs</code><span class="sig-paren">(</span><em>defectVolume1</em>, <em>lattice1</em>, <em>defectVolume2</em>, <em>lattice2</em>, <em>noOfCoords=3</em>, <em>cntr1=None</em>, <em>cntr2=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#getDiffVectorOfMassCntrs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.getDiffVectorOfMassCntrs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.getHashKeyForAVolume">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">getHashKeyForAVolume</code><span class="sig-paren">(</span><em>params</em>, <em>volumeAtoms</em>, <em>lattice</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#getHashKeyForAVolume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.getHashKeyForAVolume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the hash key of a defect volume.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>params</strong> : <cite>Input.InputParams</cite></p>
+<blockquote>
+<div><p>The input parameters</p>
+</div></blockquote>
+<p><strong>volumeAtoms</strong> : <cite>numpy.ndarray</cite></p>
+<blockquote>
+<div><p>The indexes of the atoms in the defect volume (graph)</p>
+</div></blockquote>
+<p><strong>lattice</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote>
+<div><p>The Lattice object containing the defect volume</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>hashKey</strong> : str</p>
+<blockquote>
+<div><p>The hash key of the defect volume</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>RuntimeError</strong></p>
+<blockquote class="last">
+<div><p>If the hash key could not be calculated</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.getIsomorphism">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">getIsomorphism</code><span class="sig-paren">(</span><em>params</em>, <em>defectVolume1</em>, <em>lattice1</em>, <em>defectVolume2</em>, <em>lattice2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#getIsomorphism"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.getIsomorphism" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get isomorphism between two graphs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>params</strong> : <cite>Input.InputParams</cite></p>
+<blockquote>
+<div><p>The input parameters</p>
+</div></blockquote>
+<p><strong>defectVolume1</strong> : <cite>Defects.DefectVolume</cite></p>
+<blockquote>
+<div><p>The first defect volume (graph)</p>
+</div></blockquote>
+<p><strong>lattice1</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote>
+<div><p>The Lattice containing the first defect volume</p>
+</div></blockquote>
+<p><strong>defectVolume2</strong> : <cite>Defects.DefectVolume</cite></p>
+<blockquote>
+<div><p>The second defect volume (graph)</p>
+</div></blockquote>
+<p><strong>lattice2</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote>
+<div><p>The Lattice containing the second defect volume</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ismLst1</strong> : <cite>numpy.ndarray</cite></p>
+<blockquote>
+<div><p>The isomorphism list for the first volume</p>
+</div></blockquote>
+<p><strong>ismLst2</strong> : <cite>numpy.ndarray</cite></p>
+<blockquote>
+<div><p>The isomorphism list for the second volume</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>RuntimeError</strong></p>
+<blockquote class="last">
+<div><p>If the isomorphism could not be computed or if the volumes have
+different lengths</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.getIsomorphismBetweenTwoGraphs">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">getIsomorphismBetweenTwoGraphs</code><span class="sig-paren">(</span><em>defectVolume1</em>, <em>lattice1</em>, <em>defectVolume2</em>, <em>lattice2</em>, <em>params</em>, <em>noOfCoords=3</em>, <em>cntr1=None</em>, <em>cntr2=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#getIsomorphismBetweenTwoGraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.getIsomorphismBetweenTwoGraphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the isomorphism between two graphs and the transformation matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>defectVolume1</strong> : <cite>Defects.DefectVolume</cite></p>
+<blockquote>
+<div><p>The first defect volume (graph)</p>
+</div></blockquote>
+<p><strong>lattice1</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote>
+<div><p>The Lattice containing the first defect volume</p>
+</div></blockquote>
+<p><strong>defectVolume2</strong> : <cite>Defects.DefectVolume</cite></p>
+<blockquote>
+<div><p>The second defect volume (graph)</p>
+</div></blockquote>
+<p><strong>lattice2</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote>
+<div><p>The Lattice containing the second defect volume</p>
+</div></blockquote>
+<p><strong>params</strong> : <cite>Input.InputParams</cite></p>
+<blockquote>
+<div><p>The input parameters</p>
+</div></blockquote>
+<p><strong>noOfCoords</strong> : int, optional</p>
+<blockquote>
+<div><p>The dimension of the problem. Default is 3</p>
+</div></blockquote>
+<p><strong>cntr1</strong> : <cite>numpy.ndarray[3]</cite>, optional</p>
+<blockquote>
+<div><p>The centre of mass of the first defect volume. Will be computed if it
+is not provided.</p>
+</div></blockquote>
+<p><strong>cntr2</strong> : <cite>numpy.ndarray[3]</cite>, optional</p>
+<blockquote>
+<div><p>The centre of mass of the second defect volume. Will be computed if it
+is not provided.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>atLst1</strong> : <cite>numpy.ndarray</cite></p>
+<blockquote>
+<div><p>The isomorphism list for the first volume</p>
+</div></blockquote>
+<p><strong>atLst2</strong> : <cite>numpy.ndarray</cite></p>
+<blockquote>
+<div><p>The isomorphism list for the second volume</p>
+</div></blockquote>
+<p><strong>transfMatrix</strong> : <cite>numpy.ndarray[noOfCoords,noOfCoords]</cite></p>
+<blockquote class="last">
+<div><p>The transformation matrix</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.getSepSqBetweenTwoAtoms">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">getSepSqBetweenTwoAtoms</code><span class="sig-paren">(</span><em>lattice</em>, <em>atom1</em>, <em>atom2</em>, <em>noOfCoords=3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#getSepSqBetweenTwoAtoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.getSepSqBetweenTwoAtoms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.makeGraphFile">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">makeGraphFile</code><span class="sig-paren">(</span><em>params</em>, <em>defectVolume</em>, <em>lattice</em>, <em>useGraphRadius=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#makeGraphFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.makeGraphFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates graph input file for nauty according to the defect volume atoms</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.makeMatrixForLLS">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">makeMatrixForLLS</code><span class="sig-paren">(</span><em>atomList</em>, <em>defectVolume</em>, <em>lattice</em>, <em>centr</em>, <em>noOfCoords=3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#makeMatrixForLLS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.makeMatrixForLLS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a matrix for LLS method</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.makeVectorForLLS">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">makeVectorForLLS</code><span class="sig-paren">(</span><em>coord</em>, <em>atomList</em>, <em>defectVolume</em>, <em>lattice</em>, <em>centr</em>, <em>noOfCoords=3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#makeVectorForLLS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.makeVectorForLLS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a vector for LLS method</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.prepareLatticeToBeTransf">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">prepareLatticeToBeTransf</code><span class="sig-paren">(</span><em>params</em>, <em>latticeIn</em>, <em>defectVolume</em>, <em>pbcInflVol</em>, <em>noOfCoords=3</em>, <em>cntrOrig=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#prepareLatticeToBeTransf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.prepareLatticeToBeTransf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a copy of a lattice object and modifies atoms positions of a defect
+volume to make sure that they are in the same region.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.prepareTheMatrix">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">prepareTheMatrix</code><span class="sig-paren">(</span><em>params</em>, <em>defectVolume1</em>, <em>lattice1In</em>, <em>pbcInflVol1</em>, <em>defectVolume2</em>, <em>lattice2In</em>, <em>pbcInflVol2</em>, <em>noOfCoords=3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#prepareTheMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.prepareTheMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct the transformation matrix and other data required for reuse.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>params</strong> : <cite>Input.InputParams</cite></p>
+<blockquote>
+<div><p>The input parameters</p>
+</div></blockquote>
+<p><strong>defectVolume1</strong> : <cite>numpy.ndarray</cite></p>
+<blockquote>
+<div><p>The indexes of the atoms in first volume</p>
+</div></blockquote>
+<p><strong>lattice1In</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote>
+<div><p>The Lattice object containing the first volume</p>
+</div></blockquote>
+<p><strong>pbcInflVol1</strong> : bool</p>
+<blockquote>
+<div><p>Expand periodic boundaries for the first volume (in case it crosses them)</p>
+</div></blockquote>
+<p><strong>defectVolume2</strong> : <cite>numpy.ndarray</cite></p>
+<blockquote>
+<div><p>The indexes of the atoms in second volume</p>
+</div></blockquote>
+<p><strong>lattice2In</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote>
+<div><p>The Lattice object containing the second volume</p>
+</div></blockquote>
+<p><strong>pbcInflVol2</strong> : bool</p>
+<blockquote>
+<div><p>Expand periodic boundaries for the second volume (in case it crosses them)</p>
+</div></blockquote>
+<p><strong>noOfCoords</strong> : int, optional</p>
+<blockquote>
+<div><p>Dimension of the system. Defaults to 3.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>trnsfMatrix</strong> : <cite>numpy.ndarray[noOfCoords,noOfCoords]</cite></p>
+<blockquote>
+<div><p>The transformation matrix</p>
+</div></blockquote>
+<p><strong>lattice1</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote>
+<div><p>The first Lattice with periodic boundaries removed if required</p>
+</div></blockquote>
+<p><strong>atLst1</strong> : <cite>numpy.ndarray</cite></p>
+<blockquote>
+<div><p>The list of atoms from the isomorphism calculation (first volume)</p>
+</div></blockquote>
+<p><strong>lattice2</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote>
+<div><p>The second Lattice with periodic boundaries removed if required</p>
+</div></blockquote>
+<p><strong>atLst2</strong> : <cite>numpy.ndarray</cite></p>
+<blockquote>
+<div><p>The list of atoms from the isomorphism calculation (second volume)</p>
+</div></blockquote>
+<p><strong>cntr1</strong> : <cite>numpy.ndarray</cite></p>
+<blockquote>
+<div><p>The centre of mass of the first volume</p>
+</div></blockquote>
+<p><strong>cntr2</strong> : <cite>numpy.ndarray</cite></p>
+<blockquote class="last">
+<div><p>The centre of mass of the second volume</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.removePBCsEffectOnAtomPos">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">removePBCsEffectOnAtomPos</code><span class="sig-paren">(</span><em>defectVolume</em>, <em>lattice</em>, <em>latticeOrig</em>, <em>inclRad</em>, <em>noOfCoords=3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#removePBCsEffectOnAtomPos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.removePBCsEffectOnAtomPos" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.removePBCsEffectOnVolume">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">removePBCsEffectOnVolume</code><span class="sig-paren">(</span><em>defectVolume</em>, <em>lattice</em>, <em>latticeOrig</em>, <em>inclRad</em>, <em>noOfCoords=3</em>, <em>getDiffVector=0</em>, <em>cntrOrig=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#removePBCsEffectOnVolume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.removePBCsEffectOnVolume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modifies atoms positions of a defect volume to make sure that they are in 
+the same region.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.reuseTransition">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">reuseTransition</code><span class="sig-paren">(</span><em>transformMatrix</em>, <em>atomsList1</em>, <em>defectVolume1</em>, <em>lattice1</em>, <em>cntr1</em>, <em>saddle1</em>, <em>final1</em>, <em>atomsList2</em>, <em>defectVolume2</em>, <em>lattice2</em>, <em>cntr2</em>, <em>noOfCoords=3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#reuseTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.reuseTransition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Graphs.transformResultLineFromDreanaut">
+<code class="descclassname">LKMC.Graphs.</code><code class="descname">transformResultLineFromDreanaut</code><span class="sig-paren">(</span><em>resultLine</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Graphs.html#transformResultLineFromDreanaut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Graphs.transformResultLineFromDreanaut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms isomorphism line from dreadnaut into two lists</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Globals.html"
+                        title="previous chapter">LKMC.Globals module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Images.html"
+                        title="next chapter">LKMC.Images module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Graphs.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Images.html" title="LKMC.Images module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Globals.html" title="LKMC.Globals module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
