@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Minimisation &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="L-BFGS" href="lbfgs.html" />
+    <link rel="prev" title="Server" href="server.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lbfgs.html" title="L-BFGS"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="server.html" title="Server"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="minimisation">
+<h1>Minimisation<a class="headerlink" href="#minimisation" title="Permalink to this headline">¶</a></h1>
+<p>Parameters for minimisation.</p>
+<div class="section" id="minimizationtype">
+<h2>minimizationType<a class="headerlink" href="#minimizationtype" title="Permalink to this headline">¶</a></h2>
+<p>&#8216;CG&#8217;, &#8216;CGSCIPY&#8217;, &#8216;SD&#8217; or &#8216;LBFGS&#8217;</p>
+<p>The method used for minimisation:</p>
+<ul class="simple">
+<li>CG: conjugate gradient</li>
+<li>CGSCIPY: conjugate gradient minimiser from SciPy</li>
+<li>SD: Steepest descent</li>
+<li>LBFGS: limited memory BFGS minimiser from SciPy</li>
+</ul>
+<p>Default: &#8216;LBFGS&#8217;</p>
+</div>
+<div class="section" id="minimizationcriteria">
+<h2>minimizationCriteria<a class="headerlink" href="#minimizationcriteria" title="Permalink to this headline">¶</a></h2>
+<p>&#8216;force&#8217;, &#8216;force_element&#8217; or &#8216;energy&#8217;</p>
+<p>The stopping criteria to be checked is converging by:</p>
+<ul class="simple">
+<li>force: the magnitude of the force vector</li>
+<li>force_element: the largest element of the force vector</li>
+<li>energy: the change in energy</li>
+</ul>
+<p>Note: this parameter does not effect the L-BFGS method, which
+has its own parameter section (...).</p>
+<p>Default: &#8216;force_element&#8217;</p>
+</div>
+<div class="section" id="minimizationtolerance">
+<h2>minimizationTolerance<a class="headerlink" href="#minimizationtolerance" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>The stopping criteria to be checked.</p>
+<p>Default: 0.0001</p>
+</div>
+<div class="section" id="minimizationexclusion">
+<h2>minimizationExclusion<a class="headerlink" href="#minimizationexclusion" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1 or 2</p>
+<ul class="simple">
+<li>0: whole lattice to be minimized</li>
+<li>1: atoms exclude defect area to be minimized</li>
+<li>2: only atoms from defect area to be minimized</li>
+</ul>
+<p>Default: 0</p>
+</div>
+<div class="section" id="minimizationexclusionreverseeveryfeval">
+<h2>minimizationExclusionReverseEveryFEval<a class="headerlink" href="#minimizationexclusionreverseeveryfeval" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>???</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="minimizationlinesearch">
+<h2>minimizationLineSearch<a class="headerlink" href="#minimizationlinesearch" title="Permalink to this headline">¶</a></h2>
+<p>&#8216;secant&#8217;&#8216;</p>
+<p>The line search algorithm to be used.</p>
+<ul class="simple">
+<li>secant: secant method</li>
+</ul>
+<p>Default: &#8216;secant&#8217;</p>
+</div>
+<div class="section" id="minimisationlinesearchstep">
+<h2>minimisationLineSearchStep<a class="headerlink" href="#minimisationlinesearchstep" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>The step size used in line search algorithm.</p>
+<p>Default: 0.01</p>
+</div>
+<div class="section" id="minimisationmaxiterations">
+<h2>minimisationMaxIterations<a class="headerlink" href="#minimisationmaxiterations" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>The maximum number of iterations allowed during minimisation.</p>
+<p>Default: 1000</p>
+</div>
+<div class="section" id="minimisationmaxruntime">
+<h2>minimisationMaxRunTime<a class="headerlink" href="#minimisationmaxruntime" title="Permalink to this headline">¶</a></h2>
+<p>Integer (seconds)</p>
+<p>Maximum run time for a minimisation.</p>
+<p>Default: 2000</p>
+</div>
+<div class="section" id="minimisationplotenergies">
+<h2>minimisationPlotEnergies<a class="headerlink" href="#minimisationplotenergies" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: plot the energy against step number.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="minimisationdebug">
+<h2>minimisationDebug<a class="headerlink" href="#minimisationdebug" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: debugging mode. Will print out lots of information.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="minimisationnooutput">
+<h2>minimisationNoOutput<a class="headerlink" href="#minimisationnooutput" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 0: print out energy/force/FEvals info in each minimization
+step.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="timeminimization">
+<h2>timeMinimization<a class="headerlink" href="#timeminimization" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: turn on minimisation time tracking.</p>
+<p>Default: 0</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Minimisation</a><ul>
+<li><a class="reference internal" href="#minimizationtype">minimizationType</a></li>
+<li><a class="reference internal" href="#minimizationcriteria">minimizationCriteria</a></li>
+<li><a class="reference internal" href="#minimizationtolerance">minimizationTolerance</a></li>
+<li><a class="reference internal" href="#minimizationexclusion">minimizationExclusion</a></li>
+<li><a class="reference internal" href="#minimizationexclusionreverseeveryfeval">minimizationExclusionReverseEveryFEval</a></li>
+<li><a class="reference internal" href="#minimizationlinesearch">minimizationLineSearch</a></li>
+<li><a class="reference internal" href="#minimisationlinesearchstep">minimisationLineSearchStep</a></li>
+<li><a class="reference internal" href="#minimisationmaxiterations">minimisationMaxIterations</a></li>
+<li><a class="reference internal" href="#minimisationmaxruntime">minimisationMaxRunTime</a></li>
+<li><a class="reference internal" href="#minimisationplotenergies">minimisationPlotEnergies</a></li>
+<li><a class="reference internal" href="#minimisationdebug">minimisationDebug</a></li>
+<li><a class="reference internal" href="#minimisationnooutput">minimisationNoOutput</a></li>
+<li><a class="reference internal" href="#timeminimization">timeMinimization</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="server.html"
+                        title="previous chapter">Server</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lbfgs.html"
+                        title="next chapter">L-BFGS</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/minimisation.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lbfgs.html" title="L-BFGS"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="server.html" title="Server"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
