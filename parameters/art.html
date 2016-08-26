@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ART &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="RAT" href="rat.html" />
+    <link rel="prev" title="Refinement" href="refine.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="rat.html" title="RAT"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="refine.html" title="Refinement"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="art">
+<h1>ART<a class="headerlink" href="#art" title="Permalink to this headline">¶</a></h1>
+<p>Parameters for the Activation Relaxation Technique (ART) method.</p>
+<div class="section" id="artaplha">
+<h2>artAplha<a class="headerlink" href="#artaplha" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Constant value for the translation calculation each step.</p>
+<p>Default: 0.625</p>
+</div>
+<div class="section" id="artmaxbarrier">
+<h2>artMaxBarrier<a class="headerlink" href="#artmaxbarrier" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Criteria to kill ART if barrier is getting higher then this value.</p>
+<p>Default: 10.0</p>
+</div>
+<div class="section" id="artmaxmovedistance">
+<h2>artMaxMoveDistance<a class="headerlink" href="#artmaxmovedistance" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Criteria to kill ART if one of the atoms moves more then this
+distance from it&#8217;s original position.</p>
+<p>Default: 10.0</p>
+</div>
+<div class="section" id="artmaxfunceval">
+<h2>artMaxFuncEval<a class="headerlink" href="#artmaxfunceval" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Criteria to kill ART if function evaluation count reaches this
+number.</p>
+<p>Default: 1000</p>
+</div>
+<div class="section" id="artradius">
+<h2>artRadius<a class="headerlink" href="#artradius" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Radius of defect area to be moved with art method.</p>
+<p>Default: 3.0</p>
+</div>
+<div class="section" id="arttranslationstep">
+<h2>artTranslationStep<a class="headerlink" href="#arttranslationstep" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Constant for a translation step.</p>
+<p>Default: 0.00467</p>
+</div>
+<div class="section" id="artdebugmode">
+<h2>artDebugMode<a class="headerlink" href="#artdebugmode" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: run ART in debug mode (developer mode).</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="timeart">
+<h2>timeArt<a class="headerlink" href="#timeart" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: use timer on ART method.</p>
+<p>Default: 1</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ART</a><ul>
+<li><a class="reference internal" href="#artaplha">artAplha</a></li>
+<li><a class="reference internal" href="#artmaxbarrier">artMaxBarrier</a></li>
+<li><a class="reference internal" href="#artmaxmovedistance">artMaxMoveDistance</a></li>
+<li><a class="reference internal" href="#artmaxfunceval">artMaxFuncEval</a></li>
+<li><a class="reference internal" href="#artradius">artRadius</a></li>
+<li><a class="reference internal" href="#arttranslationstep">artTranslationStep</a></li>
+<li><a class="reference internal" href="#artdebugmode">artDebugMode</a></li>
+<li><a class="reference internal" href="#timeart">timeArt</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="refine.html"
+                        title="previous chapter">Refinement</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="rat.html"
+                        title="next chapter">RAT</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/art.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="rat.html" title="RAT"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="refine.html" title="Refinement"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
