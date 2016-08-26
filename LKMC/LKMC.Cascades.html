@@ -1,0 +1,281 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Cascades module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Client module" href="LKMC.Client.html" />
+    <link rel="prev" title="LKMC.Basin module" href="LKMC.Basin.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Client.html" title="LKMC.Client module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Basin.html" title="LKMC.Basin module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Cascades">
+<span id="lkmc-cascades-module"></span><h1>LKMC.Cascades module<a class="headerlink" href="#module-LKMC.Cascades" title="Permalink to this headline">¶</a></h1>
+<p>Module to handle cascade events of fixed or probabilisticly selected energy during LKMC simulations using LBOMD.</p>
+<p>Copyright Mark Wootton 2015</p>
+<dl class="class">
+<dt id="LKMC.Cascades.CascadeRunner">
+<em class="property">class </em><code class="descclassname">LKMC.Cascades.</code><code class="descname">CascadeRunner</code><span class="sig-paren">(</span><em>params</em>, <em>refState</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Cascades.html#CascadeRunner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Cascades.CascadeRunner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="LKMC.ExternalEvents.html#LKMC.ExternalEvents.ExternalEvent" title="LKMC.ExternalEvents.ExternalEvent"><code class="xref py py-class docutils literal"><span class="pre">LKMC.ExternalEvents.ExternalEvent</span></code></a></p>
+<p>For running collision events using MD during LKMC, one calls this from ExternalEvents.py</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>params</strong> : <cite>Input.InputParams</cite></p>
+<blockquote>
+<div><p>This object contains all parameters which are read from <cite>lkmcInput.IN</cite> by default.</p>
+</div></blockquote>
+<p><strong>refState</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote class="last">
+<div><p>This object hold information about the reference state (perfect lattice) of a system.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Cascades.CascadeRunner.getPKAEnergy">
+<code class="descname">getPKAEnergy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Cascades.html#CascadeRunner.getPKAEnergy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Cascades.CascadeRunner.getPKAEnergy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the PKA energy to be used in the collision cascade.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">energy: float</p>
+<blockquote>
+<div><p>A randomly generated PKA energy (units: eV)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>IOError</strong></p>
+<blockquote class="last">
+<div><p>If there is an error reading the probability file.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If one wishes to use a probabilisticly generated (i.e. non-fixed) PKA energy, this function will provide a
+value. These are generated from a user supplied input file describing the probability distribution, the path of
+which is specified by <cite>params.cascPKAProbFile</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Cascades.CascadeRunner.getPKAIndex">
+<code class="descname">getPKAIndex</code><span class="sig-paren">(</span><em>lattice</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Cascades.html#CascadeRunner.getPKAIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Cascades.CascadeRunner.getPKAIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects an atom index for the PKA from the user&#8217;s specification in params.cascPKASpecies</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lattice</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote>
+<div><p>System lattice to choose a PKA from.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>pkaIndex</strong> : int</p>
+<blockquote>
+<div><p>The lattice index of the selected atom.</p>
+</div></blockquote>
+<p><strong>pkaSymbol</strong> : str</p>
+<blockquote class="last">
+<div><p>The atomic symbol of the selected atom.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Cascades.CascadeRunner.getPKAVector">
+<code class="descname">getPKAVector</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Cascades.html#CascadeRunner.getPKAVector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Cascades.CascadeRunner.getPKAVector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a PKA vector, either randomly or using a pre-set value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">pkaVector: <cite>numpy.ndarray</cite></p>
+<blockquote class="last">
+<div><p>Cartesian three vector indicating a point on the unit sphere; used to describe the PKA direction.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If a random PKA vector is required it is chosen from a probability distribution evenly distributed over the
+unit sphere <a class="reference internal" href="#r1" id="id1">[R1]</a>.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="r1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[R1]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id2">2</a>)</em> E.W. Weisstein. Sphere Point Picking. From MathWorld-A Wolfram Web Resource.
+<a class="reference external" href="http://mathworld.wolfram.com/SpherePointPicking.html">http://mathworld.wolfram.com/SpherePointPicking.html</a></td></tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Cascades.CascadeRunner.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>latticeIn</em>, <em>step=None</em>, <em>clock=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Cascades.html#CascadeRunner.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Cascades.CascadeRunner.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls all of the methods to do one complete cascade simulation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>latticeIn</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote>
+<div><p>System lattice to run a cascade in.</p>
+</div></blockquote>
+<p><strong>step</strong> : int, optional</p>
+<blockquote>
+<div><p>Current KMC step, to allow changing into the appropriate working directory.</p>
+</div></blockquote>
+<p><strong>clock</strong> : float, optional</p>
+<blockquote class="last">
+<div><p>System time of KMC simulation, used to record time of last cascade event, facilitating simulation resume.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<dl class="docutils">
+<dt>The workflow is as follows:</dt>
+<dd><ul class="first last simple">
+<li>Pre-event thermalisation</li>
+<li>Generating PKA attributes</li>
+<li>Adding the PKA</li>
+<li>Simulating the cascade</li>
+<li>Post-cascade minimisation</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Cascades.CascadeRunner.setPKAVelocity">
+<code class="descname">setPKAVelocity</code><span class="sig-paren">(</span><em>lattice</em>, <em>velocity</em>, <em>pkaIndex</em>, <em>pkaEnergy</em>, <em>pkaVector</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Cascades.html#CascadeRunner.setPKAVelocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Cascades.CascadeRunner.setPKAVelocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the velocity of the PKA.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Cascades.CascadeRunner.writePKAMetadata">
+<code class="descname">writePKAMetadata</code><span class="sig-paren">(</span><em>lattice</em>, <em>pkaEnergy</em>, <em>pkaVector</em>, <em>pkaIndex</em>, <em>clock</em>, <em>step</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Cascades.html#CascadeRunner.writePKAMetadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Cascades.CascadeRunner.writePKAMetadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write file containing metadata for this event.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Basin.html"
+                        title="previous chapter">LKMC.Basin module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Client.html"
+                        title="next chapter">LKMC.Client module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Cascades.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Client.html" title="LKMC.Client module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Basin.html" title="LKMC.Basin module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
