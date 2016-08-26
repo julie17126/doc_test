@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.clibs.defects module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC.clibs package" href="LKMC.clibs.html" />
+    <link rel="next" title="LKMC.clibs.graphs module" href="LKMC.clibs.graphs.html" />
+    <link rel="prev" title="LKMC.clibs package" href="LKMC.clibs.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.clibs.graphs.html" title="LKMC.clibs.graphs module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.clibs.html" title="LKMC.clibs package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="LKMC.clibs.html" accesskey="U">LKMC.clibs package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.clibs.defects">
+<span id="lkmc-clibs-defects-module"></span><h1>LKMC.clibs.defects module<a class="headerlink" href="#module-LKMC.clibs.defects" title="Permalink to this headline">¶</a></h1>
+<p>Wrapper to defects.c</p>
+<p>Copyright 2013 Chris Scott</p>
+<dl class="function">
+<dt id="LKMC.clibs.defects.buildDefectVolume">
+<code class="descclassname">LKMC.clibs.defects.</code><code class="descname">buildDefectVolume</code><span class="sig-paren">(</span><em>clusterNumber</em>, <em>defectCluster</em>, <em>primaryAtoms</em>, <em>secondaryAtoms</em>, <em>graphAtoms</em>, <em>defectList</em>, <em>vacancies</em>, <em>interstitials</em>, <em>antisites</em>, <em>NAtoms</em>, <em>pos</em>, <em>NSpecies</em>, <em>specie</em>, <em>refNAtoms</em>, <em>refPos</em>, <em>cellDims</em>, <em>PBC</em>, <em>primaryRadius</em>, <em>secondaryRadius</em>, <em>graphRadius</em>, <em>minPos</em>, <em>maxPos</em>, <em>usedPBCs</em>, <em>NAtomsArray</em>, <em>hashkey</em>, <em>centreMass</em>, <em>com_extent</em>, <em>defectCounter</em>, <em>moment</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/clibs/defects.html#buildDefectVolume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.clibs.defects.buildDefectVolume" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.clibs.defects.calc_hash_key_and_com">
+<code class="descclassname">LKMC.clibs.defects.</code><code class="descname">calc_hash_key_and_com</code><span class="sig-paren">(</span><em>primaryAtoms</em>, <em>graphAtoms</em>, <em>graphRadius</em>, <em>NSpecies</em>, <em>specie</em>, <em>pos</em>, <em>hashKey</em>, <em>centreMass</em>, <em>cellDims</em>, <em>PBC</em>, <em>moment</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/clibs/defects.html#calc_hash_key_and_com"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.clibs.defects.calc_hash_key_and_com" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.clibs.defects.defectVolumeSeparation">
+<code class="descclassname">LKMC.clibs.defects.</code><code class="descname">defectVolumeSeparation</code><span class="sig-paren">(</span><em>fullCurrentPos</em>, <em>previousDefectPos</em>, <em>cellDims</em>, <em>PBC</em>, <em>defectAtoms</em>, <em>currentDefectPos</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/clibs/defects.html#defectVolumeSeparation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.clibs.defects.defectVolumeSeparation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defect volume separation</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.clibs.defects.finaliseDefectList">
+<code class="descclassname">LKMC.clibs.defects.</code><code class="descname">finaliseDefectList</code><span class="sig-paren">(</span><em>defectList</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/clibs/defects.html#finaliseDefectList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.clibs.defects.finaliseDefectList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.clibs.defects.findDefectClusters">
+<code class="descclassname">LKMC.clibs.defects.</code><code class="descname">findDefectClusters</code><span class="sig-paren">(</span><em>includeVacs</em>, <em>includeInts</em>, <em>includeAnts</em>, <em>defectList</em>, <em>NDefectsByType</em>, <em>vacancies</em>, <em>interstitials</em>, <em>antisites</em>, <em>onAntisites</em>, <em>inclSpec</em>, <em>exclSpecInput</em>, <em>exclSpecRef</em>, <em>NAtoms</em>, <em>specieList</em>, <em>specie</em>, <em>pos</em>, <em>refNAtoms</em>, <em>specieListRef</em>, <em>specieRef</em>, <em>refPos</em>, <em>cellDims</em>, <em>PBC</em>, <em>vacancyRadius</em>, <em>clusterRadius</em>, <em>minPos</em>, <em>maxPos</em>, <em>verboseLevel</em>, <em>debugDefects</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/clibs/defects.html#findDefectClusters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.clibs.defects.findDefectClusters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.clibs.defects.findDefects">
+<code class="descclassname">LKMC.clibs.defects.</code><code class="descname">findDefects</code><span class="sig-paren">(</span><em>includeVacs</em>, <em>includeInts</em>, <em>includeAnts</em>, <em>defectList</em>, <em>NDefectsByType</em>, <em>vacancies</em>, <em>interstitials</em>, <em>antisites</em>, <em>onAntisites</em>, <em>inclSpec</em>, <em>exclSpecInput</em>, <em>exclSpecRef</em>, <em>NAtoms</em>, <em>specieList</em>, <em>specie</em>, <em>pos</em>, <em>refNAtoms</em>, <em>specieListRef</em>, <em>specieRef</em>, <em>refPos</em>, <em>cellDims</em>, <em>PBC</em>, <em>vacancyRadius</em>, <em>inclusionRadius</em>, <em>minPos</em>, <em>maxPos</em>, <em>verboseLevel</em>, <em>debugDefects</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/clibs/defects.html#findDefects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.clibs.defects.findDefects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.clibs.defects.findNeighbours2">
+<code class="descclassname">LKMC.clibs.defects.</code><code class="descname">findNeighbours2</code><span class="sig-paren">(</span><em>index</em>, <em>refNAtoms</em>, <em>refPos</em>, <em>posX</em>, <em>posY</em>, <em>posZ</em>, <em>minPos</em>, <em>maxPos</em>, <em>cellDims</em>, <em>PBC</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/clibs/defects.html#findNeighbours2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.clibs.defects.findNeighbours2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.clibs.defects.fuse_volumes">
+<code class="descclassname">LKMC.clibs.defects.</code><code class="descname">fuse_volumes</code><span class="sig-paren">(</span><em>NVols</em>, <em>vol_coms</em>, <em>vol_com_extents</em>, <em>cellDims</em>, <em>PBC</em>, <em>allocator</em>, <em>verbose</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/clibs/defects.html#fuse_volumes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.clibs.defects.fuse_volumes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.clibs.defects.makeGraphFileFromDefectVolume">
+<code class="descclassname">LKMC.clibs.defects.</code><code class="descname">makeGraphFileFromDefectVolume</code><span class="sig-paren">(</span><em>NVolumeAtoms</em>, <em>pos</em>, <em>NSpecies</em>, <em>specie</em>, <em>inclusionRadius</em>, <em>cellDims</em>, <em>PBC</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/clibs/defects.html#makeGraphFileFromDefectVolume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.clibs.defects.makeGraphFileFromDefectVolume" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.clibs.html"
+                        title="previous chapter">LKMC.clibs package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.clibs.graphs.html"
+                        title="next chapter">LKMC.clibs.graphs module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.clibs.defects.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.clibs.graphs.html" title="LKMC.clibs.graphs module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.clibs.html" title="LKMC.clibs package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="LKMC.clibs.html" >LKMC.clibs package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
