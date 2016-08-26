@@ -1,0 +1,412 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Barrier Search &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="Filtering" href="filtering.html" />
+    <link rel="prev" title="Main" href="main.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="filtering.html" title="Filtering"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="main.html" title="Main"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="barrier-search">
+<h1>Barrier Search<a class="headerlink" href="#barrier-search" title="Permalink to this headline">¶</a></h1>
+<p>This section includes general parameters for transition finding,
+uniqueness tests, pushing over a saddle state and debugging. For
+parameters specific to each method look in the appropriate section.</p>
+<div class="section" id="barrmininitial">
+<h2>barrMinInitial<a class="headerlink" href="#barrmininitial" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>If set to 1, forces initial lattice minimisation if <a class="reference internal" href="#barrestimator">barrEstimator</a> is defined.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="barrsearchalgorithm">
+<h2>barrSearchAlgorithm<a class="headerlink" href="#barrsearchalgorithm" title="Permalink to this headline">¶</a></h2>
+<p>String; &#8216;ART&#8217;, &#8216;RAT&#8217; or &#8216;DIMER&#8217;</p>
+<p>the name of saddle point search algorithm</p>
+<ul class="simple">
+<li><a class="reference internal" href="art.html"><span class="doc">ART</span></a>: Activation Relaxation Technique method</li>
+<li><a class="reference internal" href="rat.html"><span class="doc">RAT</span></a>: Relaxation and Translation method</li>
+<li><a class="reference internal" href="dimer.html"><span class="doc">Dimer</span></a>: Dimer method</li>
+</ul>
+<p>Default: &#8216;DIMER&#8217;</p>
+</div>
+<div class="section" id="barrinitrandomtype">
+<h2>barrInitRandomType<a class="headerlink" href="#barrinitrandomtype" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>If set to 1, use gaussian random numbers for initial displacement.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="barrstepbackwards">
+<h2>barrStepBackwards<a class="headerlink" href="#barrstepbackwards" title="Permalink to this headline">¶</a></h2>
+<p>Real; positive</p>
+<p>The step size used to push a system from a saddle point back towards the initial
+configuration.</p>
+<p>Default: 0.2</p>
+</div>
+<div class="section" id="barrstepforwardmethod">
+<h2>barrStepForwardMethod<a class="headerlink" href="#barrstepforwardmethod" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>Selection of a method by which a saddle state is pushed towards to a
+final state.</p>
+<ul class="simple">
+<li>0: saddle.pos + <a class="reference internal" href="#barrstepforward">barrStepForward</a> * (saddle.pos - initial.pos)</li>
+<li>1: max move atom is pushed by <a class="reference internal" href="#barrstepforward">barrStepForward</a>, all other atoms scaled accordingly</li>
+</ul>
+<p><strong>Note</strong>: This parameter has no effect if <a class="reference internal" href="#barrpushusingeigenvector">barrPushUsingEigenvector</a> is set to 1.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="barrminfracmaxmovetopush">
+<h2>barrMinFracMaxMoveToPush<a class="headerlink" href="#barrminfracmaxmovetopush" title="Permalink to this headline">¶</a></h2>
+<p>Real; in the range [0, 1]</p>
+<p>Only push atoms that have moved at least this fraction of the max movement.</p>
+<p>Default: 0.6</p>
+</div>
+<div class="section" id="barrpushusingeigenvector">
+<h2>barrPushUsingEigenvector<a class="headerlink" href="#barrpushusingeigenvector" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<ul class="simple">
+<li>0: Use the method defined by <a class="reference internal" href="#barrstepforwardmethod">barrStepForwardMethod</a> to push.</li>
+<li>1: Enables pushing using the eigenvector from the Lanczos method and ignores the
+value of <a class="reference internal" href="#barrstepforwardmethod">barrStepForwardMethod</a>.</li>
+</ul>
+<p>Default: 0</p>
+</div>
+<div class="section" id="barrstepforward">
+<h2>barrStepForward<a class="headerlink" href="#barrstepforward" title="Permalink to this headline">¶</a></h2>
+<p>Real; positive</p>
+<p>Step size to push a system over a saddle point.</p>
+<p>Default: 0.6</p>
+</div>
+<div class="section" id="barrrefinepathway">
+<h2>barrRefinePathway<a class="headerlink" href="#barrrefinepathway" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>If set to 1, analyse the pathway from NEB/String. If it contains multiple (significant) minima then select
+the first one as the final state and rerun the barrier calculator.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="barrrefinepathwaytol">
+<h2>barrRefinePathwayTol<a class="headerlink" href="#barrrefinepathwaytol" title="Permalink to this headline">¶</a></h2>
+<p>Real; positive</p>
+<p>The tolerance for deciding whether a minimum/maximum along the pathway is significant.</p>
+<p>Default: 0.1</p>
+</div>
+<div class="section" id="barrrefinepathwaymaxiter">
+<h2>barrRefinePathwayMaxIter<a class="headerlink" href="#barrrefinepathwaymaxiter" title="Permalink to this headline">¶</a></h2>
+<p>Integer; positive</p>
+<p>The maximum number of times we can refine the pathway (fails if this is exceeded).</p>
+<p>Default: 5</p>
+</div>
+<div class="section" id="barrminfinal">
+<h2>barrMinFinal<a class="headerlink" href="#barrminfinal" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p><strong>Note</strong>: One shouldn&#8217;t mess with this parameter!!!</p>
+<ul class="simple">
+<li>0: <a class="reference internal" href="#barrestimator">barrEstimator</a> must be used with loose
+n-points to let the string or the NEB method to relax to a new state.</li>
+<li>1: Uses <a class="reference internal" href="#barrminfinalminimiser">barrMinFinalMinimiser</a> to minimise to a new final state after being pushed over the
+saddle state.</li>
+</ul>
+<p>Default: 1</p>
+</div>
+<div class="section" id="barrminfinalminimiser">
+<h2>barrMinFinalMinimiser<a class="headerlink" href="#barrminfinalminimiser" title="Permalink to this headline">¶</a></h2>
+<p>String; list separated by &#8216;+&#8217;</p>
+<p>Defines a sequence of minimisers that will be used in order on the pushed saddle state.</p>
+<p>Available minimisers:</p>
+<ul class="simple">
+<li>CG: conjugate gradient</li>
+<li>SD: Steepest descent</li>
+<li>LBFGS: limited memory BFGS</li>
+<li>LBFGSDownHill: use LBFGS Lanczos method without reverse lowest eigenvalue.</li>
+</ul>
+<p>For the first three a suffix SUB- can be used in order to run the
+minimisation on the sub-lattice that was allowed to move during Lanczos.
+LBFGSDownHill maybe used in order to follow the lowest eigenvalue for a
+couple of steps at the very begging of the minimisation procedure.
+Consult the default value and the test file for better understanding.</p>
+<p>Default: &#8216;LBFGSDownHill+SUB-SD+LBFGS&#8217;</p>
+</div>
+<div class="section" id="barrestimator">
+<h2>barrEstimator<a class="headerlink" href="#barrestimator" title="Permalink to this headline">¶</a></h2>
+<p>String; {&#8216;NEB&#8217; or &#8216;String&#8217; or &#8216;&#8217;}</p>
+<p>Name of barrier estimator used after saddle point has been found and
+system was minimised to a new local minima. Should be left blank if
+you are converging to the saddle point using Lanczos.</p>
+<p>Default: &#8216;&#8217; (blank)</p>
+</div>
+<div class="section" id="barrcomparesaddles">
+<h2>barrCompareSaddles<a class="headerlink" href="#barrcomparesaddles" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>If set to 1, compare saddles instead of finals (for uniqueness).</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="barruniqueminsep">
+<h2>barrUniqueMinSep<a class="headerlink" href="#barruniqueminsep" title="Permalink to this headline">¶</a></h2>
+<p>Real; positive</p>
+<p>If separation between finals (or saddles if <a class="reference internal" href="#barrcomparesaddles">barrCompareSaddles</a> is 1) is greater than
+this value they are considered unique.</p>
+<p>Default: 0.5</p>
+</div>
+<div class="section" id="barruniqueusemaxmove">
+<h2>barrUniqueUseMaxMove<a class="headerlink" href="#barruniqueusemaxmove" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>If set to 1, also use the maximum movement when determining uniqueness.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="barruniquemaxmoveval">
+<h2>barrUniqueMaxMoveVal<a class="headerlink" href="#barruniquemaxmoveval" title="Permalink to this headline">¶</a></h2>
+<p>Real; positive</p>
+<p>if the maximum movement is less than this then assume the states are the same.</p>
+<p>Default: 0.1</p>
+</div>
+<div class="section" id="barruniquedoublecheck">
+<h2>barrUniqueDoubleCheck<a class="headerlink" href="#barruniquedoublecheck" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>Double check uniqueness of transitions using a tighter tolerance (only works when
+<a class="reference internal" href="#barrcomparesaddles">barrCompareSaddles</a> is 1)</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="barruniquedoublediffbarr">
+<h2>barrUniqueDoubleDiffBarr<a class="headerlink" href="#barruniquedoublediffbarr" title="Permalink to this headline">¶</a></h2>
+<p>Real; positive</p>
+<p>If the barrier difference is less than this value, then double check the uniqueness of a
+transition.</p>
+<p>Default: 0.1</p>
+</div>
+<div class="section" id="barruniquedoubleminsep">
+<h2>barrUniqueDoubleMinSep<a class="headerlink" href="#barruniquedoubleminsep" title="Permalink to this headline">¶</a></h2>
+<p>Real; positive</p>
+<p>A tighter tolerance for double checking uniqueness (should be larger than
+<a class="reference internal" href="#barruniqueminsep">barrUniqueMinSep</a>).</p>
+<p>Default: 1.0</p>
+</div>
+<div class="section" id="barruniquedoublemaxmove">
+<h2>barrUniqueDoubleMaxMove<a class="headerlink" href="#barruniquedoublemaxmove" title="Permalink to this headline">¶</a></h2>
+<p>Real; positive</p>
+<p>A tighter tolerance for double checking uniqueness (should be larger than
+<a class="reference internal" href="#barruniquemaxmoveval">barrUniqueMaxMoveVal</a>).</p>
+<p>Default: 0.5</p>
+</div>
+<div class="section" id="barrminmaxmove">
+<h2>barrMinMaxMove<a class="headerlink" href="#barrminmaxmove" title="Permalink to this headline">¶</a></h2>
+<p>Real; non-negative</p>
+<p>if the max movement between initial and final is less than this value
+then discard transition</p>
+<p>If set to 0, ignore this check</p>
+<p>Default: 0.6</p>
+</div>
+<div class="section" id="searchcombinedvolumes">
+<h2>searchCombinedVolumes<a class="headerlink" href="#searchcombinedvolumes" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>If set to 1, search for transitions in combined volumes.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="reusecombinedvolumes">
+<h2>reuseCombinedVolumes<a class="headerlink" href="#reusecombinedvolumes" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>If set to 1, reuse transitions found in combined volumes.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="barrminseptosaddle">
+<h2>barrMinSepToSaddle<a class="headerlink" href="#barrminseptosaddle" title="Permalink to this headline">¶</a></h2>
+<p>Real; positive</p>
+<p>The minimum separation to allow between initial and saddle states.</p>
+<p>Default: 0.5</p>
+</div>
+<div class="section" id="barrminmaxmovetosaddle">
+<h2>barrMinMaxMoveToSaddle<a class="headerlink" href="#barrminmaxmovetosaddle" title="Permalink to this headline">¶</a></h2>
+<p>Real; positive</p>
+<p>The minimum value to allow for the maximum movement between initial and saddle.</p>
+<p>Default: 0.5</p>
+</div>
+<div class="section" id="barroutputtiming">
+<h2>barrOutputTiming<a class="headerlink" href="#barroutputtiming" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>If set to 1, gather timing information for barrier search/refinement.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="barrdebugtotalrates">
+<h2>barrDebugTotalRates<a class="headerlink" href="#barrdebugtotalrates" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>If set to 1, collect and output info on how total rates (overall and by
+volume) change with the number of searches.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="barrdebugmode">
+<h2>barrDebugMode<a class="headerlink" href="#barrdebugmode" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>Debug mode of barrier searches.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="barrdebugsearches">
+<h2>barrDebugSearches<a class="headerlink" href="#barrdebugsearches" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>Write a file containing the reasons the searches failed and the number of times
+each reason occurred. Also write the magnitudes of the force arrays at the
+saddle point, for checking convergence.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="barroutputsearchstats">
+<h2>barrOutputSearchStats<a class="headerlink" href="#barroutputsearchstats" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>If set to 1, write timing information from the searches</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="barrignorevolkeys">
+<h2>barrIgnoreVolKeys<a class="headerlink" href="#barrignorevolkeys" title="Permalink to this headline">¶</a></h2>
+<p>String; list separated by &#8216;,&#8217;</p>
+<p>List of hash keys which would like to be skipped (ignore them completely).</p>
+</div>
+<div class="section" id="combinedvolstoreindividual">
+<h2>combinedVolStoreIndividual<a class="headerlink" href="#combinedvolstoreindividual" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>If set to 1, store searches for volumes that are part of a combined volume.</p>
+<p>Default: 1</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Barrier Search</a><ul>
+<li><a class="reference internal" href="#barrmininitial">barrMinInitial</a></li>
+<li><a class="reference internal" href="#barrsearchalgorithm">barrSearchAlgorithm</a></li>
+<li><a class="reference internal" href="#barrinitrandomtype">barrInitRandomType</a></li>
+<li><a class="reference internal" href="#barrstepbackwards">barrStepBackwards</a></li>
+<li><a class="reference internal" href="#barrstepforwardmethod">barrStepForwardMethod</a></li>
+<li><a class="reference internal" href="#barrminfracmaxmovetopush">barrMinFracMaxMoveToPush</a></li>
+<li><a class="reference internal" href="#barrpushusingeigenvector">barrPushUsingEigenvector</a></li>
+<li><a class="reference internal" href="#barrstepforward">barrStepForward</a></li>
+<li><a class="reference internal" href="#barrrefinepathway">barrRefinePathway</a></li>
+<li><a class="reference internal" href="#barrrefinepathwaytol">barrRefinePathwayTol</a></li>
+<li><a class="reference internal" href="#barrrefinepathwaymaxiter">barrRefinePathwayMaxIter</a></li>
+<li><a class="reference internal" href="#barrminfinal">barrMinFinal</a></li>
+<li><a class="reference internal" href="#barrminfinalminimiser">barrMinFinalMinimiser</a></li>
+<li><a class="reference internal" href="#barrestimator">barrEstimator</a></li>
+<li><a class="reference internal" href="#barrcomparesaddles">barrCompareSaddles</a></li>
+<li><a class="reference internal" href="#barruniqueminsep">barrUniqueMinSep</a></li>
+<li><a class="reference internal" href="#barruniqueusemaxmove">barrUniqueUseMaxMove</a></li>
+<li><a class="reference internal" href="#barruniquemaxmoveval">barrUniqueMaxMoveVal</a></li>
+<li><a class="reference internal" href="#barruniquedoublecheck">barrUniqueDoubleCheck</a></li>
+<li><a class="reference internal" href="#barruniquedoublediffbarr">barrUniqueDoubleDiffBarr</a></li>
+<li><a class="reference internal" href="#barruniquedoubleminsep">barrUniqueDoubleMinSep</a></li>
+<li><a class="reference internal" href="#barruniquedoublemaxmove">barrUniqueDoubleMaxMove</a></li>
+<li><a class="reference internal" href="#barrminmaxmove">barrMinMaxMove</a></li>
+<li><a class="reference internal" href="#searchcombinedvolumes">searchCombinedVolumes</a></li>
+<li><a class="reference internal" href="#reusecombinedvolumes">reuseCombinedVolumes</a></li>
+<li><a class="reference internal" href="#barrminseptosaddle">barrMinSepToSaddle</a></li>
+<li><a class="reference internal" href="#barrminmaxmovetosaddle">barrMinMaxMoveToSaddle</a></li>
+<li><a class="reference internal" href="#barroutputtiming">barrOutputTiming</a></li>
+<li><a class="reference internal" href="#barrdebugtotalrates">barrDebugTotalRates</a></li>
+<li><a class="reference internal" href="#barrdebugmode">barrDebugMode</a></li>
+<li><a class="reference internal" href="#barrdebugsearches">barrDebugSearches</a></li>
+<li><a class="reference internal" href="#barroutputsearchstats">barrOutputSearchStats</a></li>
+<li><a class="reference internal" href="#barrignorevolkeys">barrIgnoreVolKeys</a></li>
+<li><a class="reference internal" href="#combinedvolstoreindividual">combinedVolStoreIndividual</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="main.html"
+                        title="previous chapter">Main</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="filtering.html"
+                        title="next chapter">Filtering</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/barrierSearch.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="filtering.html" title="Filtering"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="main.html" title="Main"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
