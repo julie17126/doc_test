@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>String &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="Defects" href="defects.html" />
+    <link rel="prev" title="NEB" href="neb.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="defects.html" title="Defects"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="neb.html" title="NEB"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="string">
+<h1>String<a class="headerlink" href="#string" title="Permalink to this headline">¶</a></h1>
+<p>Parameters for the string method.</p>
+<div class="section" id="stringnimages">
+<h2>stringNImages<a class="headerlink" href="#stringnimages" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Number of images (including initial and final).</p>
+<p>Default: 9</p>
+</div>
+<div class="section" id="stringminstepsize">
+<h2>stringMinStepSize<a class="headerlink" href="#stringminstepsize" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>The minimisation step size for minimisation within string method.</p>
+<p>Default: 0.2</p>
+</div>
+<div class="section" id="stringenergtol">
+<h2>stringEnergTol<a class="headerlink" href="#stringenergtol" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>The energy tolerance for string method.</p>
+<p>Default: 0.001</p>
+</div>
+<div class="section" id="stringmaxsteps">
+<h2>stringMaxSteps<a class="headerlink" href="#stringmaxsteps" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>The maximum number of steps for string method.</p>
+<p>Default: 2000000</p>
+</div>
+<div class="section" id="stringmaxruntimesecs">
+<h2>stringMaxRunTimeSecs<a class="headerlink" href="#stringmaxruntimesecs" title="Permalink to this headline">¶</a></h2>
+<p>Integer (seconds)</p>
+<p>The maximum run time for string method.</p>
+<p>Default: 1200</p>
+</div>
+<div class="section" id="stringclimbcriteria">
+<h2>stringClimbCriteria<a class="headerlink" href="#stringclimbcriteria" title="Permalink to this headline">¶</a></h2>
+<p>iterations</p>
+<p>???</p>
+<p>Default: iterations</p>
+</div>
+<div class="section" id="stringclimbimagevalue">
+<h2>stringClimbImageValue<a class="headerlink" href="#stringclimbimagevalue" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>???</p>
+<p>Default: 10000000</p>
+</div>
+<div class="section" id="stringfixinitialandfinal">
+<h2>stringFixInitialAndFinal<a class="headerlink" href="#stringfixinitialandfinal" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: fix the initial and final states so they cannot move.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="stringplotpathway">
+<h2>stringPlotPathway<a class="headerlink" href="#stringplotpathway" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: plot image energies.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="stringvisualisepathway">
+<h2>stringVisualisePathway<a class="headerlink" href="#stringvisualisepathway" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: write files for visualising images.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="stringsaveimages">
+<h2>stringSaveImages<a class="headerlink" href="#stringsaveimages" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: Save images to file</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="stringdebugmode">
+<h2>stringDebugMode<a class="headerlink" href="#stringdebugmode" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: Debug mode for string. This will print out lots
+of information.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="timestring">
+<h2>timeString<a class="headerlink" href="#timestring" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: log the run time of string method.</p>
+<p>Default: 0</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">String</a><ul>
+<li><a class="reference internal" href="#stringnimages">stringNImages</a></li>
+<li><a class="reference internal" href="#stringminstepsize">stringMinStepSize</a></li>
+<li><a class="reference internal" href="#stringenergtol">stringEnergTol</a></li>
+<li><a class="reference internal" href="#stringmaxsteps">stringMaxSteps</a></li>
+<li><a class="reference internal" href="#stringmaxruntimesecs">stringMaxRunTimeSecs</a></li>
+<li><a class="reference internal" href="#stringclimbcriteria">stringClimbCriteria</a></li>
+<li><a class="reference internal" href="#stringclimbimagevalue">stringClimbImageValue</a></li>
+<li><a class="reference internal" href="#stringfixinitialandfinal">stringFixInitialAndFinal</a></li>
+<li><a class="reference internal" href="#stringplotpathway">stringPlotPathway</a></li>
+<li><a class="reference internal" href="#stringvisualisepathway">stringVisualisePathway</a></li>
+<li><a class="reference internal" href="#stringsaveimages">stringSaveImages</a></li>
+<li><a class="reference internal" href="#stringdebugmode">stringDebugMode</a></li>
+<li><a class="reference internal" href="#timestring">timeString</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="neb.html"
+                        title="previous chapter">NEB</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="defects.html"
+                        title="next chapter">Defects</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/string.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="defects.html" title="Defects"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="neb.html" title="NEB"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
