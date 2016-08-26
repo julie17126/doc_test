@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.ClientServerInterface module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Constants module" href="LKMC.Constants.html" />
+    <link rel="prev" title="LKMC.Client module" href="LKMC.Client.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Constants.html" title="LKMC.Constants module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Client.html" title="LKMC.Client module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.ClientServerInterface">
+<span id="lkmc-clientserverinterface-module"></span><h1>LKMC.ClientServerInterface module<a class="headerlink" href="#module-LKMC.ClientServerInterface" title="Permalink to this headline">¶</a></h1>
+<p>Objects/methods for interfacing between Clients and Server.</p>
+<dl class="class">
+<dt id="LKMC.ClientServerInterface.CommandQueueItem">
+<em class="property">class </em><code class="descclassname">LKMC.ClientServerInterface.</code><code class="descname">CommandQueueItem</code><span class="sig-paren">(</span><em>commandID=''</em>, <em>commandType=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/ClientServerInterface.html#CommandQueueItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.ClientServerInterface.CommandQueueItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Command object for the command queue.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.ClientServerInterface.CommandQueueItem.addCommand">
+<code class="descname">addCommand</code><span class="sig-paren">(</span><em>method</em>, <em>args=()</em>, <em>kwargs={}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/ClientServerInterface.html#CommandQueueItem.addCommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.ClientServerInterface.CommandQueueItem.addCommand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add command to the list of commands.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.ClientServerInterface.DataQueueItem">
+<em class="property">class </em><code class="descclassname">LKMC.ClientServerInterface.</code><code class="descname">DataQueueItem</code><span class="sig-paren">(</span><em>dataDict=None</em>, <em>exitStatus=0</em>, <em>dataID=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/ClientServerInterface.html#DataQueueItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.ClientServerInterface.DataQueueItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Data queue item.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.ClientServerInterface.JobQueueItem">
+<em class="property">class </em><code class="descclassname">LKMC.ClientServerInterface.</code><code class="descname">JobQueueItem</code><span class="sig-paren">(</span><em>ID=''</em>, <em>obj=None</em>, <em>repeat=False</em>, <em>method=''</em>, <em>args=()</em>, <em>kwargs={}</em>, <em>clearData=False</em>, <em>dataID=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/ClientServerInterface.html#JobQueueItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.ClientServerInterface.JobQueueItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Item for the job queue.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.ClientServerInterface.Result">
+<em class="property">class </em><code class="descclassname">LKMC.ClientServerInterface.</code><code class="descname">Result</code><span class="sig-paren">(</span><em>rank</em>, <em>job</em>, <em>status</em>, <em>barrier=None</em>, <em>final=None</em>, <em>saddle=None</em>, <em>images=None</em>, <em>timing=None</em>, <em>infoString=None</em>, <em>sadSearchDebugInfo=None</em>, <em>externalEvent=None</em>, <em>volumeObject=None</em>, <em>linkedTransIndex=None</em>, <em>calculatorBarrier=None</em>, <em>searchBarrier=None</em>, <em>reuseHashKey=None</em>, <em>reuseWorkVolId=None</em>, <em>linkedBarrier=None</em>, <em>transitionObject=None</em>, <em>currentVolIndex=None</em>, <em>jobID=None</em>, <em>reverseBarrier=None</em>, <em>NSmallMoves=None</em>, <em>calcPrefactor=None</em>, <em>rate=None</em>, <em>worker=None</em>, <em>saddleSumLogEVs=None</em>, <em>initialSumLogEVs=None</em>, <em>failedReason=None</em>, <em>fixIndex=None</em>, <em>storeVolIndex=None</em>, <em>searchTimingDict=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/ClientServerInterface.html#Result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.ClientServerInterface.Result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Results class for results in the result queue.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.ClientServerInterface.Result.setRunTime">
+<code class="descname">setRunTime</code><span class="sig-paren">(</span><em>runTime</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/ClientServerInterface.html#Result.setRunTime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.ClientServerInterface.Result.setRunTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set run time of job.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.ClientServerInterface.TimeLog">
+<em class="property">class </em><code class="descclassname">LKMC.ClientServerInterface.</code><code class="descname">TimeLog</code><span class="sig-paren">(</span><em>taskList</em>, <em>timeList</em>, <em>succList</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/ClientServerInterface.html#TimeLog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.ClientServerInterface.TimeLog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>timeLog class for timing results.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.ClientServerInterface.checkJobStatus">
+<code class="descclassname">LKMC.ClientServerInterface.</code><code class="descname">checkJobStatus</code><span class="sig-paren">(</span><em>jobID</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/ClientServerInterface.html#checkJobStatus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.ClientServerInterface.checkJobStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check status of job.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.ClientServerInterface.checkTaskStatus">
+<code class="descclassname">LKMC.ClientServerInterface.</code><code class="descname">checkTaskStatus</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/ClientServerInterface.html#checkTaskStatus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.ClientServerInterface.checkTaskStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check the status.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Client.html"
+                        title="previous chapter">LKMC.Client module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Constants.html"
+                        title="next chapter">LKMC.Constants module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.ClientServerInterface.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Constants.html" title="LKMC.Constants module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Client.html" title="LKMC.Client module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
