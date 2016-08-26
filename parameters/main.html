@@ -1,0 +1,286 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Main &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="Barrier Search" href="barrierSearch.html" />
+    <link rel="prev" title="Parameters" href="parameters.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="barrierSearch.html" title="Barrier Search"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="parameters.html" title="Parameters"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="main">
+<h1>Main<a class="headerlink" href="#main" title="Permalink to this headline">¶</a></h1>
+<p>The section includes the main (general) parameters for running the code.</p>
+<div class="section" id="jobtype">
+<h2>JOBTYPE<a class="headerlink" href="#jobtype" title="Permalink to this headline">¶</a></h2>
+<p>String: &#8216;KMC&#8217; or &#8216;GROWTH&#8217;</p>
+<p>The type of simulation to run:</p>
+<ul class="simple">
+<li>KMC: normal on-the-fly kinetic Monte Carlo simulation</li>
+<li>GROWTH: on-the-fly kMC with depositions</li>
+</ul>
+<p>Default: &#8216;KMC&#8217;</p>
+</div>
+<div class="section" id="jobstatus">
+<h2>jobStatus<a class="headerlink" href="#jobstatus" title="Permalink to this headline">¶</a></h2>
+<p>String: &#8216;BEGIN&#8217; or &#8216;CNTIN&#8217;</p>
+<p>Begin a new simulation (this will overwrite an old one in the current directory) or continue an
+old one.</p>
+<p>Default: BEGIN</p>
+</div>
+<div class="section" id="kmcmaxsteps">
+<h2>KMCMaxSteps<a class="headerlink" href="#kmcmaxsteps" title="Permalink to this headline">¶</a></h2>
+<p>Integer; positive</p>
+<p>Maximum number of steps to run the simulation for.</p>
+<p>Default: 1000000</p>
+</div>
+<div class="section" id="kmcmaxtime">
+<h2>KMCMaxTime<a class="headerlink" href="#kmcmaxtime" title="Permalink to this headline">¶</a></h2>
+<p>Real; non-negative (seconds)</p>
+<p>Maximum simulation time to run the KMC for.</p>
+<p>If set to 0, the run time is unlimited.</p>
+<p>Default: 0.0</p>
+</div>
+<div class="section" id="kmcnosearch">
+<h2>kmcNoSearch<a class="headerlink" href="#kmcnosearch" title="Permalink to this headline">¶</a></h2>
+<p>Integer; positive</p>
+<p>Number of transition searches per defect volume</p>
+<p>Default: 200</p>
+</div>
+<div class="section" id="extrajobs">
+<h2>extraJobs<a class="headerlink" href="#extrajobs" title="Permalink to this headline">¶</a></h2>
+<p>Integer; positive</p>
+<p>Percentage of extra jobs to add when running searches.</p>
+<p>If set to zero, exactly <a class="reference internal" href="#kmcnosearch">kmcNoSearch</a> jobs will be added; it is usually desirable
+to add more jobs so that long running jobs (that are usually failures) can be ignored, i.e. we take
+the first <a class="reference internal" href="#kmcnosearch">kmcNoSearch</a> results and discard the rest.</p>
+<p>Default: 10</p>
+</div>
+<div class="section" id="kmclookfrom">
+<h2>KMCLookFrom<a class="headerlink" href="#kmclookfrom" title="Permalink to this headline">¶</a></h2>
+<p>Integer; non-negative</p>
+<p>When resuming a simulation start looking from this index when looking for last lattice file.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="verboselevel">
+<h2>verboseLevel<a class="headerlink" href="#verboselevel" title="Permalink to this headline">¶</a></h2>
+<p>Integer; non-negative</p>
+<p>Control how much output is generated:</p>
+<ul class="simple">
+<li>0: minimial, only very important stuff</li>
+<li>1: slightly more, only important stuff</li>
+<li>2: additional output useful for understanding what&#8217;s happending</li>
+<li>3: a lot of extra debugging output</li>
+<li>4: loads of extra output, prints stuff for every force call</li>
+</ul>
+<p>Default: generally 1 is good for normal simulations, 2 for getting started, 4 prints out every
+force call</p>
+</div>
+<div class="section" id="mdtype">
+<h2>MDType<a class="headerlink" href="#mdtype" title="Permalink to this headline">¶</a></h2>
+<p>String; {&#8216;LBOMD&#8217;, &#8216;LAMMPS&#8217;, &#8220;SIESTA&#8217;}</p>
+<p>Which library to use for force calls:</p>
+<ul class="simple">
+<li>LBOMD: use <a class="reference external" href="http://magrid-server-5.lboro.ac.uk/master/LBOMD/wikis/home">LBOMD</a></li>
+<li>LAMMPS: use <a class="reference external" href="http://lammps.sandia.gov/">LAMMPS</a></li>
+<li>SIESTA: use <a class="reference external" href="http://departments.icmab.es/leem/siesta/">siesta</a></li>
+</ul>
+<p>Default: &#8216;LBOMD&#8217;</p>
+</div>
+<div class="section" id="fullpathtonodesfile">
+<h2>fullPathToNodesFile<a class="headerlink" href="#fullpathtonodesfile" title="Permalink to this headline">¶</a></h2>
+<p>String</p>
+<p>The path to the nodes file relative to the working directory.</p>
+<p>Default: &#8216;nodes.IN&#8217;</p>
+</div>
+<div class="section" id="mdlocation">
+<h2>MDLocation<a class="headerlink" href="#mdlocation" title="Permalink to this headline">¶</a></h2>
+<p>String</p>
+<p>The path to the directory containing the input files required by the force call library, relative
+to the working directory. This should <em>not</em> be an absolute path.</p>
+<p>Default: &#8216;md&#8217;</p>
+</div>
+<div class="section" id="inputdirectory">
+<h2>inputDirectory<a class="headerlink" href="#inputdirectory" title="Permalink to this headline">¶</a></h2>
+<p>String</p>
+<p>The path to the directory containing the initial lattice files, relative to the working directory.</p>
+<p>Default: &#8216;input&#8217;</p>
+</div>
+<div class="section" id="outputdirectory">
+<h2>outputDirectory<a class="headerlink" href="#outputdirectory" title="Permalink to this headline">¶</a></h2>
+<p>String</p>
+<p>The path to the directory for storing the output from the simulation, relative to the working
+directory.</p>
+<p>Default: &#8216;output&#8217;</p>
+</div>
+<div class="section" id="volumedirectory">
+<h2>volumeDirectory<a class="headerlink" href="#volumedirectory" title="Permalink to this headline">¶</a></h2>
+<p>String</p>
+<p>The path to the directory where the defect volume transition database files should be stored,
+relatie to the working directory.</p>
+<p>Default: &#8216;defectVolumes&#8217;</p>
+</div>
+<div class="section" id="nostorevolumes">
+<h2>noStoreVolumes<a class="headerlink" href="#nostorevolumes" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>If set to 1 then do not store transitions for reuse (useful for debugging/testing certain things).</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="systemtemperature">
+<h2>systemTemperature<a class="headerlink" href="#systemtemperature" title="Permalink to this headline">¶</a></h2>
+<p>Real; positive</p>
+<p>The temperature of the system.</p>
+<p>Default: 450</p>
+</div>
+<div class="section" id="usesublatticeforcecalc">
+<h2>useSubLatticeForceCalc<a class="headerlink" href="#usesublatticeforcecalc" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>Use the sub-lattice force calculation, if it is supported within your chosen force library.</p>
+<p><strong>IMPORTANT</strong>: this should always be set to one at the moment!</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="sublatticeincluderadius">
+<h2>subLatticeIncludeRadius<a class="headerlink" href="#sublatticeincluderadius" title="Permalink to this headline">¶</a></h2>
+<p>Real; positive</p>
+<p>Skin to include atoms around those you need to know the forces accurately.  This depends on your
+potential.</p>
+<p>Default: 8.5</p>
+</div>
+<div class="section" id="usebasin">
+<h2>useBasin<a class="headerlink" href="#usebasin" title="Permalink to this headline">¶</a></h2>
+<p>Integer; 0 or 1</p>
+<p>If set to 1 then use the basin method.</p>
+<p>Default: 0</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Main</a><ul>
+<li><a class="reference internal" href="#jobtype">JOBTYPE</a></li>
+<li><a class="reference internal" href="#jobstatus">jobStatus</a></li>
+<li><a class="reference internal" href="#kmcmaxsteps">KMCMaxSteps</a></li>
+<li><a class="reference internal" href="#kmcmaxtime">KMCMaxTime</a></li>
+<li><a class="reference internal" href="#kmcnosearch">kmcNoSearch</a></li>
+<li><a class="reference internal" href="#extrajobs">extraJobs</a></li>
+<li><a class="reference internal" href="#kmclookfrom">KMCLookFrom</a></li>
+<li><a class="reference internal" href="#verboselevel">verboseLevel</a></li>
+<li><a class="reference internal" href="#mdtype">MDType</a></li>
+<li><a class="reference internal" href="#fullpathtonodesfile">fullPathToNodesFile</a></li>
+<li><a class="reference internal" href="#mdlocation">MDLocation</a></li>
+<li><a class="reference internal" href="#inputdirectory">inputDirectory</a></li>
+<li><a class="reference internal" href="#outputdirectory">outputDirectory</a></li>
+<li><a class="reference internal" href="#volumedirectory">volumeDirectory</a></li>
+<li><a class="reference internal" href="#nostorevolumes">noStoreVolumes</a></li>
+<li><a class="reference internal" href="#systemtemperature">systemTemperature</a></li>
+<li><a class="reference internal" href="#usesublatticeforcecalc">useSubLatticeForceCalc</a></li>
+<li><a class="reference internal" href="#sublatticeincluderadius">subLatticeIncludeRadius</a></li>
+<li><a class="reference internal" href="#usebasin">useBasin</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="parameters.html"
+                        title="previous chapter">Parameters</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="barrierSearch.html"
+                        title="next chapter">Barrier Search</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/main.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="barrierSearch.html" title="Barrier Search"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="parameters.html" title="Parameters"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
