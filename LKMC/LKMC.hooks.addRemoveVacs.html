@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.hooks.addRemoveVacs module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC.hooks package" href="LKMC.hooks.html" />
+    <link rel="next" title="LKMC.hooks.example_hook module" href="LKMC.hooks.example_hook.html" />
+    <link rel="prev" title="LKMC.hooks package" href="LKMC.hooks.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.hooks.example_hook.html" title="LKMC.hooks.example_hook module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.hooks.html" title="LKMC.hooks package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="LKMC.hooks.html" accesskey="U">LKMC.hooks package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.hooks.addRemoveVacs">
+<span id="lkmc-hooks-addremovevacs-module"></span><h1>LKMC.hooks.addRemoveVacs module<a class="headerlink" href="#module-LKMC.hooks.addRemoveVacs" title="Permalink to this headline">¶</a></h1>
+<p>Add or remove vacancies.</p>
+<dl class="docutils">
+<dt>Removes vacancies if they approach z=0 boundary;</dt>
+<dd>adds vacancies near z=LZ boundary</dd>
+</dl>
+<p>&#64;author: Chris Scott</p>
+<dl class="class">
+<dt id="LKMC.hooks.addRemoveVacs.AddRemoveVacanciesHook">
+<em class="property">class </em><code class="descclassname">LKMC.hooks.addRemoveVacs.</code><code class="descname">AddRemoveVacanciesHook</code><a class="reference internal" href="../_modules/LKMC/hooks/addRemoveVacs.html#AddRemoveVacanciesHook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.hooks.addRemoveVacs.AddRemoveVacanciesHook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Hook that adds/removes vacancies</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.hooks.addRemoveVacs.AddRemoveVacanciesHook.addVacancy">
+<code class="descname">addVacancy</code><span class="sig-paren">(</span><em>lattice</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/hooks/addRemoveVacs.html#AddRemoveVacanciesHook.addVacancy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.hooks.addRemoveVacs.AddRemoveVacanciesHook.addVacancy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a vacancy.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.hooks.addRemoveVacs.AddRemoveVacanciesHook.relaxSystem">
+<code class="descname">relaxSystem</code><span class="sig-paren">(</span><em>lattice</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/hooks/addRemoveVacs.html#AddRemoveVacanciesHook.relaxSystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.hooks.addRemoveVacs.AddRemoveVacanciesHook.relaxSystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Relax the system.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.hooks.addRemoveVacs.AddRemoveVacanciesHook.removeVacancy">
+<code class="descname">removeVacancy</code><span class="sig-paren">(</span><em>lattice</em>, <em>vacPos</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/hooks/addRemoveVacs.html#AddRemoveVacanciesHook.removeVacancy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.hooks.addRemoveVacs.AddRemoveVacanciesHook.removeVacancy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a vacancy.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.hooks.addRemoveVacs.AddRemoveVacanciesHook.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/hooks/addRemoveVacs.html#AddRemoveVacanciesHook.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.hooks.addRemoveVacs.AddRemoveVacanciesHook.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the hook.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.hooks.addRemoveVacs.getHook">
+<code class="descclassname">LKMC.hooks.addRemoveVacs.</code><code class="descname">getHook</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/hooks/addRemoveVacs.html#getHook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.hooks.addRemoveVacs.getHook" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method should return the hook object.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.hooks.html"
+                        title="previous chapter">LKMC.hooks package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.hooks.example_hook.html"
+                        title="next chapter">LKMC.hooks.example_hook module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.hooks.addRemoveVacs.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.hooks.example_hook.html" title="LKMC.hooks.example_hook module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.hooks.html" title="LKMC.hooks package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="LKMC.hooks.html" >LKMC.hooks package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
