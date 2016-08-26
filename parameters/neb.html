@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>NEB &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="String" href="string.html" />
+    <link rel="prev" title="L-BFGS" href="lbfgs.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="string.html" title="String"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lbfgs.html" title="L-BFGS"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="neb">
+<h1>NEB<a class="headerlink" href="#neb" title="Permalink to this headline">¶</a></h1>
+<p>Parameters for Nudged Elastic Band method (NEB).</p>
+<div class="section" id="nebnnodes">
+<h2>NEBNNodes<a class="headerlink" href="#nebnnodes" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Number of nodes used in NEB.</p>
+<p>Default: 9</p>
+</div>
+<div class="section" id="nebclimbingimage">
+<h2>NEBClimbingImage<a class="headerlink" href="#nebclimbingimage" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: use the climbing image NEB.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="nebclimbingthreshold">
+<h2>NEBClimbingThreshold<a class="headerlink" href="#nebclimbingthreshold" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Number of minimisation iterations before apply the climbing NEB.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="nebspringconstant">
+<h2>NEBSpringConstant<a class="headerlink" href="#nebspringconstant" title="Permalink to this headline">¶</a></h2>
+<p>Real (eV/A^2)</p>
+<p>Spring constant used in NEB method.</p>
+<p>Default: 0.1</p>
+</div>
+<div class="section" id="nebminimisationtype">
+<h2>NEBMinimisationType<a class="headerlink" href="#nebminimisationtype" title="Permalink to this headline">¶</a></h2>
+<p>&#8216;CG&#8217;, &#8216;CGSCIPY&#8217;, &#8216;SD&#8217; or &#8216;LBFGS&#8217;</p>
+<p>The minimisation type used for minimisation within the NEB method.</p>
+<ul class="simple">
+<li>CG: conjugate gradient</li>
+<li>CGSCIPY: conjugate gradient minimiser from SciPy</li>
+<li>SD: Steepest descent</li>
+<li>LBFGS: limited memory BFGS minimiser from SciPy</li>
+</ul>
+<p>Default: &#8216;LBFGS&#8217;</p>
+</div>
+<div class="section" id="nebminimisationcriteria">
+<h2>NEBMinimisationCriteria<a class="headerlink" href="#nebminimisationcriteria" title="Permalink to this headline">¶</a></h2>
+<p>&#8216;force&#8217; or &#8216;energy&#8217;</p>
+<p>The minimisation criteria for minimisation within the NEB method. The stopping
+criteria to be checked is converging by force or energy.</p>
+<p>Default: &#8216;energy&#8217;</p>
+</div>
+<div class="section" id="nebminimisationtolerance">
+<h2>NEBMinimisationTolerance<a class="headerlink" href="#nebminimisationtolerance" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>The minimisation tolerance for minimisation within the NEB method.</p>
+<p>Default: 0.001</p>
+</div>
+<div class="section" id="nebminimisationlinesearch">
+<h2>NEBMinimisationLineSearch<a class="headerlink" href="#nebminimisationlinesearch" title="Permalink to this headline">¶</a></h2>
+<p>&#8216;secant&#8217;</p>
+<p>The minimisation line search algorithm for minimisation within the NEB method.</p>
+<ul class="simple">
+<li>secant: secant method</li>
+</ul>
+<p>Default: &#8216;secant&#8217;</p>
+</div>
+<div class="section" id="nebminimizationexclusion">
+<h2>NEBMinimizationExclusion<a class="headerlink" href="#nebminimizationexclusion" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1 or 2</p>
+<ul class="simple">
+<li>0: whole lattice to be minimized</li>
+<li>1: atoms exclude defect area to be minimized</li>
+<li>2: only atoms from defect area to be minimized</li>
+</ul>
+<p>Default: 0</p>
+</div>
+<div class="section" id="nebminimizationexclusionreverseeveryfeval">
+<h2>NEBMinimizationExclusionReverseEveryFEval<a class="headerlink" href="#nebminimizationexclusionreverseeveryfeval" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>???(refer to
+<a class="reference external" href="minimisation.html#minimizationexclusionreverseeveryfeval">minimizationExclusionReverseEveryFEval</a>)</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="nebplotpathway">
+<h2>NEBPlotPathway<a class="headerlink" href="#nebplotpathway" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: plot image energies.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="nebvisualisepathway">
+<h2>NEBVisualisePathway<a class="headerlink" href="#nebvisualisepathway" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: write files for visualising images.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="nebperloutput">
+<h2>NEBPerlOutput<a class="headerlink" href="#nebperloutput" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: create output which is used in old KMC Perl scripts.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="nebminimisationmaxiterations">
+<h2>NEBMinimisationMaxIterations<a class="headerlink" href="#nebminimisationmaxiterations" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Maximum number of iterations; the minimisation fails if this is
+exceeded.</p>
+<p>Default: 200</p>
+</div>
+<div class="section" id="nebmaxruntime">
+<h2>NEBMaxRunTime<a class="headerlink" href="#nebmaxruntime" title="Permalink to this headline">¶</a></h2>
+<p>Integer (seconds)</p>
+<p>Maximum run time of NEB minimisation.</p>
+<p>Default: 1000</p>
+</div>
+<div class="section" id="nebmaxbarrier">
+<h2>NEBmaxBarrier<a class="headerlink" href="#nebmaxbarrier" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Max barrier value used by NEBBarrierCriteria when saddle search
+algorithm does not have defined property MaxBarrier. Use it carefully.</p>
+<p>Default: 10.0</p>
+</div>
+<div class="section" id="nebbarriercriteria">
+<h2>NEBBarrierCriteria<a class="headerlink" href="#nebbarriercriteria" title="Permalink to this headline">¶</a></h2>
+<p>(Comma separated List of) dash connected Integer and Real list of
+barrier criteria.</p>
+<p>Must follow this order: iterationCount-barrierMultiplayer.</p>
+<p>It MUST be in ascending order according to iterationCount. (e.g. 10-0.5,20-0.25
+it means after 10 iterations barrier should be less than 0.5 of max barrier defined by
+saddle point search algorithm&#8217;s property MaxBarrier or by NEBmaxBarrier,
+and after 20 iterations it should not be higher than 25% of it).</p>
+<p>Default: &#8216;10-0.5,50-0.25,100-0.2&#8217;</p>
+</div>
+<div class="section" id="timeneb">
+<h2>timeNEB<a class="headerlink" href="#timeneb" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: turn on NEB time tracking.</p>
+<p>Default: 0</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">NEB</a><ul>
+<li><a class="reference internal" href="#nebnnodes">NEBNNodes</a></li>
+<li><a class="reference internal" href="#nebclimbingimage">NEBClimbingImage</a></li>
+<li><a class="reference internal" href="#nebclimbingthreshold">NEBClimbingThreshold</a></li>
+<li><a class="reference internal" href="#nebspringconstant">NEBSpringConstant</a></li>
+<li><a class="reference internal" href="#nebminimisationtype">NEBMinimisationType</a></li>
+<li><a class="reference internal" href="#nebminimisationcriteria">NEBMinimisationCriteria</a></li>
+<li><a class="reference internal" href="#nebminimisationtolerance">NEBMinimisationTolerance</a></li>
+<li><a class="reference internal" href="#nebminimisationlinesearch">NEBMinimisationLineSearch</a></li>
+<li><a class="reference internal" href="#nebminimizationexclusion">NEBMinimizationExclusion</a></li>
+<li><a class="reference internal" href="#nebminimizationexclusionreverseeveryfeval">NEBMinimizationExclusionReverseEveryFEval</a></li>
+<li><a class="reference internal" href="#nebplotpathway">NEBPlotPathway</a></li>
+<li><a class="reference internal" href="#nebvisualisepathway">NEBVisualisePathway</a></li>
+<li><a class="reference internal" href="#nebperloutput">NEBPerlOutput</a></li>
+<li><a class="reference internal" href="#nebminimisationmaxiterations">NEBMinimisationMaxIterations</a></li>
+<li><a class="reference internal" href="#nebmaxruntime">NEBMaxRunTime</a></li>
+<li><a class="reference internal" href="#nebmaxbarrier">NEBmaxBarrier</a></li>
+<li><a class="reference internal" href="#nebbarriercriteria">NEBBarrierCriteria</a></li>
+<li><a class="reference internal" href="#timeneb">timeNEB</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lbfgs.html"
+                        title="previous chapter">L-BFGS</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="string.html"
+                        title="next chapter">String</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/neb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="string.html" title="String"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lbfgs.html" title="L-BFGS"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
