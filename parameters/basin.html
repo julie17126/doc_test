@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Basin &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="Hooks" href="hooks.html" />
+    <link rel="prev" title="Deposition" href="deposition.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="hooks.html" title="Hooks"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="deposition.html" title="Deposition"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="basin">
+<h1>Basin<a class="headerlink" href="#basin" title="Permalink to this headline">¶</a></h1>
+<p>Parameters for the basin method.</p>
+<div class="section" id="basinreset">
+<h2>basinReset<a class="headerlink" href="#basinreset" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1 - 1: for a resuming job, ignore all basin built and stored
+before, and start building new basins; - 0: for a resuming job, read in
+all basin built and stored before, and continuing build and use these
+basins. Default: 0</p>
+</div>
+<div class="section" id="basincomtol">
+<h2>basinCOMTol<a class="headerlink" href="#basincomtol" title="Permalink to this headline">¶</a></h2>
+<p>Float When checking a volume is a basin states or not, the tolerance of
+checking center of mass. Default: 0.4</p>
+</div>
+<div class="section" id="basinmomenttol">
+<h2>basinMomentTol<a class="headerlink" href="#basinmomenttol" title="Permalink to this headline">¶</a></h2>
+<p>Float &gt; 0.0 When checking a volume is a basin states or not, the
+tolerance of checking moment. Default: 0.1</p>
+</div>
+<div class="section" id="basinlowbarrier">
+<h2>basinLowBarrier<a class="headerlink" href="#basinlowbarrier" title="Permalink to this headline">¶</a></h2>
+<p>Float &gt; 0.0 If both forward and reverse barriers are lower than this
+value, this transition is regarded as a basin event. Default: 0.1</p>
+</div>
+<div class="section" id="basintranssep">
+<h2>basinTransSep<a class="headerlink" href="#basintranssep" title="Permalink to this headline">¶</a></h2>
+<p>Float &gt; 0.0 For two transitions, if the separation of saddles are
+smaller than this value, we assume they are identical. Default: 0.5</p>
+</div>
+<div class="section" id="basinseptol">
+<h2>basinSepTol<a class="headerlink" href="#basinseptol" title="Permalink to this headline">¶</a></h2>
+<p>Float &gt; 0.0 Even the hash keys of two volumes are different, we still
+check the separation of these two volumes. If the separation is smaller
+than this value, we assume these volumes are identical. Default: 1.0</p>
+</div>
+<div class="section" id="debugbasin">
+<h2>debugBasin<a class="headerlink" href="#debugbasin" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1 If 1, debug mode of basin method. Will print out information
+about the basin, e.g. origin/basin rates, whole built basin info, chosen
+transition&#8217;s basin info, etc. Default: 0</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Basin</a><ul>
+<li><a class="reference internal" href="#basinreset">basinReset</a></li>
+<li><a class="reference internal" href="#basincomtol">basinCOMTol</a></li>
+<li><a class="reference internal" href="#basinmomenttol">basinMomentTol</a></li>
+<li><a class="reference internal" href="#basinlowbarrier">basinLowBarrier</a></li>
+<li><a class="reference internal" href="#basintranssep">basinTransSep</a></li>
+<li><a class="reference internal" href="#basinseptol">basinSepTol</a></li>
+<li><a class="reference internal" href="#debugbasin">debugBasin</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="deposition.html"
+                        title="previous chapter">Deposition</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="hooks.html"
+                        title="next chapter">Hooks</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/basin.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="hooks.html" title="Hooks"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="deposition.html" title="Deposition"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
