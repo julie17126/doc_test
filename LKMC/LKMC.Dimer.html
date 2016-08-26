@@ -1,0 +1,355 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Dimer module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Dummy module" href="LKMC.Dummy.html" />
+    <link rel="prev" title="LKMC.Deposition module" href="LKMC.Deposition.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Dummy.html" title="LKMC.Dummy module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Deposition.html" title="LKMC.Deposition module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Dimer">
+<span id="lkmc-dimer-module"></span><h1>LKMC.Dimer module<a class="headerlink" href="#module-LKMC.Dimer" title="Permalink to this headline">¶</a></h1>
+<p>Dimer method of Henkelman and Jonsson.</p>
+<p>Copyright Chris Scott 2012</p>
+<dl class="docutils">
+<dt>Combined with LBFGS/Lanczos method</dt>
+<dd>Tomas Lazauskas 2012</dd>
+</dl>
+<dl class="class">
+<dt id="LKMC.Dimer.Dimer">
+<em class="property">class </em><code class="descclassname">LKMC.Dimer.</code><code class="descname">Dimer</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Dimer class.
+Input is the initial state.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.calcEffectiveForce">
+<code class="descname">calcEffectiveForce</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.calcEffectiveForce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.calcEffectiveForce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates effective force of a dimer, depending on curvature (Eq 21 from Dimer paper)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.calcForce">
+<code class="descname">calcForce</code><span class="sig-paren">(</span><em>defectFlag=0</em>, <em>correctTE=False</em>, <em>parallel=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.calcForce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.calcForce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate forces on the dimer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.calcForceImages">
+<code class="descname">calcForceImages</code><span class="sig-paren">(</span><em>defectFlag=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.calcForceImages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.calcForceImages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates forces on the Dimer images.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.calcForce_isoPotential">
+<code class="descname">calcForce_isoPotential</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.calcForce_isoPotential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.calcForce_isoPotential" title="Permalink to this definition">¶</a></dt>
+<dd><p>A modified rotational force for k-dimer method.</p>
+<p>DOI:10.1063/1.4898664 Xiao, P., Wu, Q., &amp; Henkelman, G. (2014). Basin constrained κ-dimer method for saddle point finding. J. Chem. Phys., 141(16), 164111.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.calcStepSize">
+<code class="descname">calcStepSize</code><span class="sig-paren">(</span><em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.calcStepSize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.calcStepSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates step size.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.converge2Saddle">
+<code class="descname">converge2Saddle</code><span class="sig-paren">(</span><em>lanczosSaddle</em>, <em>inputStateIni</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.converge2Saddle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.converge2Saddle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converges to a saddle point using LBFGS minimisation and Lanczos method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.convertToLattice">
+<code class="descname">convertToLattice</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.convertToLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.convertToLattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a lattice object from the centre point of the dimer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.createListsForImages">
+<code class="descname">createListsForImages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.createListsForImages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.createListsForImages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copies defectSubSystem from the main object to the images. Creates
+includeAtoms list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.getForceParallel">
+<code class="descname">getForceParallel</code><span class="sig-paren">(</span><em>N</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.getForceParallel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.getForceParallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns array containing parallel component of force
+with respect to vector N</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.getForcePerpendicular">
+<code class="descname">getForcePerpendicular</code><span class="sig-paren">(</span><em>N</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.getForcePerpendicular"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.getForcePerpendicular" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns array containing perpendicular component of force
+with respect to vector N</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.getTranslationDirection">
+<code class="descname">getTranslationDirection</code><span class="sig-paren">(</span><em>prefEffForce</em>, <em>currEffForce</em>, <em>prevDirection</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.getTranslationDirection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.getTranslationDirection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Polak-Ribiere formula:</p>
+<p>DOI:10.1137/100792743 Pedersen, A et al. &#8220;Efficient sampling of saddle points with the minimum-mode following method&#8221;</p>
+<p>Eq. 2.4</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.loadRerunFiles">
+<code class="descname">loadRerunFiles</code><span class="sig-paren">(</span><em>inputState</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.loadRerunFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.loadRerunFiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load N and displacementVector from files</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.prepare4Convergence">
+<code class="descname">prepare4Convergence</code><span class="sig-paren">(</span><em>lanczosSaddle</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.prepare4Convergence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.prepare4Convergence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepares rVector and index lists.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.prepareRotationalMinParams">
+<code class="descname">prepareRotationalMinParams</code><span class="sig-paren">(</span><em>defectFlag=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.prepareRotationalMinParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.prepareRotationalMinParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare params object for rotational minimiser.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.rotate">
+<code class="descname">rotate</code><span class="sig-paren">(</span><em>angle</em>, <em>N</em>, <em>theta</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.rotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate dimer by angle in plane defined by vectors N and theta</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>inputState</em>, <em>fixSearchObj=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the dimer method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.runDimerWithTiming">
+<code class="descname">runDimerWithTiming</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.runDimerWithTiming"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.runDimerWithTiming" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run dimer with timing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.runDimerWithoutTiming">
+<code class="descname">runDimerWithoutTiming</code><span class="sig-paren">(</span><em>inputState</em>, <em>fixSearchObj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.runDimerWithoutTiming"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.runDimerWithoutTiming" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run dimer without timing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.runMain">
+<code class="descname">runMain</code><span class="sig-paren">(</span><em>inputStateIni</em>, <em>fixSearchObj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.runMain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.runMain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main run method (not called directly).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.runRotation">
+<code class="descname">runRotation</code><span class="sig-paren">(</span><em>initialState</em>, <em>subSystem</em>, <em>initialPos=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.runRotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.runRotation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.setJobID">
+<code class="descname">setJobID</code><span class="sig-paren">(</span><em>jobID</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.setJobID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.setJobID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set job ID.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.setParams">
+<code class="descname">setParams</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.setParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.setParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set params object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.setupDimer">
+<code class="descname">setupDimer</code><span class="sig-paren">(</span><em>initialState</em>, <em>defectFlag=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.setupDimer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.setupDimer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup the dimer</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.stepBackwardsTest">
+<code class="descname">stepBackwardsTest</code><span class="sig-paren">(</span><em>initialState</em>, <em>saddleState</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.stepBackwardsTest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.stepBackwardsTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs step backwards test in the direction of initial state from the
+saddle state. Uses searcher&#8217;s mechanism to minimise.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.translate">
+<code class="descname">translate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.translate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.translate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Translate the dimer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.writeLattice">
+<code class="descname">writeLattice</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.writeLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.writeLattice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.Dimer.writeObject">
+<code class="descname">writeObject</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#Dimer.writeObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.Dimer.writeObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the dimer centre point</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Dimer.DimerTransitionFix">
+<em class="property">class </em><code class="descclassname">LKMC.Dimer.</code><code class="descname">DimerTransitionFix</code><span class="sig-paren">(</span><em>displacementVector</em>, <em>NVector</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#DimerTransitionFix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.DimerTransitionFix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Object that stores data for fixing Dimer transition search</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Dimer.QuickMinDimerTranslator">
+<em class="property">class </em><code class="descclassname">LKMC.Dimer.</code><code class="descname">QuickMinDimerTranslator</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#QuickMinDimerTranslator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.QuickMinDimerTranslator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dimer quickmin translator.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Dimer.QuickMinDimerTranslator.checkIfContinue">
+<code class="descname">checkIfContinue</code><span class="sig-paren">(</span><em>dimer</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#QuickMinDimerTranslator.checkIfContinue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.QuickMinDimerTranslator.checkIfContinue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.QuickMinDimerTranslator.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>dimer</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#QuickMinDimerTranslator.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.QuickMinDimerTranslator.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run dimer translator.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Dimer.QuickMinDimerTranslator.setJobID">
+<code class="descname">setJobID</code><span class="sig-paren">(</span><em>jobID</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#QuickMinDimerTranslator.setJobID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.QuickMinDimerTranslator.setJobID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Dimer.commandLineArgs">
+<code class="descclassname">LKMC.Dimer.</code><code class="descname">commandLineArgs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#commandLineArgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.commandLineArgs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse command line arguments</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Dimer.getDimerTranslator">
+<code class="descclassname">LKMC.Dimer.</code><code class="descname">getDimerTranslator</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#getDimerTranslator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.getDimerTranslator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return selected translator.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Dimer.loadDimerFixFiles">
+<code class="descclassname">LKMC.Dimer.</code><code class="descname">loadDimerFixFiles</code><span class="sig-paren">(</span><em>dirname</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#loadDimerFixFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.loadDimerFixFiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load dimer fix files</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Dimer.main">
+<code class="descclassname">LKMC.Dimer.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Dimer.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Dimer.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Deposition.html"
+                        title="previous chapter">LKMC.Deposition module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Dummy.html"
+                        title="next chapter">LKMC.Dummy module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Dimer.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Dummy.html" title="LKMC.Dummy module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Deposition.html" title="LKMC.Deposition module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
