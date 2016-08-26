@@ -1,0 +1,7 @@
+LKMC.clibs.lattice module
+=========================
+
+.. automodule:: LKMC.clibs.lattice
+    :members:
+    :undoc-members:
+    :show-inheritance:

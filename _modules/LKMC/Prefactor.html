@@ -1,0 +1,464 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Prefactor &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Prefactor</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A collection of prefactor calculation procedures</span>
+
+<span class="sd">(c) Tomas Lazauskas, 2013</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">copy</span><span class="o">,</span> <span class="nn">multiprocessing</span><span class="o">,</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Algebra</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Atoms</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">ClientServerInterface</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Constants</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Lanczos</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Minimise</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Vectors</span>
+
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+
+<span class="n">iniEVCalcjobName</span> <span class="o">=</span> <span class="s2">&quot;INIEVCALC&quot;</span>
+
+<div class="viewcode-block" id="PrefactorCalculator"><a class="viewcode-back" href="../../LKMC/LKMC.Prefactor.html#LKMC.Prefactor.PrefactorCalculator">[docs]</a><span class="k">class</span> <span class="nc">PrefactorCalculator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="PrefactorCalculator.createFailResult"><a class="viewcode-back" href="../../LKMC/LKMC.Prefactor.html#LKMC.Prefactor.PrefactorCalculator.createFailResult">[docs]</a>    <span class="k">def</span> <span class="nf">createFailResult</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">currentVolIndex</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create fail result.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">elapsedTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">startTime</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodRunList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iniEVCalcjobName</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodTimeList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elapsedTime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodSuccList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="n">timeLog</span> <span class="o">=</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">TimeLog</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methodRunList</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">methodTimeList</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">methodSuccList</span><span class="p">)</span>
+        
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">Result</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">,</span> <span class="n">iniEVCalcjobName</span><span class="p">,</span> <span class="s2">&quot;FAILED&quot;</span><span class="p">,</span>
+            <span class="n">currentVolIndex</span><span class="o">=</span><span class="n">currentVolIndex</span><span class="p">,</span> <span class="n">timing</span><span class="o">=</span><span class="n">timeLog</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">result</span></div>
+    
+<div class="viewcode-block" id="PrefactorCalculator.createSuccessResult"><a class="viewcode-back" href="../../LKMC/LKMC.Prefactor.html#LKMC.Prefactor.PrefactorCalculator.createSuccessResult">[docs]</a>    <span class="k">def</span> <span class="nf">createSuccessResult</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">currentVolIndex</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initialSumLogEVs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create success result.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">elapsedTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">startTime</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodRunList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iniEVCalcjobName</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodTimeList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elapsedTime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodSuccList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">timeLog</span> <span class="o">=</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">TimeLog</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methodRunList</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">methodTimeList</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">methodSuccList</span><span class="p">)</span>
+        
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">Result</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">,</span> <span class="n">iniEVCalcjobName</span><span class="p">,</span> <span class="s2">&quot;SUCCESS&quot;</span><span class="p">,</span> 
+            <span class="n">currentVolIndex</span><span class="o">=</span><span class="n">currentVolIndex</span><span class="p">,</span> <span class="n">timing</span><span class="o">=</span><span class="n">timeLog</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">,</span> 
+            <span class="n">initialSumLogEVs</span><span class="o">=</span><span class="n">initialSumLogEVs</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">result</span></div>
+    
+<div class="viewcode-block" id="PrefactorCalculator.calculate"><a class="viewcode-back" href="../../LKMC/LKMC.Prefactor.html#LKMC.Prefactor.PrefactorCalculator.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">currentVolIndex</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Uses implicit eigenvalues calculation method to find the initial eigenvalues.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># class properties for statistics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodRunList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodTimeList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodSuccList</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1"># building sub-systems</span>
+        <span class="n">mainIndexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">defectVolumes</span><span class="p">[</span><span class="n">currentVolIndex</span><span class="p">]</span><span class="o">.</span><span class="n">searchInitialVol</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">prefactorRadius</span><span class="p">)</span>
+        <span class="n">includeAtoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span><span class="p">)</span>
+         
+        <span class="n">jobStatus</span> <span class="o">=</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">checkJobStatus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">jobStatus</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFailResult</span><span class="p">(</span><span class="n">currentVolIndex</span><span class="o">=</span><span class="n">currentVolIndex</span><span class="p">)</span>
+                
+        <span class="c1"># calculating eigenvalues</span>
+        <span class="n">statusInt</span><span class="p">,</span> <span class="n">eigenValues</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Algebra</span><span class="o">.</span><span class="n">getSystemsImplicitEigenvalues</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="p">,</span> 
+            <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">evn</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">noEigenVects</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">includeMasses</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
+            <span class="n">noOfWorkers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">statusInt</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFailResult</span><span class="p">(</span><span class="n">currentVolIndex</span><span class="o">=</span><span class="n">currentVolIndex</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">countNegativeValues</span><span class="p">(</span><span class="n">eigenValues</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFailResult</span><span class="p">(</span><span class="n">currentVolIndex</span><span class="o">=</span><span class="n">currentVolIndex</span><span class="p">)</span>
+        
+        <span class="n">initialSumLogEVs</span> <span class="o">=</span> <span class="n">eigenvalues2Frequencies</span><span class="p">(</span><span class="n">eigenValues</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">createSuccessResult</span><span class="p">(</span><span class="n">currentVolIndex</span><span class="o">=</span><span class="n">currentVolIndex</span><span class="p">,</span> <span class="n">initialSumLogEVs</span><span class="o">=</span><span class="n">initialSumLogEVs</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="PrefactorCalculator.setInitialData"><a class="viewcode-back" href="../../LKMC/LKMC.Prefactor.html#LKMC.Prefactor.PrefactorCalculator.setInitialData">[docs]</a>    <span class="k">def</span> <span class="nf">setInitialData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataDict</span><span class="p">):</span>
+        
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initial data.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">initialState</span> <span class="o">=</span> <span class="n">dataDict</span><span class="p">[</span><span class="s2">&quot;initialState&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setInitialState</span><span class="p">(</span><span class="n">initialState</span><span class="p">)</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+            
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">status</span></div>
+    
+<div class="viewcode-block" id="PrefactorCalculator.setInitialState"><a class="viewcode-back" href="../../LKMC/LKMC.Prefactor.html#LKMC.Prefactor.PrefactorCalculator.setInitialState">[docs]</a>    <span class="k">def</span> <span class="nf">setInitialState</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialState</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the initial state.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">initialState</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="PrefactorCalculator.setJobID"><a class="viewcode-back" href="../../LKMC/LKMC.Prefactor.html#LKMC.Prefactor.PrefactorCalculator.setJobID">[docs]</a>    <span class="k">def</span> <span class="nf">setJobID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jobID</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set job ID.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="o">=</span> <span class="n">jobID</span></div>
+    
+<div class="viewcode-block" id="PrefactorCalculator.setRank"><a class="viewcode-back" href="../../LKMC/LKMC.Prefactor.html#LKMC.Prefactor.PrefactorCalculator.setRank">[docs]</a>    <span class="k">def</span> <span class="nf">setRank</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rank</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set rank of running process.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">=</span> <span class="n">rank</span></div></div>
+            
+<div class="viewcode-block" id="checkForRank2Saddle"><a class="viewcode-back" href="../../LKMC/LKMC.Prefactor.html#LKMC.Prefactor.checkForRank2Saddle">[docs]</a><span class="k">def</span> <span class="nf">checkForRank2Saddle</span><span class="p">(</span><span class="n">saddleLattice</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">initialLattice</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    Checks if saddleLattice is at the rank-2 saddle. </span>
+<span class="sd">    If yes, uses minimum mode following algorithm to converge to a rank-1 saddle.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">rank2</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="c1"># creates mainIndexes and includeAtoms</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">saddleLattice</span><span class="o">.</span><span class="n">rVectorIndexes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">saddleLattice</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;defectSubSystem property is empty.&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        
+        <span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">saddleLattice</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">saddleLattice</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">saddleConvergeRadius</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">saddleLattice</span><span class="o">.</span><span class="n">rVectorIndexes</span>
+                
+    <span class="n">includeAtoms</span> <span class="o">=</span> <span class="n">saddleLattice</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span><span class="p">)</span>
+        
+    <span class="c1"># creates rVector</span>
+    <span class="k">if</span> <span class="p">((</span><span class="n">saddleLattice</span><span class="o">.</span><span class="n">rVector</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">saddleLattice</span><span class="o">.</span><span class="n">rVector</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">saddleLattice</span><span class="o">.</span><span class="n">rVector</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">))):</span>
+            
+        <span class="n">dimeRotMinParams</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>    
+        <span class="n">dimeRotMinParams</span><span class="o">.</span><span class="n">dimerTolR</span> <span class="o">=</span> <span class="n">dimeRotMinParams</span><span class="o">.</span><span class="n">refineDimerMinTolR</span>
+        <span class="n">dimerRotMinimiser</span> <span class="o">=</span> <span class="n">Dimer</span><span class="o">.</span><span class="n">Dimer</span><span class="p">(</span><span class="n">dimeRotMinParams</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="n">initialLattice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">initialPos</span> <span class="o">=</span> <span class="n">initialLattice</span><span class="o">.</span><span class="n">pos</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">initialPos</span> <span class="o">=</span> <span class="kc">None</span>
+            
+        <span class="n">rVector</span> <span class="o">=</span> <span class="n">dimerRotMinimiser</span><span class="o">.</span><span class="n">runRotation</span><span class="p">(</span><span class="n">saddleLattice</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">initialPos</span><span class="o">=</span><span class="n">initialPos</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">rVector</span> <span class="o">=</span> <span class="n">saddleLattice</span><span class="o">.</span><span class="n">rVector</span>
+    
+    <span class="c1"># checks for rank 2 saddle</span>
+    <span class="k">if</span> <span class="n">saddleLattice</span><span class="o">.</span><span class="n">lanczosEigenVals</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cnt</span> <span class="o">=</span> <span class="n">countNegativeValues</span><span class="p">(</span><span class="n">saddleLattice</span><span class="o">.</span><span class="n">lanczosEigenVals</span><span class="p">)</span>
+       
+        <span class="k">if</span> <span class="n">cnt</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">rank2</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+                
+        <span class="n">result</span><span class="p">,</span> <span class="n">elist</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Lanczos</span><span class="o">.</span><span class="n">calcEigenValues</span><span class="p">(</span><span class="n">saddleLattice</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">rVector</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failed to estimate eigenvalues&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+        
+        <span class="n">cnt</span> <span class="o">=</span> <span class="n">countNegativeValues</span><span class="p">(</span><span class="n">elist</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">cnt</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">rank2</span> <span class="o">=</span> <span class="mi">1</span>
+    
+    <span class="c1"># converges to rank 1</span>
+    <span class="k">if</span> <span class="n">rank2</span><span class="p">:</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;High rank (at least rank-2) saddle point&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        
+        
+        <span class="n">follower</span> <span class="o">=</span> <span class="n">MinModeFollower</span><span class="o">.</span><span class="n">MinModeFollower</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">midModeLattice</span> <span class="o">=</span> <span class="n">convertLattice2MinModeLattice</span><span class="p">(</span><span class="n">saddleLattice</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">rVector</span><span class="p">)</span>
+        
+        <span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+        
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Rank-1 saddle point&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">status</span></div>
+
+<div class="viewcode-block" id="countNegativeValues"><a class="viewcode-back" href="../../LKMC/LKMC.Prefactor.html#LKMC.Prefactor.countNegativeValues">[docs]</a><span class="k">def</span> <span class="nf">countNegativeValues</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Counts the number of negative values in the array. Assumes that values are in ascending order</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">array</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">break</span>
+    
+    <span class="k">return</span> <span class="n">cnt</span>    </div>
+
+<div class="viewcode-block" id="eigenvalues2Frequencies"><a class="viewcode-back" href="../../LKMC/LKMC.Prefactor.html#LKMC.Prefactor.eigenvalues2Frequencies">[docs]</a><span class="k">def</span> <span class="nf">eigenvalues2Frequencies</span><span class="p">(</span><span class="n">eigenValues</span><span class="p">,</span> <span class="n">ignoreFirst</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts array of eigenvalues to a sum of log((ev[i])/twopi)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">logSum</span> <span class="o">=</span> <span class="mf">0.0</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">eigenValues</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">ignoreFirst</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logSum</span> <span class="o">+=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">eigenValues</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">/</span><span class="n">Constants</span><span class="o">.</span><span class="n">twoPi</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">logSum</span></div>
+    
+<div class="viewcode-block" id="estimatePrefactor"><a class="viewcode-back" href="../../LKMC/LKMC.Prefactor.html#LKMC.Prefactor.estimatePrefactor">[docs]</a><span class="k">def</span> <span class="nf">estimatePrefactor</span><span class="p">(</span><span class="n">initialSumLogEVs</span><span class="p">,</span> <span class="n">saddleSumLogEVs</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimates prefactor by using pre-calculated eigenvalues from the initial and saddle states.</span>
+<span class="sd">    </span>
+<span class="sd">    Eigenvalues are expressed as such:  initialSumLogEVs = log(ev1) + log(ev2) + .. log(evN)</span>
+<span class="sd">                                        saddleSumLogEVs = log(ev2) + log(ev3) + .. log(evN)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="p">((</span><span class="n">initialSumLogEVs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">saddleSumLogEVs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)):</span>        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Warning: something is wrong with the eigenvalues sums!&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span> 
+    
+    <span class="n">prefactor</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">initialSumLogEVs</span> <span class="o">-</span> <span class="n">saddleSumLogEVs</span><span class="p">)</span>
+
+    <span class="n">prefactor</span> <span class="o">*=</span> <span class="mi">1</span><span class="n">e15</span>
+    
+    <span class="k">return</span> <span class="n">prefactor</span></div>
+
+<div class="viewcode-block" id="estimatePrefactorOld"><a class="viewcode-back" href="../../LKMC/LKMC.Prefactor.html#LKMC.Prefactor.estimatePrefactorOld">[docs]</a><span class="k">def</span> <span class="nf">estimatePrefactorOld</span><span class="p">(</span><span class="n">initialEigenVals</span><span class="p">,</span> <span class="n">saddleEigenVals</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimates prefactor by using pre-calculated eigenvalues from the initial and saddle states.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">negCnt</span> <span class="o">=</span> <span class="n">countNegativeValues</span><span class="p">(</span><span class="n">saddleEigenVals</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">negCnt</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Warning: saddle point&#39;s rank = </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">negCnt</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span> 
+    
+    <span class="n">noEV</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">initialEigenVals</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">noEV</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">saddleEigenVals</span><span class="p">):</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Warning: the lengths of eigenvalue arrays do not match!&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span> 
+        
+    <span class="n">prefactor</span> <span class="o">=</span> <span class="mf">1.0</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">noEV</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">noEV</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span>
+        
+        <span class="n">prefactor</span> <span class="o">*=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">initialEigenVals</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+        <span class="n">prefactor</span> <span class="o">/=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">saddleEigenVals</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+
+        <span class="c1">#print prefactor, initialEigenVals[idx],  saddleEigenVals[idx]</span>
+        
+    <span class="n">prefactor</span> <span class="o">*=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">initialEigenVals</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">prefactor</span> <span class="o">/=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mi">2</span>
+    <span class="n">prefactor</span> <span class="o">*=</span> <span class="mi">1</span><span class="n">e15</span>
+    
+    <span class="k">return</span> <span class="n">prefactor</span></div>
+
+
+<div class="viewcode-block" id="getEigenValues"><a class="viewcode-back" href="../../LKMC/LKMC.Prefactor.html#LKMC.Prefactor.getEigenValues">[docs]</a><span class="k">def</span> <span class="nf">getEigenValues</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">displacement</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> 
+        <span class="n">displVector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">eigenvNo</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">leastNegMd</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">noOfWorkers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates required eigenvalue and eigenvector.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">eigenValue</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">eigenVector</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">resultVector</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">totTime</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">orthBasis</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">rVector</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">if</span> <span class="n">algorithm</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">timeHessian</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">timeDsyev</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="n">result</span><span class="p">,</span> <span class="n">eigenValues</span><span class="p">,</span> <span class="n">eigenVectors</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Algebra</span><span class="o">.</span><span class="n">getSystemsImplicitEigenvalues</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> 
+            <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">evn</span><span class="o">=</span><span class="n">eigenvNo</span><span class="p">,</span> <span class="n">noOfWorkers</span><span class="o">=</span><span class="n">noOfWorkers</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">eigenValues</span><span class="p">,</span> <span class="n">eigenValue</span><span class="p">,</span> <span class="n">resultVector</span><span class="p">,</span> <span class="n">totTime</span><span class="p">,</span> <span class="n">eigenVector</span>
+        
+        <span class="n">totTime</span> <span class="o">=</span> <span class="n">timeHessian</span> <span class="o">+</span> <span class="n">timeDsyev</span>
+        
+        <span class="k">if</span> <span class="n">leastNegMd</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">continueLooking</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="nb">iter</span> <span class="o">=</span> <span class="mi">0</span>
+            
+            <span class="k">while</span> <span class="n">continueLooking</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">eigenValues</span><span class="p">[</span><span class="nb">iter</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                    <span class="n">idx</span> <span class="o">=</span> <span class="nb">iter</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">break</span>
+                
+                <span class="nb">iter</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">eigenValue</span> <span class="o">=</span> <span class="n">eigenValues</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                <span class="n">eigenVector</span> <span class="o">=</span> <span class="n">eigenVectors</span><span class="p">[</span><span class="n">idx</span><span class="p">][:]</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">eigenValue</span> <span class="o">=</span> <span class="n">eigenValues</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">eigenVector</span> <span class="o">=</span> <span class="kc">None</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">eigenValue</span> <span class="o">=</span> <span class="n">eigenValues</span><span class="p">[</span><span class="n">eigenvNo</span><span class="p">]</span>
+            <span class="n">eigenVector</span> <span class="o">=</span> <span class="n">eigenVectors</span><span class="p">[</span><span class="n">eigenvNo</span><span class="p">][:]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">result</span><span class="p">,</span> <span class="n">eigenValues</span><span class="p">,</span> <span class="n">eigenValue</span><span class="p">,</span> <span class="n">eigenVector</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">totTime</span> <span class="o">=</span> <span class="n">Lanczos</span><span class="o">.</span><span class="n">calcEigenValues</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> 
+            <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">displVector</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">lnegmd</span><span class="o">=</span><span class="n">leastNegMd</span><span class="p">,</span> <span class="n">evn</span><span class="o">=</span><span class="n">eigenvNo</span><span class="p">)</span>
+          
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span> <span class="ow">and</span> <span class="n">eigenVector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        
+        <span class="n">eigenVector</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">normalise</span><span class="p">(</span><span class="n">eigenVector</span><span class="p">)</span>
+        <span class="n">resultVector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">NAtoms</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">)):</span>
+            <span class="n">atom</span> <span class="o">=</span> <span class="n">mainIndexes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                <span class="n">resultVector</span><span class="p">[</span><span class="n">atom</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">eigenVector</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="n">j</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">eigenValues</span><span class="p">,</span> <span class="n">eigenValue</span><span class="p">,</span> <span class="n">resultVector</span><span class="p">,</span> <span class="n">totTime</span><span class="p">,</span> <span class="n">eigenVector</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

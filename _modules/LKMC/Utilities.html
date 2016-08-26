@@ -1,0 +1,808 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Utilities &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Utilities</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utility classes and methods.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">getpass</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="TransitionFix"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.TransitionFix">[docs]</a><span class="k">class</span> <span class="nc">TransitionFix</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Object that stores data for fixing transition search</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">stepSize</span><span class="p">,</span> <span class="n">displacementVector</span><span class="p">,</span> <span class="n">NVector</span><span class="p">,</span> <span class="n">rVector</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">displacementVector</span> <span class="o">=</span> <span class="n">displacementVector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NVector</span> <span class="o">=</span> <span class="n">NVector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stepSize</span> <span class="o">=</span> <span class="n">stepSize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="n">rVector</span></div>
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="TextObject"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.TextObject">[docs]</a><span class="k">class</span> <span class="nc">TextObject</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">textAsLines</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Text object for passing to the `Writer.LKMCWriter`.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        text : str or list</span>
+<span class="sd">            The text as a string or a list of lines, depending on the value of</span>
+<span class="sd">            `textAsLines`</span>
+<span class="sd">        textAsLines : bool, optional</span>
+<span class="sd">            Whether the text is a list of lines. Default is the text is passed</span>
+<span class="sd">            in as a string</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">textAsLines</span> <span class="o">=</span> <span class="n">textAsLines</span>
+    
+<div class="viewcode-block" id="TextObject.write"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.TextObject.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the text to file</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fileName : str</span>
+<span class="sd">            The name of the file to write the text to</span>
+<span class="sd">        append : bool, optional</span>
+<span class="sd">            Whether the text should be appended to the file. Default is False.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fileName</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">d</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">append</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;a&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;w&quot;</span>
+        
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">textAsLines</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+                
+                <span class="c1"># make sure file ends in newline</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">)</span></div></div>
+
+<span class="c1">################################################################################</span>
+<span class="c1">## File object for passing to writer to zip</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="FilesObject"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.FilesObject">[docs]</a><span class="k">class</span> <span class="nc">FilesObject</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    File object with zip method.</span>
+<span class="sd">    So can pass to writer to zip the given files.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">files</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="n">files</span>
+        
+<div class="viewcode-block" id="FilesObject.zip"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.FilesObject.zip">[docs]</a>    <span class="k">def</span> <span class="nf">zip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Zip the file(s)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
+            <span class="n">doZip</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div></div>
+
+
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="SaddleSearchDebugInfo"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.SaddleSearchDebugInfo">[docs]</a><span class="k">class</span> <span class="nc">SaddleSearchDebugInfo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">barrier</span><span class="p">,</span> <span class="n">elapsedTime</span><span class="p">,</span> <span class="n">searchSteps</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+            <span class="n">totWholeFEvals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">totExclFEvals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">minExclFEvalsSteps</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">minExclSubFEvals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">minExclTime</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">minWholeFEvalsSteps</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">minWholeSubFEvals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">minWholeTime</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">dimerRotWholeFEvals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dimerRotExclFEvals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+            <span class="n">dimerTransWholeFEvals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dimerTransExclFEvals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">NEBbarrier</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span> <span class="o">=</span> <span class="n">algorithm</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="n">barrier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">totElapsedTime</span> <span class="o">=</span> <span class="n">elapsedTime</span> 
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">searchSteps</span> <span class="o">=</span> <span class="n">searchSteps</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">minExclFEvalsSteps</span> <span class="o">=</span> <span class="n">minExclFEvalsSteps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minExclSubFEvals</span> <span class="o">=</span> <span class="n">minExclSubFEvals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minExclTime</span> <span class="o">=</span> <span class="n">minExclTime</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">minWholeFEvalsSteps</span> <span class="o">=</span> <span class="n">minWholeFEvalsSteps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minWholeSubFEvals</span> <span class="o">=</span> <span class="n">minWholeSubFEvals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minWholeTime</span> <span class="o">=</span> <span class="n">minWholeTime</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBbarrier</span> <span class="o">=</span> <span class="n">NEBbarrier</span>
+        
+        <span class="c1"># special for dimer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerRotWholeFEvals</span> <span class="o">=</span> <span class="n">dimerRotWholeFEvals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerRotExclFEvals</span> <span class="o">=</span> <span class="n">dimerRotExclFEvals</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerTransWholeFEvals</span> <span class="o">=</span> <span class="n">dimerTransWholeFEvals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerTransExclFEvals</span> <span class="o">=</span> <span class="n">dimerTransExclFEvals</span>
+    
+<div class="viewcode-block" id="SaddleSearchDebugInfo.getInfoString"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.SaddleSearchDebugInfo.getInfoString">[docs]</a>    <span class="k">def</span> <span class="nf">getInfoString</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="n">string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span>
+        
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%f</span><span class="s2">,&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">barrier</span><span class="p">)</span>
+            
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%f</span><span class="s2">,&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">totElapsedTime</span><span class="p">)</span>
+        
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">,&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">searchSteps</span><span class="p">)</span>
+        
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">,&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minExclFEvalsSteps</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">,&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minExclSubFEvals</span><span class="p">)</span>      
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%f</span><span class="s2">,&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minExclTime</span><span class="p">)</span>
+        
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">,&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minWholeFEvalsSteps</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">,&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minWholeSubFEvals</span><span class="p">)</span>      
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%f</span><span class="s2">,&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minWholeTime</span><span class="p">)</span>
+        
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">,&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimerRotWholeFEvals</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">,&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimerRotExclFEvals</span><span class="p">)</span>  
+        
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">,&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimerTransWholeFEvals</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">,&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimerTransExclFEvals</span><span class="p">)</span>  
+        
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%f</span><span class="s2">,&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NEBbarrier</span><span class="p">)</span>
+        
+        <span class="n">string</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        
+        <span class="k">return</span> <span class="n">string</span></div></div>
+<span class="c1">################################################################################</span>
+<span class="c1">## Status object</span>
+
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="compileDstev"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.compileDstev">[docs]</a><span class="k">def</span> <span class="nf">compileDstev</span><span class="p">():</span>
+    
+    <span class="n">path</span> <span class="o">=</span> <span class="n">getPathToThirdparty</span><span class="p">()</span>
+    <span class="n">fileName</span> <span class="o">=</span> <span class="s2">&quot;dstev&quot;</span>
+    <span class="n">f2py</span> <span class="o">=</span> <span class="s2">&quot;f2py-2.7&quot;</span>
+    
+    <span class="n">tmpCwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    
+    <span class="c1"># Creating signature file</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.pyf&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fileName</span><span class="p">)):</span>    
+        <span class="n">cmdLine</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> -m </span><span class="si">%s</span><span class="s2"> -h </span><span class="si">%s</span><span class="s2">.pyf </span><span class="si">%s</span><span class="s2">.f&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2py</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">fileName</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="n">cmdLine</span>
+        <span class="n">output</span><span class="p">,</span> <span class="n">stderr</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">runSubProcess</span><span class="p">(</span><span class="n">cmdLine</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;WARNING: </span><span class="si">%s</span><span class="s2"> FAILED&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2py</span><span class="p">)</span>
+            <span class="nb">print</span> <span class="n">stderr</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="c1"># Compiling </span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.so&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fileName</span><span class="p">)):</span>  
+        <span class="n">cmdLine</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> -c </span><span class="si">%s</span><span class="s2">.pyf </span><span class="si">%s</span><span class="s2">.f -latlas -llapack -lblas --fcompiler=intelem&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2py</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">fileName</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="n">cmdLine</span>
+        <span class="n">output</span><span class="p">,</span> <span class="n">stderr</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">runSubProcess</span><span class="p">(</span><span class="n">cmdLine</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;WARNING: </span><span class="si">%s</span><span class="s2"> FAILED&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2py</span><span class="p">)</span>
+            <span class="nb">print</span> <span class="n">stderr</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">tmpCwd</span><span class="p">)</span></div>
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="getPathToThirdparty"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.getPathToThirdparty">[docs]</a><span class="k">def</span> <span class="nf">getPathToThirdparty</span><span class="p">():</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s2">&quot;thirdparty&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="nb">print</span> <span class="s2">&quot;WARNING: COULD NOT LOCATE thirdparty directory:&quot;</span><span class="p">,</span> <span class="n">path</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="k">return</span> <span class="n">path</span></div>
+    
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="getPathToDreadnaut"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.getPathToDreadnaut">[docs]</a><span class="k">def</span> <span class="nf">getPathToDreadnaut</span><span class="p">():</span>
+    <span class="n">dreadnaut</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s2">&quot;thirdparty&quot;</span><span class="p">,</span> <span class="s2">&quot;nauty24r2&quot;</span><span class="p">,</span> <span class="s2">&quot;dreadnaut&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dreadnaut</span><span class="p">):</span>
+        <span class="nb">print</span> <span class="s2">&quot;WARNING: COULD NOT LOCATE dreadnaut EXECUTABLE:&quot;</span><span class="p">,</span> <span class="n">dreadnaut</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="k">return</span> <span class="n">dreadnaut</span></div>
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="runDreadnaut"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.runDreadnaut">[docs]</a><span class="k">def</span> <span class="nf">runDreadnaut</span><span class="p">(</span><span class="n">graphFile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">graphString</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run dreadnaut on the given graph</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">graphFile</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">graphString</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="n">dreadnaut</span> <span class="o">=</span> <span class="n">getPathToDreadnaut</span><span class="p">()</span>
+        
+    <span class="k">if</span> <span class="n">graphFile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> &lt; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dreadnaut</span><span class="p">,</span> <span class="n">graphFile</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;echo &#39;</span><span class="si">%s</span><span class="s2">&#39; | </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">graphString</span><span class="p">,</span> <span class="n">dreadnaut</span><span class="p">)</span>
+    
+    <span class="n">output</span><span class="p">,</span> <span class="n">stderr</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;WARNING: dreadnaut FAILED&quot;</span>
+        <span class="nb">print</span> <span class="n">stderr</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="n">array</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        
+    <span class="k">if</span> <span class="n">line</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;[&quot;</span> <span class="ow">and</span> <span class="n">line</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="s2">&quot;]&quot;</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s2">&quot;[&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;WARNING: dreadnaut FAILED&quot;</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">return</span> <span class="n">line</span></div>
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="fileLineCount"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.fileLineCount">[docs]</a><span class="k">def</span> <span class="nf">fileLineCount</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return line count of given file</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s2">&quot;.gz&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s2">&quot;.bz2&quot;</span><span class="p">):</span>
+        <span class="n">lineCount</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">zipFlag</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">checkForZipped</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;wc -l </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,)</span>
+        <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">array</span> <span class="o">=</span> <span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">lineCount</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">lineCount</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        
+        <span class="k">if</span> <span class="n">zipFlag</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">lineCount</span></div>
+
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="findLastKMCLattice"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.findLastKMCLattice">[docs]</a><span class="k">def</span> <span class="nf">findLastKMCLattice</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the last KMC lattice.</span>
+<span class="sd">    (ie the one with the highest index)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1">#index = 0</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;KMC</span><span class="si">%d</span><span class="s2">.dat&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">index</span><span class="p">,)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s2">&quot;.gz&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s2">&quot;.bz2&quot;</span><span class="p">)):</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span> <span class="o">+</span> <span class="s2">&quot; ERROR: cannot read KMC file : &quot;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
+    
+    <span class="k">while</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s2">&quot;.gz&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s2">&quot;.bz2&quot;</span><span class="p">):</span>
+        
+        <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;KMC</span><span class="si">%d</span><span class="s2">.dat&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">index</span><span class="p">,)</span>
+    
+    <span class="n">index</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;KMC</span><span class="si">%d</span><span class="s2">.dat&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">index</span><span class="p">,)</span>
+    
+    <span class="k">return</span> <span class="n">filename</span><span class="p">,</span> <span class="n">index</span></div>
+
+        
+<span class="c1">################################################################################</span>
+<span class="c1">## match files</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="findFiles"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.findFiles">[docs]</a><span class="k">def</span> <span class="nf">findFiles</span><span class="p">(</span><span class="n">stringToMatch</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a list of files that match the given string.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">stringToMatch</span><span class="p">)</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">## return username of current user</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="username"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.username">[docs]</a><span class="k">def</span> <span class="nf">username</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the username of the current user.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">()</span></div>
+
+<span class="c1">################################################################################</span>
+<span class="c1">## returns the address of the process</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="nodeAddress"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.nodeAddress">[docs]</a><span class="k">def</span> <span class="nf">nodeAddress</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the address of the node the process is running on.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">nodeAddress</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostbyaddr</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">nodeAddress</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">nodeAddress</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">## generic subprocess call</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="runSubProcess"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.runSubProcess">[docs]</a><span class="k">def</span> <span class="nf">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run command using subprocess module.</span>
+<span class="sd">    Return tuple containing STDOUT, STDERR, STATUS</span>
+<span class="sd">    Caller can decide what to do if status is true</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="n">command</span>
+    
+    <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+    <span class="n">output</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">stderr</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">## generate random string</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="idGenerator"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.idGenerator">[docs]</a><span class="k">def</span> <span class="nf">idGenerator</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">chars</span><span class="o">=</span><span class="n">string</span><span class="o">.</span><span class="n">digits</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_letters</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">digits</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate random string of size &quot;size&quot; (defaults to 16)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">))</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">## return list of unique items in given list</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="uniqueItems"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.uniqueItems">[docs]</a><span class="k">def</span> <span class="nf">uniqueItems</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return list of unique items in given list.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Order preserving</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">seq</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="checkDirectory"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.checkDirectory">[docs]</a><span class="k">def</span> <span class="nf">checkDirectory</span><span class="p">(</span><span class="n">dirPath</span><span class="p">,</span> <span class="n">makeIfNotExists</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check whether a directory exists and optionally create it if not.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dirPath : str</span>
+<span class="sd">        The path of the directory to check.</span>
+<span class="sd">    makeIfNotExists : bool, optional</span>
+<span class="sd">        If True then make the directory if it does not exist. Defaults to True.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    success : bool</span>
+<span class="sd">        True if the directory exists or was successfully created, False</span>
+<span class="sd">        otherwise.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dirPath</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">makeIfNotExists</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span> <span class="n">__name__</span><span class="p">,</span> <span class="s1">&#39;Creating directory &#39;</span> <span class="o">+</span> <span class="n">dirPath</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirPath</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># check if file exists and returns 1 if yes and 0 otherwise</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="checkForFile"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.checkForFile">[docs]</a><span class="k">def</span> <span class="nf">checkForFile</span><span class="p">(</span><span class="n">filePath</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filePath</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+    
+<span class="c1">################################################################################</span>
+<span class="c1">## check for zipped file, if exists unzip it and return 1, else return 0</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="checkForZipped"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.checkForZipped">[docs]</a><span class="k">def</span> <span class="nf">checkForZipped</span><span class="p">(</span><span class="n">filePath</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unzip specified file if required.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filePath : str</span>
+<span class="sd">        Path to the file</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    zipFlag : bool</span>
+<span class="sd">        True if the file was unzipped, false otherwise</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    IOError</span>
+<span class="sd">        If the filePath or a zipped version of it could not be found</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">filePath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.gz&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">filePath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.bz2&#39;</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">filePath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.gz&#39;</span><span class="p">):</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s1">&#39;GZIP...&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">filePath</span> <span class="o">=</span> <span class="n">filePath</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;gzip -cd &#39;</span> <span class="o">+</span> <span class="n">filePath</span> <span class="o">+</span> <span class="s1">&#39;.gz &gt; &#39;</span> <span class="o">+</span> <span class="n">filePath</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">filePath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.bz2&#39;</span><span class="p">):</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span><span class="s1">&#39;BZIP...&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">filePath</span> <span class="o">=</span> <span class="n">filePath</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;bzip2 -d -k &#39;</span> <span class="o">+</span> <span class="n">filePath</span> <span class="o">+</span> <span class="s1">&#39;.bz2&#39;</span><span class="p">)</span>
+        
+        <span class="n">zipFlag</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filePath</span><span class="p">):</span>
+        <span class="n">zipFlag</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filePath</span> <span class="o">+</span> <span class="s1">&#39;.bz2&#39;</span><span class="p">):</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span><span class="s1">&#39;BZIP exists&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;bzip2 -d -k &#39;</span> <span class="o">+</span> <span class="n">filePath</span> <span class="o">+</span> <span class="s1">&#39;.bz2&#39;</span><span class="p">)</span>
+        <span class="n">zipFlag</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filePath</span> <span class="o">+</span> <span class="s1">&#39;.gz&#39;</span><span class="p">):</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s1">&#39;GZIP exists&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;gzip -cd &#39;</span> <span class="o">+</span> <span class="n">filePath</span> <span class="o">+</span> <span class="s1">&#39;.gz &gt; &#39;</span> <span class="o">+</span> <span class="n">filePath</span><span class="p">)</span>
+        <span class="n">zipFlag</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Utilities.checkForZipped: Could not find file: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">filePath</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">zipFlag</span><span class="p">,</span> <span class="n">filePath</span></div>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># converts strValue to type defined by typeName</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="convertStrToType"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.convertStrToType">[docs]</a><span class="k">def</span> <span class="nf">convertStrToType</span><span class="p">(</span><span class="n">strValue</span><span class="p">,</span> <span class="n">typeName</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">typeName</span> <span class="o">==</span> <span class="s1">&#39;str&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">strValue</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">typeName</span> <span class="o">==</span> <span class="s1">&#39;int&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">strValue</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">typeName</span> <span class="o">==</span> <span class="s1">&#39;float&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">strValue</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span> <span class="o">+</span> <span class="s2">&quot;: convertStrToType: ERROR: undefined type: &quot;</span> <span class="o">+</span> <span class="n">typeName</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span> <span class="o">+</span> <span class="s2">&quot;: convertStrToType: ERROR: cannot convert: &quot;</span> <span class="o">+</span> <span class="n">strValue</span> <span class="o">+</span> <span class="s2">&quot; to &quot;</span> <span class="o">+</span> <span class="n">typeName</span><span class="p">)</span></div>
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="log"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.log">[docs]</a><span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">caller</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Log output to screen</span>
+<span class="sd">    </span>
+<span class="sd">    level:</span>
+<span class="sd">        0: essential output only (minimal)</span>
+<span class="sd">        1: normal output level for production run</span>
+<span class="sd">        2: minimal debugging output</span>
+<span class="sd">        3: extra debugging output</span>
+<span class="sd">        4: huge amount of output: all force calls, etc</span>
+<span class="sd">    </span>
+<span class="sd">    indent:</span>
+<span class="sd">        how much to indent the output by (defaults to zero)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># only print if less than the level set in Input module</span>
+    <span class="k">if</span> <span class="n">level</span> <span class="o">&lt;=</span> <span class="n">Globals</span><span class="o">.</span><span class="n">verboseLevel</span><span class="p">:</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%y, %H:%M:%S&quot;</span><span class="p">)</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">indent</span><span class="p">):</span>
+            <span class="n">ind</span> <span class="o">+=</span> <span class="s2">&quot;  &quot;</span>
+        <span class="nb">print</span> <span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">]: </span><span class="si">%s%s%s</span><span class="s2"> &gt;&gt; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">now</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">prependLog</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">caller</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></div>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># functions to return max/min of 2 values</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="isMax"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.isMax">[docs]</a><span class="k">def</span> <span class="nf">isMax</span><span class="p">(</span> <span class="n">checkVal</span><span class="p">,</span> <span class="n">currentMaxVal</span> <span class="p">):</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">currentMaxVal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">checkVal</span> <span class="o">&gt;</span> <span class="n">currentMaxVal</span><span class="p">):</span>
+        <span class="n">currentMaxVal</span> <span class="o">=</span> <span class="n">checkVal</span>
+    
+    <span class="k">return</span> <span class="n">currentMaxVal</span></div>
+
+<div class="viewcode-block" id="isMin"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.isMin">[docs]</a><span class="k">def</span> <span class="nf">isMin</span><span class="p">(</span> <span class="n">checkVal</span><span class="p">,</span> <span class="n">currentMinVal</span> <span class="p">):</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">currentMinVal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">checkVal</span> <span class="o">&lt;</span> <span class="n">currentMinVal</span><span class="p">):</span>
+        <span class="n">currentMinVal</span> <span class="o">=</span> <span class="n">checkVal</span>
+    
+    <span class="k">return</span> <span class="n">currentMinVal</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1"># zips a file</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="doZip"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.doZip">[docs]</a><span class="k">def</span> <span class="nf">doZip</span><span class="p">(</span> <span class="n">filePath</span> <span class="p">):</span>    
+    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;gzip -f &quot;</span> <span class="o">+</span> <span class="n">filePath</span><span class="p">)</span></div>
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="saveBarriersIntoFile"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.saveBarriersIntoFile">[docs]</a><span class="k">def</span> <span class="nf">saveBarriersIntoFile</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="n">barrierList</span><span class="p">,</span> <span class="n">addinationalInfo</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    
+    <span class="n">log</span><span class="p">(</span> <span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;writing lattice file: &quot;</span> <span class="o">+</span> <span class="n">filePath</span><span class="p">,</span> <span class="mi">3</span> <span class="p">)</span>
+    
+    <span class="c1"># open file</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: saveBarriersIntoFile: ERROR: cannot open file: &quot;</span><span class="o">+</span> <span class="n">filePath</span><span class="p">)</span>
+    
+    <span class="n">totBarriers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">barrierList</span><span class="p">)</span>
+    
+    <span class="c1"># write header</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">totBarriers</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># write atoms</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">totBarriers</span><span class="p">):</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">barrierList</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">addinationalInfo</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="saveLatticesToFiles"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.saveLatticesToFiles">[docs]</a><span class="k">def</span> <span class="nf">saveLatticesToFiles</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">barrierList</span><span class="p">,</span> <span class="n">namePrefix</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">namePrefix</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">namePrefix</span> <span class="o">=</span> <span class="s2">&quot;Lattice&quot;</span>
+    
+    <span class="n">totBarriers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">barrierList</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">totBarriers</span><span class="p">):</span>
+        <span class="n">fileName</span> <span class="o">=</span> <span class="n">namePrefix</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.dat&quot;</span>
+        <span class="n">filePath</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">+</span> <span class="n">fileName</span>
+        
+        <span class="n">barrierList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">writeLattice</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span>
+        <span class="n">log</span><span class="p">(</span> <span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;writing lattice file: &quot;</span> <span class="o">+</span> <span class="n">filePath</span><span class="p">,</span> <span class="mi">3</span> <span class="p">)</span></div>
+        
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="makeBarrierCriteria"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.makeBarrierCriteria">[docs]</a><span class="k">def</span> <span class="nf">makeBarrierCriteria</span><span class="p">(</span><span class="n">inputString</span><span class="p">,</span> <span class="n">maxBarrier</span><span class="p">):</span>
+    <span class="n">iterList</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">enerList</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="n">splits</span> <span class="o">=</span> <span class="n">inputString</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">split</span> <span class="ow">in</span> <span class="n">splits</span><span class="p">:</span>
+        <span class="n">criteria</span> <span class="o">=</span> <span class="n">split</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">criteria</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">iteration</span> <span class="o">=</span> <span class="n">convertStrToType</span><span class="p">(</span><span class="n">criteria</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;int&#39;</span><span class="p">)</span>
+            <span class="n">multiplyer</span> <span class="o">=</span> <span class="n">convertStrToType</span><span class="p">(</span><span class="n">criteria</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;float&#39;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">iteration</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">multiplyer</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">maxBarrier</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+                
+                <span class="n">energy</span> <span class="o">=</span> <span class="n">maxBarrier</span> <span class="o">*</span> <span class="n">multiplyer</span>
+                
+                <span class="n">iterList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span>
+                <span class="n">enerList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+                                
+    <span class="k">return</span> <span class="n">cnt</span><span class="p">,</span> <span class="n">iterList</span><span class="p">,</span> <span class="n">enerList</span></div>
+
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="getTheLineCount"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.getTheLineCount">[docs]</a><span class="k">def</span> <span class="nf">getTheLineCount</span><span class="p">(</span><span class="n">filePath</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span></div>
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="deleteFile"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.deleteFile">[docs]</a><span class="k">def</span> <span class="nf">deleteFile</span><span class="p">(</span><span class="n">filePath</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">checkForFile</span><span class="p">(</span><span class="n">filePath</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span></div>
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="union"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.union">[docs]</a><span class="k">def</span> <span class="nf">union</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;return the union of two list/array&quot;&quot;&quot;</span>
+    
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span> <span class="nb">set</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="intersect"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.intersect">[docs]</a><span class="k">def</span> <span class="nf">intersect</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;return the intersect of two list/array&quot;&quot;&quot;</span>
+    
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span> <span class="nb">set</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="unique"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.unique">[docs]</a><span class="k">def</span> <span class="nf">unique</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; return the list/array with duplicate elements removed &quot;&quot;&quot;</span>
+    
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">result</span></div>
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="versionTuple"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.versionTuple">[docs]</a><span class="k">def</span> <span class="nf">versionTuple</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert version string into tuple, for comparison</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="is_exe"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.is_exe">[docs]</a><span class="k">def</span> <span class="nf">is_exe</span><span class="p">(</span><span class="n">fpath</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine if the given path is an executable file.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fpath : str</span>
+<span class="sd">        The path to check</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    is_exe : bool</span>
+<span class="sd">        True of the path exists and is executable, False otherwise</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">fpath</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">X_OK</span><span class="p">)</span></div>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="which"><a class="viewcode-back" href="../../LKMC/LKMC.Utilities.html#LKMC.Utilities.which">[docs]</a><span class="k">def</span> <span class="nf">which</span><span class="p">(</span><span class="n">program</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if the given path or program exists and is executable.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    program : str</span>
+<span class="sd">        Path to a program or the name of a program</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    exe_file : str</span>
+<span class="sd">        The path to call the program or None if it doesn&#39;t exist</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    See http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fpath</span><span class="p">,</span> <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">program</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fpath</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_exe</span><span class="p">(</span><span class="n">program</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">program</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">):</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+            <span class="n">exe_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">program</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_exe</span><span class="p">(</span><span class="n">exe_file</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">exe_file</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

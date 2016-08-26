@@ -1,0 +1,7 @@
+LKMC.Lattice module
+===================
+
+.. automodule:: LKMC.Lattice
+    :members:
+    :undoc-members:
+    :show-inheritance:

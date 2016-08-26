@@ -1,0 +1,7 @@
+LKMC.clibs.vectors module
+=========================
+
+.. automodule:: LKMC.clibs.vectors
+    :members:
+    :undoc-members:
+    :show-inheritance:

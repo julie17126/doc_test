@@ -1,0 +1,547 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Deposition &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Deposition</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for running deposition simulations.</span>
+
+<span class="sd">Copyright Miao Yu 2014</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Atoms</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Input</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Vectors</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">ExternalEvents</span>
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+
+
+<div class="viewcode-block" id="DepositionRunner"><a class="viewcode-back" href="../../LKMC/LKMC.Deposition.html#LKMC.Deposition.DepositionRunner">[docs]</a><span class="k">class</span> <span class="nc">DepositionRunner</span><span class="p">(</span><span class="n">ExternalEvents</span><span class="o">.</span><span class="n">ExternalEvent</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run a particle depositon.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    params : `Input.InputParams`</span>
+<span class="sd">        This object contains all parameters which are read from ``lkmcInput.IN`` by default.</span>
+<span class="sd">    refState : `Lattice.Lattice`</span>
+<span class="sd">        This object hold information about the reference state (perfect lattice) of a system.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">refState</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DepositionRunner</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">refState</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="DepositionRunner.run"><a class="viewcode-back" href="../../LKMC/LKMC.Deposition.html#LKMC.Deposition.DepositionRunner.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">latticeIn</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calls all of the methods to do one complete deposition simulation.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        latticeIn : `Lattice.Lattice`</span>
+<span class="sd">            System lattice to run the deposition on.</span>
+<span class="sd">        step : int, optional</span>
+<span class="sd">            Current KMC step, to allow changing into the appropriate working directory.</span>
+<span class="sd">        clock : float, optional</span>
+<span class="sd">            Not currently used; for compatibility with other external events.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lattice : `Lattice.Lattice`</span>
+<span class="sd">            Post-deposition lattice (minimised if user requires)</span>
+<span class="sd">        status : int</span>
+<span class="sd">            Status report, returned as zero if no errors have been encountered.</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The workflow is as follows:</span>
+<span class="sd">            * Pre-event thermalisation</span>
+<span class="sd">            * Add deposition atoms</span>
+<span class="sd">            * Simulating the deposition</span>
+<span class="sd">            * Post-deposition minimisation</span>
+<span class="sd">            * Remove sputtered atoms</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Running deposition&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># copy the input lattice</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">latticeIn</span><span class="p">)</span>
+        
+        <span class="c1"># parameters</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+        
+        <span class="c1"># switch to working directory</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">switchToOutputDirectory</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># first thermalise the lattice</span>
+            <span class="n">velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thermalise</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">depoThermalise</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">depoThermoTimeWhole</span><span class="p">,</span>
+                                       <span class="n">params</span><span class="o">.</span><span class="n">depoThermoTimeLayer</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">depoThermoType</span><span class="p">)</span>
+            
+            <span class="c1"># add the deposition atoms</span>
+            <span class="n">velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">addDepositionAtoms</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">velocity</span><span class="p">)</span>
+            
+            <span class="c1"># run the MD simulation</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">runMD</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">depoThermoType</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">depoTime</span><span class="p">)</span>
+            
+            <span class="c1"># minimise the final lattice</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">minimise</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">depoMinAfterDepo</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">depoMinUseLAMMPS</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">depoMinFailUseLAMMPS</span><span class="p">)</span>
+            
+            <span class="c1"># remove sputtered atoms</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">removeSputter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refState</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">lattice</span></div>
+    
+<div class="viewcode-block" id="DepositionRunner.addDepositionAtoms"><a class="viewcode-back" href="../../LKMC/LKMC.Deposition.html#LKMC.Deposition.DepositionRunner.addDepositionAtoms">[docs]</a>    <span class="k">def</span> <span class="nf">addDepositionAtoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">velocity</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert cluster(s) into the initial system.</span>
+<span class="sd">        The inserted cluster(s) are chosen randomly by `readDepoIn()`.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        velocity : ndarray</span>
+<span class="sd">            Array containing the velocities of each atom in the system after thermalisation.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        velocity : ndarray</span>
+<span class="sd">            Array containing the velocities of each atom in the system after thermalisation with inserted atoms.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Read in depo.in file, and make the choice</span>
+        <span class="n">restuple</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readDepoIn</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+        <span class="n">depoDirection</span><span class="p">,</span> <span class="n">depoCluster</span><span class="p">,</span> <span class="n">chosenPosition</span><span class="p">,</span> <span class="n">chosenTheta</span><span class="p">,</span> <span class="n">chosenPhi</span><span class="p">,</span> <span class="n">depoVelocity</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">restuple</span>
+        <span class="n">selectedCluster</span> <span class="o">=</span> <span class="n">depoCluster</span><span class="o">.</span><span class="n">clusters</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        
+        <span class="c1"># add first atom to lattice</span>
+        <span class="n">sym</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">[</span><span class="n">selectedCluster</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">]</span>
+        <span class="n">lattice</span><span class="o">.</span><span class="n">addAtom</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="n">chosenPosition</span><span class="p">,</span> <span class="n">selectedCluster</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
+        
+        <span class="c1"># append velocity for first atom</span>
+        <span class="n">atomVelocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">atomVelocity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">depoVelocity</span> <span class="o">*</span> <span class="n">depoDirection</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">atomVelocity</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">depoVelocity</span> <span class="o">*</span> <span class="n">depoDirection</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">atomVelocity</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">depoVelocity</span> <span class="o">*</span> <span class="n">depoDirection</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">velocity</span><span class="p">,</span> <span class="n">atomVelocity</span><span class="p">)</span>
+        
+        <span class="c1"># for clusters contain more than 1 atoms</span>
+        <span class="k">if</span> <span class="n">selectedCluster</span><span class="o">.</span><span class="n">NAtom</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">selectedCluster</span><span class="o">.</span><span class="n">NAtom</span><span class="p">):</span>
+                <span class="n">selectedClusterAtom</span> <span class="o">=</span> <span class="n">selectedCluster</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">theta</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">selectedClusterAtom</span><span class="o">.</span><span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">selectedClusterAtom</span><span class="o">.</span><span class="n">offset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">),</span>
+                                   <span class="n">selectedClusterAtom</span><span class="o">.</span><span class="n">offset</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="n">phi</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">selectedClusterAtom</span><span class="o">.</span><span class="n">offset</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">selectedClusterAtom</span><span class="o">.</span><span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    
+                <span class="c1"># Now add our random rotation</span>
+                <span class="n">theta</span> <span class="o">+=</span> <span class="n">chosenTheta</span>
+                <span class="n">phi</span> <span class="o">+=</span> <span class="n">chosenPhi</span>
+                 
+                <span class="n">dist</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">selectedClusterAtom</span><span class="o">.</span><span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">selectedClusterAtom</span><span class="o">.</span><span class="n">offset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span>
+                                 <span class="n">selectedClusterAtom</span><span class="o">.</span><span class="n">offset</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+                    
+                <span class="c1"># Now turn from spherical back to cartesian coords</span>
+                <span class="n">subPosition</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="n">subPosition</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">chosenPosition</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">dist</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+                <span class="n">subPosition</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">chosenPosition</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">dist</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+                <span class="n">subPosition</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">chosenPosition</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">dist</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+                 
+                <span class="c1"># add additional atom to lattice</span>
+                <span class="n">sym</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">[</span><span class="n">selectedClusterAtom</span><span class="o">.</span><span class="n">specie</span><span class="p">]</span>
+                <span class="n">lattice</span><span class="o">.</span><span class="n">addAtom</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="n">subPosition</span><span class="p">,</span> <span class="n">selectedClusterAtom</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span>
+                 
+                <span class="c1"># append velocity for atom</span>
+                <span class="n">atomVelocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="n">atomVelocity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">depoVelocity</span> <span class="o">*</span> <span class="n">depoDirection</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">atomVelocity</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">depoVelocity</span> <span class="o">*</span> <span class="n">depoDirection</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">atomVelocity</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">depoVelocity</span> <span class="o">*</span> <span class="n">depoDirection</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">velocity</span><span class="p">,</span> <span class="n">atomVelocity</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">velocity</span></div>
+    
+<div class="viewcode-block" id="DepositionRunner.readDepoIn"><a class="viewcode-back" href="../../LKMC/LKMC.Deposition.html#LKMC.Deposition.DepositionRunner.readDepoIn">[docs]</a>    <span class="k">def</span> <span class="nf">readDepoIn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read information of deposited clusters from file &quot;depo.in&quot;.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        depoDirection : ndarray</span>
+<span class="sd">            The chosen direction of velocities of the deposited cluster.</span>
+<span class="sd">        depoCluster : `DepoClustersObject` object</span>
+<span class="sd">            This object holds information about the deposited cluster candidates.</span>
+<span class="sd">        chosenPosition : ndarray</span>
+<span class="sd">            The chosen position of the deposited cluster to be inserted.</span>
+<span class="sd">        chosenTheta : float</span>
+<span class="sd">            The chosen angle of the deposited cluster to be rotated.</span>
+<span class="sd">        chosenPhi : float</span>
+<span class="sd">            The chosen angle of the deposited cluster to be rotated.</span>
+<span class="sd">        depoVelocity : float</span>
+<span class="sd">            The chosen velocity of the deposited cluster, in Å/fs.</span>
+<span class="sd">        index : integer</span>
+<span class="sd">            The chosen cluster&#39;s index number (in the `DepoClustersObject` object).</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># read in parameters for deposition</span>
+        <span class="n">depoParamFile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">MDLocation</span><span class="p">,</span> <span class="s1">&#39;depo.in&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># pre-define deposition parameters</span>
+        <span class="n">depoDirection</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">depoEnergy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">depoWindow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">depoCluster</span> <span class="o">=</span> <span class="n">DepoClustersObject</span><span class="p">()</span>
+        
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">depoParamFile</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
+            <span class="c1"># read in primary deposition direction</span>
+            <span class="n">infile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="p">(</span><span class="n">depoDirection</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">depoDirection</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">depoDirection</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="n">depoDirection</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">normalise</span><span class="p">(</span><span class="n">depoDirection</span><span class="p">)</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Deposition direction: (</span><span class="si">%f</span><span class="s2">,</span><span class="si">%f</span><span class="s2">,</span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">depoDirection</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">depoDirection</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">depoDirection</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+                <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            
+            <span class="c1"># read in deposition energy</span>
+            <span class="n">infile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="p">(</span><span class="n">depoEnergy</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">depoEnergy</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Deposition energy range: (</span><span class="si">%f</span><span class="s2">,</span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">depoEnergy</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">depoEnergy</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            
+            <span class="c1"># read in deposition species</span>
+            <span class="n">infile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="c1"># check species defined in depo.in</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">:</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;WARNING: Specie </span><span class="si">%s</span><span class="s2"> defined in depo.in is not in input data file&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">lattice</span><span class="o">.</span><span class="n">addSpecie</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">depoSpecie</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span>
+            <span class="n">depoSpecieMass</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">specieMass</span>
+            <span class="n">depoSpecieAMU</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">specieMassAMU</span>
+            
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">depoSpecieMass</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">depoSpecie</span><span class="p">):</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Rebuilding mass list... list length was </span><span class="si">%d</span><span class="s2"> should be </span><span class="si">%d</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">depoSpecieMass</span><span class="p">),</span>
+                                                                                            <span class="nb">len</span><span class="p">(</span><span class="n">depoSpecie</span><span class="p">)),</span>
+                    <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">depoSpecieMass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">depoSpecie</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="n">depoSpecieAMU</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">depoSpecie</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sym</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">depoSpecie</span><span class="p">):</span>
+                    <span class="n">depoSpecieMass</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Atoms</span><span class="o">.</span><span class="n">atomicMass</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span>
+                    <span class="n">depoSpecieAMU</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Atoms</span><span class="o">.</span><span class="n">atomicMassAMU</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span>
+            
+            <span class="c1"># read in the departure window</span>
+            <span class="n">infile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">depoWindow</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;INF&quot;</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">depoWindow</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;INF&quot;</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">depoWindow</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;INF&quot;</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">depoWindow</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;INF&quot;</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">depoWindow</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;INF&quot;</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">depoWindow</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;INF&quot;</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Deposition departure window: (</span><span class="si">%f</span><span class="s2">-</span><span class="si">%f</span><span class="s2">,</span><span class="si">%f</span><span class="s2">-</span><span class="si">%f</span><span class="s2">,</span><span class="si">%f</span><span class="s2">-</span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">depoWindow</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">depoWindow</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                                                                <span class="n">depoWindow</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">depoWindow</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+                                                                                <span class="n">depoWindow</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">depoWindow</span><span class="p">[</span><span class="mi">5</span><span class="p">]),</span>
+                <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            
+            <span class="c1"># read in the deposition atom/cluster information</span>
+            <span class="n">infile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="n">clusterNum</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">infile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">depoCluster</span><span class="o">.</span><span class="n">NCluster</span> <span class="o">=</span> <span class="n">clusterNum</span>
+            <span class="n">infile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">clusterNum</span><span class="p">):</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="c1"># number of atoms in cluster</span>
+                <span class="n">NAtoms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="c1"># probability of selection</span>
+                <span class="n">prob</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">depoCluster</span><span class="o">.</span><span class="n">addCluster</span><span class="p">(</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">prob</span><span class="p">)</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;New cluster </span><span class="si">%d</span><span class="s2">: </span><span class="si">%d</span><span class="s2"> atoms&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">NAtoms</span><span class="p">):</span>
+                    <span class="n">currentCluster</span> <span class="o">=</span> <span class="n">depoCluster</span><span class="o">.</span><span class="n">clusters</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="n">line</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">depoSpecie</span><span class="p">:</span>
+                        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: &quot;</span> <span class="o">+</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; is a new specie&quot;</span><span class="p">)</span>
+                    <span class="c1"># specie index</span>
+                    <span class="n">specie</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">depoSpecie</span> <span class="o">==</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="c1"># charge</span>
+                    <span class="n">charge</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">currentCluster</span><span class="o">.</span><span class="n">addAtom</span><span class="p">(</span><span class="n">specie</span><span class="p">,</span> <span class="n">charge</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="c1"># secondary atom offset</span>
+                        <span class="n">currentCluster</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">setOffset</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">4</span><span class="p">]))</span>
+                        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span>
+                            <span class="s2">&quot;Sub atom: </span><span class="si">%s</span><span class="s2">, charge: </span><span class="si">%f</span><span class="s2">, orientation: (</span><span class="si">%f</span><span class="s2">,</span><span class="si">%f</span><span class="s2">,</span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">[</span><span class="n">specie</span><span class="p">],</span> <span class="n">charge</span><span class="p">,</span>
+                                                                                   <span class="n">currentCluster</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                                                   <span class="n">currentCluster</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">offset</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                                                                   <span class="n">currentCluster</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">offset</span><span class="p">[</span><span class="mi">2</span><span class="p">],),</span>
+                            <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                    
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Primary atom: </span><span class="si">%s</span><span class="s2">, charge: </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">[</span><span class="n">specie</span><span class="p">],</span> <span class="n">charge</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        
+        <span class="c1"># choose the departure position</span>
+        <span class="n">chosenPosition</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">chosenPosition</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">depoWindow</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">depoWindow</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">chosenPosition</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">depoWindow</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">depoWindow</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">chosenPosition</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">depoWindow</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">depoWindow</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+        
+        <span class="c1"># choose a rotation angle</span>
+        <span class="n">chosenTheta</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="n">chosenPhi</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        
+        <span class="c1"># choose a deposition energy</span>
+        <span class="n">chosenEnergy</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">depoEnergy</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">depoEnergy</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        
+        <span class="c1"># choose a cluster to insert</span>
+        <span class="n">chosen</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="n">depoCluster</span><span class="o">.</span><span class="n">clusters</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">prob</span>
+        <span class="k">while</span> <span class="n">prob</span> <span class="o">&lt;</span> <span class="n">chosen</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">prob</span> <span class="o">+=</span> <span class="n">depoCluster</span><span class="o">.</span><span class="n">clusters</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">prob</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Selected Deposition Cluster </span><span class="si">%d</span><span class="s2"> (</span><span class="si">%d</span><span class="s2"> atoms)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">depoCluster</span><span class="o">.</span><span class="n">clusters</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">NAtom</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Selected Deposition Energy </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">chosenEnergy</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="n">depoNAtom</span> <span class="o">=</span> <span class="n">depoCluster</span><span class="o">.</span><span class="n">clusters</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">NAtom</span>
+        <span class="c1"># total mass in LBOMD units (eV, Å, fs)</span>
+        <span class="n">totalMass</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">totalMassAMU</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">depoNAtom</span><span class="p">):</span>
+            <span class="n">totalMass</span> <span class="o">+=</span> <span class="n">depoSpecieMass</span><span class="p">[</span><span class="n">depoCluster</span><span class="o">.</span><span class="n">clusters</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">]</span>
+            <span class="n">totalMassAMU</span> <span class="o">+=</span> <span class="n">depoSpecieAMU</span><span class="p">[</span><span class="n">depoCluster</span><span class="o">.</span><span class="n">clusters</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">]</span>
+        
+        <span class="c1"># get the velocity from the energy (eV)</span>
+        <span class="n">depoVelocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getVelocityFromKE</span><span class="p">(</span><span class="n">chosenEnergy</span><span class="p">,</span> <span class="n">mass</span><span class="o">=</span><span class="n">totalMass</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">depoDirection</span><span class="p">,</span> <span class="n">depoCluster</span><span class="p">,</span> <span class="n">chosenPosition</span><span class="p">,</span> <span class="n">chosenTheta</span><span class="p">,</span> <span class="n">chosenPhi</span><span class="p">,</span> <span class="n">depoVelocity</span><span class="p">,</span> <span class="n">index</span></div></div>
+
+
+<div class="viewcode-block" id="DepoClustersObject"><a class="viewcode-back" href="../../LKMC/LKMC.Deposition.html#LKMC.Deposition.DepoClustersObject">[docs]</a><span class="k">class</span> <span class="nc">DepoClustersObject</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The `DepoClustersObject` class holds information about all the deposited cluster candidates.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    NCluster : integer</span>
+<span class="sd">        Number of candidates for the deposited clusters.</span>
+<span class="sd">        </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    clusters : list</span>
+<span class="sd">        List of `DepoClusterIndividualObject` class which contains information about each candidate of the deposited</span>
+<span class="sd">        clusters.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">NCluster</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NCluster</span> <span class="o">=</span> <span class="n">NCluster</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clusters</span> <span class="o">=</span> <span class="p">[]</span>
+        
+<div class="viewcode-block" id="DepoClustersObject.addCluster"><a class="viewcode-back" href="../../LKMC/LKMC.Deposition.html#LKMC.Deposition.DepoClustersObject.addCluster">[docs]</a>    <span class="k">def</span> <span class="nf">addCluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="n">prob</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add information of a deposited cluster to the `DepoClustersObject` class.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        NAtoms : integer</span>
+<span class="sd">            Number of atoms in this deposited cluster</span>
+<span class="sd">        prob : float</span>
+<span class="sd">            The Probability of chosen this cluster</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">clusterObj</span> <span class="o">=</span> <span class="n">DepoClusterIndividualObject</span><span class="p">(</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">prob</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clusters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clusterObj</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="DepoClusterIndividualObject"><a class="viewcode-back" href="../../LKMC/LKMC.Deposition.html#LKMC.Deposition.DepoClusterIndividualObject">[docs]</a><span class="k">class</span> <span class="nc">DepoClusterIndividualObject</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    The `DepoClusterIndividualObject` class holds information about an individual deposited cluster.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    NAtoms : integer</span>
+<span class="sd">        Number of atoms in this deposited cluster</span>
+<span class="sd">    prob : float</span>
+<span class="sd">        The Probability of chosen this cluster</span>
+<span class="sd">        </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    atoms : list</span>
+<span class="sd">        List of `DepoClusterAtomObject` class which contains information about information of each atom in the cluster.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">NAtom</span><span class="p">,</span> <span class="n">prob</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NAtom</span> <span class="o">=</span> <span class="n">NAtom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prob</span> <span class="o">=</span> <span class="n">prob</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span> <span class="o">=</span> <span class="p">[]</span>
+        
+<div class="viewcode-block" id="DepoClusterIndividualObject.addAtom"><a class="viewcode-back" href="../../LKMC/LKMC.Deposition.html#LKMC.Deposition.DepoClusterIndividualObject.addAtom">[docs]</a>    <span class="k">def</span> <span class="nf">addAtom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">charge</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add information of atoms in the cluster to the `DepoClusterIndividualObject` class.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        specie : str[2]</span>
+<span class="sd">            The specie of the atom, eg. ‘Cd’.</span>
+<span class="sd">        charge : float</span>
+<span class="sd">            The charge of the atom.</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">atomObj</span> <span class="o">=</span> <span class="n">DepoClusterAtomObject</span><span class="p">(</span><span class="n">specie</span><span class="p">,</span> <span class="n">charge</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atomObj</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="DepoClusterAtomObject"><a class="viewcode-back" href="../../LKMC/LKMC.Deposition.html#LKMC.Deposition.DepoClusterAtomObject">[docs]</a><span class="k">class</span> <span class="nc">DepoClusterAtomObject</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The `DepoClusterAtomObject` class holds information about each atoms in the cluster.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    specie : str[2]</span>
+<span class="sd">        The specie of the atom, eg. ‘Cd’.</span>
+<span class="sd">    charge : float</span>
+<span class="sd">        The charge of the atom.</span>
+<span class="sd">        </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    offset : ndarry, optional</span>
+<span class="sd">        The offset of the atom to the primary atom. Only for 2nd/3rd/... atoms in the</span>
+<span class="sd">        cluster when the cluster contain more than one atoms.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">charge</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specie</span> <span class="o">=</span> <span class="n">specie</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">charge</span>
+        
+<div class="viewcode-block" id="DepoClusterAtomObject.setOffset"><a class="viewcode-back" href="../../LKMC/LKMC.Deposition.html#LKMC.Deposition.DepoClusterAtomObject.setOffset">[docs]</a>    <span class="k">def</span> <span class="nf">setOffset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dim_x</span><span class="p">,</span> <span class="n">dim_y</span><span class="p">,</span> <span class="n">dim_z</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the offset of the secondary atom to the primary atom.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dim_x : float</span>
+<span class="sd">        dim_y : float</span>
+<span class="sd">        dim_z : float</span>
+<span class="sd">            X/Y/Z dimentions of offset.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dim_x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dim_y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">dim_z</span></div></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../LKMC/LKMC.Deposition.html#LKMC.Deposition.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Usage: Deposition.py inputLatticeFile&quot;</span><span class="p">)</span>
+    
+    <span class="n">inputState</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="n">params</span> <span class="o">=</span> <span class="n">Input</span><span class="o">.</span><span class="n">getLKMCParams</span><span class="p">()</span>
+    <span class="n">Input</span><span class="o">.</span><span class="n">readGlobals</span><span class="p">()</span>
+    
+    <span class="n">depoRunner</span> <span class="o">=</span> <span class="n">DepositionRunner</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">finalLattice</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">depoRunner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inputState</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;deposition failed&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">finalLattice</span><span class="o">.</span><span class="n">writeLattice</span><span class="p">(</span><span class="s2">&quot;final.dat&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

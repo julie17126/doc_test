@@ -1,0 +1,354 @@
+Barrier Search
+==============
+
+This section includes general parameters for transition finding,
+uniqueness tests, pushing over a saddle state and debugging. For
+parameters specific to each method look in the appropriate section.
+
+barrMinInitial
+~~~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+If set to 1, forces initial lattice minimisation if `barrEstimator`_ is defined.
+
+Default: 1
+
+barrSearchAlgorithm
+~~~~~~~~~~~~~~~~~~~
+
+String; 'ART', 'RAT' or 'DIMER'
+
+the name of saddle point search algorithm
+
+- :doc:`ART <art>`: Activation Relaxation Technique method
+- :doc:`RAT <rat>`: Relaxation and Translation method
+- :doc:`Dimer <dimer>`: Dimer method
+
+Default: 'DIMER'
+
+barrInitRandomType
+~~~~~~~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+If set to 1, use gaussian random numbers for initial displacement.
+
+Default: 0
+
+barrStepBackwards
+~~~~~~~~~~~~~~~~~
+
+Real; positive
+
+The step size used to push a system from a saddle point back towards the initial
+configuration.
+
+Default: 0.2
+
+barrStepForwardMethod
+~~~~~~~~~~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+Selection of a method by which a saddle state is pushed towards to a
+final state.
+
+- 0: saddle.pos + `barrStepForward`_ \* (saddle.pos - initial.pos)
+- 1: max move atom is pushed by `barrStepForward`_, all other atoms scaled accordingly
+
+**Note**: This parameter has no effect if `barrPushUsingEigenvector`_ is set to 1.
+
+Default: 0
+
+barrMinFracMaxMoveToPush
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Real; in the range [0, 1]
+
+Only push atoms that have moved at least this fraction of the max movement.
+
+Default: 0.6
+
+barrPushUsingEigenvector
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+-  0: Use the method defined by `barrStepForwardMethod`_ to push.
+-  1: Enables pushing using the eigenvector from the Lanczos method and ignores the
+   value of `barrStepForwardMethod`_.
+
+Default: 0
+
+barrStepForward
+~~~~~~~~~~~~~~~
+
+Real; positive
+
+Step size to push a system over a saddle point.
+
+Default: 0.6
+
+barrRefinePathway
+~~~~~~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+If set to 1, analyse the pathway from NEB/String. If it contains multiple (significant) minima then select
+the first one as the final state and rerun the barrier calculator.
+
+Default: 1
+
+barrRefinePathwayTol
+~~~~~~~~~~~~~~~~~~~~
+
+Real; positive
+
+The tolerance for deciding whether a minimum/maximum along the pathway is significant.
+
+Default: 0.1
+
+barrRefinePathwayMaxIter
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Integer; positive
+
+The maximum number of times we can refine the pathway (fails if this is exceeded).
+
+Default: 5
+
+barrMinFinal
+~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+**Note**: One shouldn't mess with this parameter!!!
+
+- 0: `barrEstimator`_ must be used with loose
+  n-points to let the string or the NEB method to relax to a new state.
+- 1: Uses `barrMinFinalMinimiser`_ to minimise to a new final state after being pushed over the
+  saddle state.
+
+Default: 1
+
+barrMinFinalMinimiser
+~~~~~~~~~~~~~~~~~~~~~
+
+String; list separated by '+'
+
+Defines a sequence of minimisers that will be used in order on the pushed saddle state.
+
+Available minimisers:
+
+-  CG: conjugate gradient
+-  SD: Steepest descent
+-  LBFGS: limited memory BFGS
+-  LBFGSDownHill: use LBFGS Lanczos method without reverse lowest eigenvalue.
+
+For the first three a suffix SUB- can be used in order to run the
+minimisation on the sub-lattice that was allowed to move during Lanczos.
+LBFGSDownHill maybe used in order to follow the lowest eigenvalue for a
+couple of steps at the very begging of the minimisation procedure.
+Consult the default value and the test file for better understanding.
+
+Default: 'LBFGSDownHill+SUB-SD+LBFGS'
+
+barrEstimator
+~~~~~~~~~~~~~
+String; {'NEB' or 'String' or ''}
+
+Name of barrier estimator used after saddle point has been found and
+system was minimised to a new local minima. Should be left blank if
+you are converging to the saddle point using Lanczos.
+
+Default: '' (blank)
+
+barrCompareSaddles
+~~~~~~~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+If set to 1, compare saddles instead of finals (for uniqueness).
+
+Default: 1
+
+barrUniqueMinSep
+~~~~~~~~~~~~~~~~
+
+Real; positive
+
+If separation between finals (or saddles if `barrCompareSaddles`_ is 1) is greater than
+this value they are considered unique.
+
+Default: 0.5
+
+barrUniqueUseMaxMove
+~~~~~~~~~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+If set to 1, also use the maximum movement when determining uniqueness.
+
+Default: 1
+
+barrUniqueMaxMoveVal
+~~~~~~~~~~~~~~~~~~~~
+
+Real; positive
+
+if the maximum movement is less than this then assume the states are the same.
+
+Default: 0.1
+
+barrUniqueDoubleCheck
+~~~~~~~~~~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+Double check uniqueness of transitions using a tighter tolerance (only works when
+`barrCompareSaddles`_ is 1)
+
+Default: 0
+
+barrUniqueDoubleDiffBarr
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Real; positive
+
+If the barrier difference is less than this value, then double check the uniqueness of a
+transition.
+
+Default: 0.1
+
+barrUniqueDoubleMinSep
+~~~~~~~~~~~~~~~~~~~~~~
+
+Real; positive
+
+A tighter tolerance for double checking uniqueness (should be larger than
+`barrUniqueMinSep`_).
+
+Default: 1.0
+
+barrUniqueDoubleMaxMove
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Real; positive
+
+A tighter tolerance for double checking uniqueness (should be larger than
+`barrUniqueMaxMoveVal`_).
+
+Default: 0.5
+
+barrMinMaxMove
+~~~~~~~~~~~~~~
+
+Real; non-negative
+
+if the max movement between initial and final is less than this value
+then discard transition
+
+If set to 0, ignore this check
+
+Default: 0.6
+
+searchCombinedVolumes
+~~~~~~~~~~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+If set to 1, search for transitions in combined volumes.
+
+Default: 1
+
+reuseCombinedVolumes
+~~~~~~~~~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+If set to 1, reuse transitions found in combined volumes.
+
+Default: 1
+
+barrMinSepToSaddle
+~~~~~~~~~~~~~~~~~~
+
+Real; positive
+
+The minimum separation to allow between initial and saddle states.
+
+Default: 0.5
+
+barrMinMaxMoveToSaddle
+~~~~~~~~~~~~~~~~~~~~~~
+
+Real; positive
+
+The minimum value to allow for the maximum movement between initial and saddle.
+
+Default: 0.5
+
+barrOutputTiming
+~~~~~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+If set to 1, gather timing information for barrier search/refinement.
+
+Default: 0
+
+barrDebugTotalRates
+~~~~~~~~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+If set to 1, collect and output info on how total rates (overall and by
+volume) change with the number of searches.
+
+Default: 0
+
+barrDebugMode
+~~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+Debug mode of barrier searches.
+
+Default: 0
+
+barrDebugSearches
+~~~~~~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+Write a file containing the reasons the searches failed and the number of times
+each reason occurred. Also write the magnitudes of the force arrays at the
+saddle point, for checking convergence.
+
+Default: 0
+
+barrOutputSearchStats
+~~~~~~~~~~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+If set to 1, write timing information from the searches
+
+Default: 1
+
+barrIgnoreVolKeys
+~~~~~~~~~~~~~~~~~
+
+String; list separated by ','
+
+List of hash keys which would like to be skipped (ignore them completely).
+
+combinedVolStoreIndividual
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Integer; 0 or 1
+
+If set to 1, store searches for volumes that are part of a combined volume.
+
+Default: 1

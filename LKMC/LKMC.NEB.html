@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.NEB module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Plot module" href="LKMC.Plot.html" />
+    <link rel="prev" title="LKMC.Minimise module" href="LKMC.Minimise.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Plot.html" title="LKMC.Plot module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Minimise.html" title="LKMC.Minimise module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.NEB">
+<span id="lkmc-neb-module"></span><h1>LKMC.NEB module<a class="headerlink" href="#module-LKMC.NEB" title="Permalink to this headline">¶</a></h1>
+<p>Nudged elastic band (NEB) module.</p>
+<p>Implements the NEB method: <a class="reference external" href="http://theory.cm.utexas.edu/henkelman/research/saddle/neb/">http://theory.cm.utexas.edu/henkelman/research/saddle/neb/</a>
+Including: climbing image: <a class="reference external" href="http://dx.doi.org/10.1063/1.1329672">http://dx.doi.org/10.1063/1.1329672</a></p>
+<blockquote>
+<div>improved tangent estimate: <a class="reference external" href="http://dx.doi.org/10.1063/1.1323224">http://dx.doi.org/10.1063/1.1323224</a></div></blockquote>
+<p>Copyright Chris Scott 2012</p>
+<dl class="class">
+<dt id="LKMC.NEB.IDPPInterpolator">
+<em class="property">class </em><code class="descclassname">LKMC.NEB.</code><code class="descname">IDPPInterpolator</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/NEB.html#IDPPInterpolator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.NEB.IDPPInterpolator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#LKMC.NEB.NEB" title="LKMC.NEB.NEB"><code class="xref py py-class docutils literal"><span class="pre">LKMC.NEB.NEB</span></code></a></p>
+<p>NEB runner for performing the initial interpolation.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.NEB.IDPPInterpolator.calcForce">
+<code class="descname">calcForce</code><span class="sig-paren">(</span><em>NProcs=None</em>, <em>defectFlag=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/NEB.html#IDPPInterpolator.calcForce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.NEB.IDPPInterpolator.calcForce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override the calcForce method to use the potential from the paper...</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.NEB.NEB">
+<em class="property">class </em><code class="descclassname">LKMC.NEB.</code><code class="descname">NEB</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/NEB.html#NEB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.NEB.NEB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="LKMC.Images.html#LKMC.Images.Images" title="LKMC.Images.Images"><code class="xref py py-class docutils literal"><span class="pre">LKMC.Images.Images</span></code></a></p>
+<p>Nudged Elastic Band object.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.NEB.NEB.postCalcForceUpdate">
+<code class="descname">postCalcForceUpdate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/NEB.html#NEB.postCalcForceUpdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.NEB.NEB.postCalcForceUpdate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update forces for NEB method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.NEB.NEB.prepareNEBMinimiseParams">
+<code class="descname">prepareNEBMinimiseParams</code><span class="sig-paren">(</span><em>maxBarrier</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/NEB.html#NEB.prepareNEBMinimiseParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.NEB.NEB.prepareNEBMinimiseParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare parameters object for sending to minimise module.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.NEB.NEB.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>initialState</em>, <em>finalState</em>, <em>saddleState=None</em>, <em>NProcs=1</em>, <em>maxBarrier=0.0</em>, <em>initialPos=None</em>, <em>initialEnergy=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/NEB.html#NEB.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.NEB.NEB.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run NEB method.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.NEB.commandLineArgs">
+<code class="descclassname">LKMC.NEB.</code><code class="descname">commandLineArgs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/NEB.html#commandLineArgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.NEB.commandLineArgs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse command line arguments</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.NEB.main">
+<code class="descclassname">LKMC.NEB.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/NEB.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.NEB.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Minimise.html"
+                        title="previous chapter">LKMC.Minimise module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Plot.html"
+                        title="next chapter">LKMC.Plot module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.NEB.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Plot.html" title="LKMC.Plot module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Minimise.html" title="LKMC.Minimise module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+LKMC.Defects module
+===================
+
+.. automodule:: LKMC.Defects
+    :members:
+    :undoc-members:
+    :show-inheritance:

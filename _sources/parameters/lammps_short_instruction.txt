@@ -1,0 +1,85 @@
+LAMMPS instructions
+===================
+
+Full instructions are in  the `LAMMPS
+Manual <http://lammps.sandia.gov/doc/Manual.html>`__. Here are a
+selection of commands for downloading and building LAMMPS.
+
+Installation
+^^^^^^^^^^^^
+
+You need to set two environment variables; you only have to do it once.
+For the csh or tcsh shells, add something like this to your
+``$HOME/.cshrc`` file, one line for each of the two files:
+
+.. code:: sh
+
+    setenv PYTHONPATH $PYTHONPATH:$HOME/git/lammps-ro/python
+    setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH:$HOME/git/lammps-ro/src 
+
+where ``$HOME/git/lammps-ro`` is the top directory of LAMMPS.
+
+Download/Update LAMMPS
+^^^^^^^^^^^^^^^^^^^^^^
+
+Way 1: Download a tarball
+-------------------------
+
+You can download LAMMPS packages from
+`here <http://lammps.sandia.gov/download.html#download>`__. Select the
+code you want, click the "Download Now" button, and your browser should
+download a gzipped tar file. Unpack it with the following commands, and
+look for a README to get you started.
+
+.. code:: sh
+
+    gunzip lammps.tar.gz
+    tar xvf lammps.tar 
+
+Way 2: Git checkout and update
+------------------------------
+
+You can also checkout using git. For details see
+`here <http://lammps.sandia.gov/download.html#git>`__.
+
+.. code:: sh
+
+    git clone git://git.lammps.org/lammps-ro.git
+
+and pull changes within the LAMMPS directory
+
+.. code:: sh
+
+    git pull 
+
+To update, after you pull changes, you need to update the src files first.
+To do this, you should cd to the ``src`` directory and type:
+
+.. code:: sh
+
+    make purge            
+    make package-update    
+
+and then follow the instructions below to re-build LAMMPS
+
+Build python shared library
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Within the ``src/STUBS`` directory, run
+
+.. code:: sh
+
+    make clean
+    make
+
+then goes back to the ``src`` directory and run
+
+.. code:: sh
+
+    make clean-all
+    make makeshlib
+    make -f Makefile.shlib serial
+
+where you might need to edit the ``src/MAKE/Makefile.*`` for you own
+machine. For details see `Making
+LAMMPS <http://lammps.sandia.gov/doc/Section_start.html#start_2>`__.

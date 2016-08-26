@@ -1,0 +1,7 @@
+LKMC.KMC module
+===============
+
+.. automodule:: LKMC.KMC
+    :members:
+    :undoc-members:
+    :show-inheritance:

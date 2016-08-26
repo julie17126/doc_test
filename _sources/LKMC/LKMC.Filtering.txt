@@ -1,0 +1,7 @@
+LKMC.Filtering module
+=====================
+
+.. automodule:: LKMC.Filtering
+    :members:
+    :undoc-members:
+    :show-inheritance:

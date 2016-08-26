@@ -1,0 +1,7 @@
+LKMC.clibs.lanczos module
+=========================
+
+.. automodule:: LKMC.clibs.lanczos
+    :members:
+    :undoc-members:
+    :show-inheritance:

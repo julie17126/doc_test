@@ -1,0 +1,7 @@
+LKMC.Minimise module
+====================
+
+.. automodule:: LKMC.Minimise
+    :members:
+    :undoc-members:
+    :show-inheritance:

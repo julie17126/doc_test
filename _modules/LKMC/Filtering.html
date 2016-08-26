@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Filtering &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Filtering</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for transition filtering.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<div class="viewcode-block" id="Filter"><a class="viewcode-back" href="../../LKMC/LKMC.Filtering.html#LKMC.Filtering.Filter">[docs]</a><span class="k">class</span> <span class="nc">Filter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter class.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="applyHashKeyFilter"><a class="viewcode-back" href="../../LKMC/LKMC.Filtering.html#LKMC.Filtering.applyHashKeyFilter">[docs]</a><span class="k">def</span> <span class="nf">applyHashKeyFilter</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">final</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span>
+    
+    <span class="n">hashKeyBlackList</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;e64a51d_9e49b3c_3e6db7e&#39;</span><span class="p">]</span>
+    
+    <span class="n">iniHashLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">initial</span><span class="o">.</span><span class="n">defectVolumesKeys</span><span class="p">)</span>
+    <span class="n">finHashLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">final</span><span class="o">.</span><span class="n">defectVolumesKeys</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iniHashLen</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">initial</span><span class="o">.</span><span class="n">defectVolumesKeys</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">hashKeyBlackList</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">finHashLen</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">initial</span><span class="o">.</span><span class="n">defectVolumesKeys</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">final</span><span class="o">.</span><span class="n">defectVolumesKeys</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                    <span class="n">massCentreSep</span> <span class="o">=</span> <span class="mi">0</span>
+                    
+                    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                        <span class="n">massCentreSep</span> <span class="o">+=</span> <span class="p">(</span><span class="n">initial</span><span class="o">.</span><span class="n">defectVolumes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">com</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="n">final</span><span class="o">.</span><span class="n">defectVolumes</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">com</span><span class="p">[</span><span class="n">k</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span>
+                        
+                        <span class="c1">#initial.graphVolsCentreMass[i][k] - final.graphVolsCentreMass[j][k]</span>
+                        
+                    <span class="k">if</span> <span class="n">massCentreSep</span> <span class="o">&lt;</span> <span class="mf">9.0</span><span class="p">:</span>
+                        <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="k">break</span>
+                
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+                    <span class="k">break</span>
+                
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">break</span>
+        
+    <span class="k">return</span> <span class="n">result</span></div>
+                    
+<div class="viewcode-block" id="filterResult"><a class="viewcode-back" href="../../LKMC/LKMC.Filtering.html#LKMC.Filtering.filterResult">[docs]</a><span class="k">def</span> <span class="nf">filterResult</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter individual result</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">accept</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="c1">#TODO: this is something to do with Tomas&#39; work and should probably be deleted now...</span>
+    <span class="k">if</span> <span class="n">initial</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">final</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">accept</span> <span class="o">=</span> <span class="n">applyHashKeyFilter</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">final</span><span class="p">)</span>
+    
+    <span class="c1"># minimum barrier</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">barrier</span> <span class="o">&lt;</span> <span class="n">params</span><span class="o">.</span><span class="n">filterMinimumBarrier</span><span class="p">:</span>
+        <span class="n">accept</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="k">return</span> <span class="n">accept</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Status module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.String module" href="LKMC.String.html" />
+    <link rel="prev" title="LKMC.Server module" href="LKMC.Server.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.String.html" title="LKMC.String module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Server.html" title="LKMC.Server module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Status">
+<span id="lkmc-status-module"></span><h1>LKMC.Status module<a class="headerlink" href="#module-LKMC.Status" title="Permalink to this headline">¶</a></h1>
+<p>Status object.</p>
+<p>Informs user of status of simulation</p>
+<dl class="class">
+<dt id="LKMC.Status.LKMCStatusObject">
+<em class="property">class </em><code class="descclassname">LKMC.Status.</code><code class="descname">LKMCStatusObject</code><span class="sig-paren">(</span><em>filename</em>, <em>simType</em>, <em>startTime</em>, <em>params</em>, <em>reuseStats=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Status.html#LKMCStatusObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Status.LKMCStatusObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Status object.
+Used to create/update the status file</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Status.LKMCStatusObject.resetSearches">
+<code class="descname">resetSearches</code><span class="sig-paren">(</span><em>currentTime</em>, <em>currentState=None</em>, <em>combinedList=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Status.html#LKMCStatusObject.resetSearches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Status.LKMCStatusObject.resetSearches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the searches start time</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Status.LKMCStatusObject.setWriter">
+<code class="descname">setWriter</code><span class="sig-paren">(</span><em>writer</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Status.html#LKMCStatusObject.setWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Status.LKMCStatusObject.setWriter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the writer to use</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Status.LKMCStatusObject.updateKMCStep">
+<code class="descname">updateKMCStep</code><span class="sig-paren">(</span><em>stepNum</em>, <em>simTime</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Status.html#LKMCStatusObject.updateKMCStep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Status.LKMCStatusObject.updateKMCStep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the current KMC step number</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Status.LKMCStatusObject.updateSearchInfo">
+<code class="descname">updateSearchInfo</code><span class="sig-paren">(</span><em>searchList=[]</em>, <em>reuseList=[]</em>, <em>NSearches={}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Status.html#LKMCStatusObject.updateSearchInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Status.LKMCStatusObject.updateSearchInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update info about searches</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Status.LKMCStatusObject.updateSearches">
+<code class="descname">updateSearches</code><span class="sig-paren">(</span><em>NCompleted</em>, <em>NSuccessful</em>, <em>NUnique</em>, <em>result=None</em>, <em>status=None</em>, <em>storeVolIndex=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Status.html#LKMCStatusObject.updateSearches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Status.LKMCStatusObject.updateSearches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update number of searches.</p>
+<dl class="docutils">
+<dt>kwarg status:</dt>
+<dd><ul class="first last simple">
+<li>0 =&gt; Failed during search</li>
+<li>1 =&gt; Duplicate</li>
+<li>2 =&gt; Failed during filtering</li>
+<li>3 =&gt; Success</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Status.LKMCStatusObject.writeStatus">
+<code class="descname">writeStatus</code><span class="sig-paren">(</span><em>filename=None</em>, <em>outdir=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Status.html#LKMCStatusObject.writeStatus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Status.LKMCStatusObject.writeStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write status to file</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Server.html"
+                        title="previous chapter">LKMC.Server module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.String.html"
+                        title="next chapter">LKMC.String module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Status.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.String.html" title="LKMC.String module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Server.html" title="LKMC.Server module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

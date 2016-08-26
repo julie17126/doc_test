@@ -1,0 +1,7 @@
+LKMC.tests.test_Graphs module
+=============================
+
+.. automodule:: LKMC.tests.test_Graphs
+    :members:
+    :undoc-members:
+    :show-inheritance:

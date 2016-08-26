@@ -1,0 +1,7 @@
+LKMC.hooks.example_hook module
+==============================
+
+.. automodule:: LKMC.hooks.example_hook
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,388 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Cascades &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Cascades</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module to handle cascade events of fixed or probabilisticly selected energy during LKMC simulations using LBOMD.</span>
+
+<span class="sd">Copyright Mark Wootton 2015</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Atoms</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">ExternalEvents</span>
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+
+
+<div class="viewcode-block" id="CascadeRunner"><a class="viewcode-back" href="../../LKMC/LKMC.Cascades.html#LKMC.Cascades.CascadeRunner">[docs]</a><span class="k">class</span> <span class="nc">CascadeRunner</span><span class="p">(</span><span class="n">ExternalEvents</span><span class="o">.</span><span class="n">ExternalEvent</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For running collision events using MD during LKMC, one calls this from ExternalEvents.py</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    params : `Input.InputParams`</span>
+<span class="sd">        This object contains all parameters which are read from `lkmcInput.IN` by default.</span>
+<span class="sd">    refState : `Lattice.Lattice`</span>
+<span class="sd">        This object hold information about the reference state (perfect lattice) of a system.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">refState</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CascadeRunner</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">refState</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="CascadeRunner.run"><a class="viewcode-back" href="../../LKMC/LKMC.Cascades.html#LKMC.Cascades.CascadeRunner.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">latticeIn</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calls all of the methods to do one complete cascade simulation.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        latticeIn : `Lattice.Lattice`</span>
+<span class="sd">            System lattice to run a cascade in.</span>
+<span class="sd">        step : int, optional</span>
+<span class="sd">            Current KMC step, to allow changing into the appropriate working directory.</span>
+<span class="sd">        clock : float, optional</span>
+<span class="sd">            System time of KMC simulation, used to record time of last cascade event, facilitating simulation resume.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lattice : `Lattice.Lattice`</span>
+<span class="sd">            Post-cascade lattice (minimised if user requires)</span>
+<span class="sd">        status : int</span>
+<span class="sd">            Status report, returned as zero if no errors have been encountered.</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The workflow is as follows:</span>
+<span class="sd">            * Pre-event thermalisation</span>
+<span class="sd">            * Generating PKA attributes</span>
+<span class="sd">            * Adding the PKA</span>
+<span class="sd">            * Simulating the cascade</span>
+<span class="sd">            * Post-cascade minimisation</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Running Cascade&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># local ref to params</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+        
+        <span class="c1"># copy the input lattice</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">latticeIn</span><span class="p">)</span>
+        
+        <span class="c1"># switch to working directory</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">switchToOutputDirectory</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># initial status</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+            
+            <span class="c1"># thermalise lattice and get velocities</span>
+            <span class="n">velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thermalise</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">cascThermalise</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">cascThermoTimeWhole</span><span class="p">,</span>
+                                       <span class="n">params</span><span class="o">.</span><span class="n">cascThermoTimeLayer</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">cascThermoType</span><span class="p">)</span>
+                    
+            <span class="c1"># Create PKA attributes for new cascade</span>
+            <span class="n">pkaVector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getPKAVector</span><span class="p">()</span>
+            <span class="n">pkaEnergy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getPKAEnergy</span><span class="p">()</span>
+            <span class="n">pkaIndex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getPKAIndex</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+            
+            <span class="c1"># Record PKA attributes in current working directory</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writePKAMetadata</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">pkaEnergy</span><span class="p">,</span> <span class="n">pkaVector</span><span class="p">,</span> <span class="n">pkaIndex</span><span class="p">,</span> <span class="n">clock</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+            
+            <span class="c1"># Add PKA to lattice system (modifies the velocity array to add the PKA)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setPKAVelocity</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">pkaIndex</span><span class="p">,</span> <span class="n">pkaEnergy</span><span class="p">,</span> <span class="n">pkaVector</span><span class="p">)</span>
+            
+            <span class="c1"># Run molecular dynamics simulation</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">runMD</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">cascThermoType</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">cascDuration</span><span class="p">)</span>
+            
+            <span class="c1"># Minimise if required</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">minimise</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">cascMinAfterCasc</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">cascMinUseLAMMPS</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">cascMinFailUseLAMMPS</span><span class="p">)</span>
+        
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c1"># Change back to original working directory</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+        
+        <span class="c1"># record start time of cascade</span>
+        <span class="n">cascTimePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">outputDirectory</span><span class="p">,</span> <span class="s2">&quot;lastCascTime.OUT&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cascTimePath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">timeOut</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">clock</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">timeOut</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.15f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">clock</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">timeOut</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;0.0</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">timeOut</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">step</span><span class="p">)</span>
+        
+        <span class="c1"># Return post-cascade lattice &amp; status</span>
+        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">lattice</span></div>
+    
+<div class="viewcode-block" id="CascadeRunner.setPKAVelocity"><a class="viewcode-back" href="../../LKMC/LKMC.Cascades.html#LKMC.Cascades.CascadeRunner.setPKAVelocity">[docs]</a>    <span class="k">def</span> <span class="nf">setPKAVelocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">pkaIndex</span><span class="p">,</span> <span class="n">pkaEnergy</span><span class="p">,</span> <span class="n">pkaVector</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the velocity of the PKA.&quot;&quot;&quot;</span>
+        <span class="c1"># velocity of PKA atom</span>
+        <span class="n">pkaVelocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getVelocityFromKE</span><span class="p">(</span><span class="n">pkaEnergy</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">pkaVector</span><span class="p">,</span> <span class="n">sym</span><span class="o">=</span><span class="n">lattice</span><span class="o">.</span><span class="n">atomSym</span><span class="p">(</span><span class="n">pkaIndex</span><span class="p">))</span>
+        
+        <span class="c1"># set velocity</span>
+        <span class="n">velocity</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">pkaIndex</span><span class="p">]</span> <span class="o">=</span> <span class="n">pkaVelocity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">velocity</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">pkaIndex</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">pkaVelocity</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">velocity</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">pkaIndex</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">pkaVelocity</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span></div>
+    
+<div class="viewcode-block" id="CascadeRunner.writePKAMetadata"><a class="viewcode-back" href="../../LKMC/LKMC.Cascades.html#LKMC.Cascades.CascadeRunner.writePKAMetadata">[docs]</a>    <span class="k">def</span> <span class="nf">writePKAMetadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">pkaEnergy</span><span class="p">,</span> <span class="n">pkaVector</span><span class="p">,</span> <span class="n">pkaIndex</span><span class="p">,</span> <span class="n">clock</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write file containing metadata for this event.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;pkaAttributes.OUT&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pkaOut</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">pkaOut</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Step </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">step</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">clock</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">pkaOut</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Time: </span><span class="si">%.15f</span><span class="s2"> s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">clock</span><span class="p">)</span>
+            <span class="n">pkaOut</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pkaOut</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;PKA Attributes:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pkaOut</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pkaOut</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Energy: </span><span class="si">%.3f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">pkaEnergy</span><span class="p">)</span>
+            <span class="n">pkaOut</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Orientation: </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pkaVector</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pkaVector</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pkaVector</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="n">pkaOut</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Index: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">pkaIndex</span><span class="p">)</span>
+            <span class="n">pkaOut</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Symbol: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">lattice</span><span class="o">.</span><span class="n">atomSym</span><span class="p">(</span><span class="n">pkaIndex</span><span class="p">))</span>
+            <span class="n">pkaOut</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Location: </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">pkaIndex</span><span class="p">],</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">pkaIndex</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                                                   <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">pkaIndex</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]))</span></div>
+    
+<div class="viewcode-block" id="CascadeRunner.getPKAVector"><a class="viewcode-back" href="../../LKMC/LKMC.Cascades.html#LKMC.Cascades.CascadeRunner.getPKAVector">[docs]</a>    <span class="k">def</span> <span class="nf">getPKAVector</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a PKA vector, either randomly or using a pre-set value.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pkaVector: `numpy.ndarray`</span>
+<span class="sd">            Cartesian three vector indicating a point on the unit sphere; used to describe the PKA direction.</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        If a random PKA vector is required it is chosen from a probability distribution evenly distributed over the</span>
+<span class="sd">        unit sphere [1]_.</span>
+<span class="sd">        </span>
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        .. [1] E.W. Weisstein. Sphere Point Picking. From MathWorld-A Wolfram Web Resource.</span>
+<span class="sd">           http://mathworld.wolfram.com/SpherePointPicking.html</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># create vector for storing result</span>
+        <span class="n">pkaVector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        
+        <span class="c1"># Random PKA vector</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">cascUseRandPKAVector</span><span class="p">:</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">u</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">v</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">pkaVector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="n">pkaVector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="n">pkaVector</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;PKA vector generated, [</span><span class="si">%f</span><span class="s2">, </span><span class="si">%f</span><span class="s2">, </span><span class="si">%f</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pkaVector</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pkaVector</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pkaVector</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c1"># Retrieve PKA vector pre-set in lkmcInput.IN</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">cascPKAVector</span>
+            <span class="n">pkaVector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">vector</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pkaVector</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;User specified PKA Vector not of length 3 -- a Cartesian three-vector is required!&quot;</span><span class="p">)</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Using pre-set PKA vector, [</span><span class="si">%f</span><span class="s2">, </span><span class="si">%f</span><span class="s2">, </span><span class="si">%f</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pkaVector</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pkaVector</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pkaVector</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">pkaVector</span></div>
+    
+<div class="viewcode-block" id="CascadeRunner.getPKAEnergy"><a class="viewcode-back" href="../../LKMC/LKMC.Cascades.html#LKMC.Cascades.CascadeRunner.getPKAEnergy">[docs]</a>    <span class="k">def</span> <span class="nf">getPKAEnergy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the PKA energy to be used in the collision cascade.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        energy: float</span>
+<span class="sd">            A randomly generated PKA energy (units: eV)</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        IOError</span>
+<span class="sd">            If there is an error reading the probability file.</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        If one wishes to use a probabilisticly generated (i.e. non-fixed) PKA energy, this function will provide a</span>
+<span class="sd">        value. These are generated from a user supplied input file describing the probability distribution, the path of</span>
+<span class="sd">        which is specified by `params.cascPKAProbFile`.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pkaEnergy</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">cascUseProbEnergies</span><span class="p">:</span>
+            <span class="n">probabilityFilePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">MDLocation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">cascPKAProbFile</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">probabilityFilePath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">probabilityFile</span><span class="p">:</span>
+                <span class="c1"># read the number of lines</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">probabilityFile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;The first line of the probability file should contain the number of rows only&quot;</span><span class="p">)</span>
+                <span class="n">num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                
+                <span class="c1"># allocate array</span>
+                <span class="n">probabilities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                
+                <span class="c1"># read lines</span>
+                <span class="k">for</span> <span class="n">count</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">probabilityFile</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="n">num</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    <span class="n">array</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                    <span class="n">probabilities</span><span class="p">[</span><span class="n">count</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">probabilities</span><span class="p">[</span><span class="n">count</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            
+            <span class="c1"># check we read all the lines</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">num</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Missing lines in cascade probability distribution file (</span><span class="si">%d</span><span class="s2"> &lt; </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="p">))</span>
+            
+            <span class="c1"># extent of data</span>
+            <span class="n">minVal</span> <span class="o">=</span> <span class="n">probabilities</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">maxVal</span> <span class="o">=</span> <span class="n">probabilities</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        
+            <span class="c1"># to prevent very small chance of returning a PKA energy of 0 eV.</span>
+            <span class="c1"># TODO: Look at this more closely some point.</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">position</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">minVal</span><span class="p">,</span> <span class="n">maxVal</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">position</span> <span class="o">&gt;=</span> <span class="n">probabilities</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">position</span> <span class="o">&lt;=</span> <span class="n">probabilities</span><span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]):</span>
+                        <span class="n">pkaEnergy</span> <span class="o">=</span> <span class="n">probabilities</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="k">break</span>
+                <span class="k">if</span> <span class="n">pkaEnergy</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                    <span class="k">break</span>
+            
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;PKA energy generated, </span><span class="si">%.3f</span><span class="s2"> eV&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pkaEnergy</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pkaEnergy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">cascPKAEnergy</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Using preset PKA energy, </span><span class="si">%.3f</span><span class="s2"> eV&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pkaEnergy</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">pkaEnergy</span></div>
+    
+<div class="viewcode-block" id="CascadeRunner.getPKAIndex"><a class="viewcode-back" href="../../LKMC/LKMC.Cascades.html#LKMC.Cascades.CascadeRunner.getPKAIndex">[docs]</a>    <span class="k">def</span> <span class="nf">getPKAIndex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Selects an atom index for the PKA from the user&#39;s specification in params.cascPKASpecies</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lattice : `Lattice.Lattice`</span>
+<span class="sd">            System lattice to choose a PKA from.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pkaIndex : int</span>
+<span class="sd">            The lattice index of the selected atom.</span>
+<span class="sd">        pkaSymbol : str</span>
+<span class="sd">            The atomic symbol of the selected atom.</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># parameters</span>
+        <span class="n">pkaSpecies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">cascPKASpecies</span>
+        
+        <span class="c1"># process</span>
+        <span class="n">pkaIndex</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">possiblePKAs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">pkaSpecies</span> <span class="o">==</span> <span class="s2">&quot;ALL&quot;</span><span class="p">:</span>
+            <span class="n">pkaIndex</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">possiblePKAs</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">getSpecieIndices</span><span class="p">(</span><span class="n">pkaSpecies</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">possiblePKAs</span><span class="p">):</span>
+                <span class="n">pkaIndex</span> <span class="o">=</span> <span class="n">possiblePKAs</span><span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">possiblePKAs</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Failed to find any atoms of your specified PKA species.&quot;</span><span class="p">)</span>
+        
+        <span class="n">atomName</span> <span class="o">=</span> <span class="n">Atoms</span><span class="o">.</span><span class="n">atomName</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">atomSym</span><span class="p">(</span><span class="n">pkaIndex</span><span class="p">))</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span>
+            <span class="s2">&quot;The selected PKA is an </span><span class="si">%s</span><span class="s2"> atom with index </span><span class="si">%d</span><span class="s2">, located at [</span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">atomName</span><span class="p">,</span> <span class="n">pkaIndex</span><span class="p">,</span>
+                                                                                     <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">pkaIndex</span><span class="p">],</span>
+                                                                                     <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">pkaIndex</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                                                                                     <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">pkaIndex</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]),</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">pkaIndex</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

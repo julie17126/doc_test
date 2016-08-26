@@ -1,0 +1,7 @@
+LKMC.Plot module
+================
+
+.. automodule:: LKMC.Plot
+    :members:
+    :undoc-members:
+    :show-inheritance:

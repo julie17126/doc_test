@@ -1,0 +1,7 @@
+LKMC.clibs.numpy_utils module
+=============================
+
+.. automodule:: LKMC.clibs.numpy_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:

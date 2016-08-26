@@ -1,0 +1,331 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Atoms &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Atoms</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Get information about the elements.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Constants</span>
+
+<span class="n">_atomicNumberDict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_atomicMassDict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_atomNameDict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_covalentRadiusDict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_RGBDict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_specieDict</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="atomicSymbol"><a class="viewcode-back" href="../../LKMC/LKMC.Atoms.html#LKMC.Atoms.atomicSymbol">[docs]</a><span class="k">def</span> <span class="nf">atomicSymbol</span><span class="p">(</span><span class="n">amu</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the symbol of an element given the mass.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    amu : float</span>
+<span class="sd">        The mass of the element in question, in AMU.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    sym : str[2]</span>
+<span class="sd">        The symbol of the element with the given mass.</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If there is no match for the given mass.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_specieDict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">_atomicMassDict</span><span class="p">[</span><span class="n">_specieDict</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">==</span> <span class="n">amu</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">_specieDict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">break</span>
+    
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No atomic symbol for </span><span class="si">%f</span><span class="s2"> AMU&quot;</span> <span class="o">%</span> <span class="n">amu</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="atomicNumber"><a class="viewcode-back" href="../../LKMC/LKMC.Atoms.html#LKMC.Atoms.atomicNumber">[docs]</a><span class="k">def</span> <span class="nf">atomicNumber</span><span class="p">(</span><span class="n">sym</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns atomic number of the element with the given symbol.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sym : str[2]</span>
+<span class="sd">        The symbol of the element.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    atomicNumber : int</span>
+<span class="sd">        Atomic number of the element.</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    KeyError</span>
+<span class="sd">        If the given symbol is not recognised.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_atomicNumberDict</span><span class="p">[</span><span class="n">sym</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="atomicMassAMU"><a class="viewcode-back" href="../../LKMC/LKMC.Atoms.html#LKMC.Atoms.atomicMassAMU">[docs]</a><span class="k">def</span> <span class="nf">atomicMassAMU</span><span class="p">(</span><span class="n">sym</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the mass of the element with the given symbol.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sym : str[2]</span>
+<span class="sd">        The symbol of the element.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    atomicMassAMU : float</span>
+<span class="sd">        Atomic mass of the element in AMU.</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    KeyError</span>
+<span class="sd">        If the given symbol is not recognised.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_atomicMassDict</span><span class="p">[</span><span class="n">sym</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="atomicMass"><a class="viewcode-back" href="../../LKMC/LKMC.Atoms.html#LKMC.Atoms.atomicMass">[docs]</a><span class="k">def</span> <span class="nf">atomicMass</span><span class="p">(</span><span class="n">sym</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the mass of the element with the given symbol.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sym : str[2]</span>
+<span class="sd">        The symbol of the element.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    atomicMass : float</span>
+<span class="sd">        Atomic mass of the element in MD code units.</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    KeyError</span>
+<span class="sd">        If the given symbol is not recognised.</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The mass is calculated as:</span>
+<span class="sd">    </span>
+<span class="sd">    MASS = ATOMIC_MASS(AMU)*AMUTKG*AFSTMS*AFSTMS/EVTJUL,</span>
+<span class="sd">    </span>
+<span class="sd">    where:</span>
+<span class="sd">    </span>
+<span class="sd">    AMUTKG = 1.672E-27 ; AFSTMS= 1.0E5 ; EVTJUL= 1.6021E-19</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_atomicMassDict</span><span class="p">[</span><span class="n">sym</span><span class="p">]</span> <span class="o">*</span> <span class="n">Constants</span><span class="o">.</span><span class="n">massConversion</span></div>
+
+<div class="viewcode-block" id="atomName"><a class="viewcode-back" href="../../LKMC/LKMC.Atoms.html#LKMC.Atoms.atomName">[docs]</a><span class="k">def</span> <span class="nf">atomName</span><span class="p">(</span><span class="n">sym</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the name of the element with the given symbol.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sym : str[2]</span>
+<span class="sd">        The symbol of the element.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    atomName : str</span>
+<span class="sd">        The name of the given element.</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    KeyError</span>
+<span class="sd">        If the given symbol is not recognised.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_atomNameDict</span><span class="p">[</span><span class="n">sym</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="covalentRadius"><a class="viewcode-back" href="../../LKMC/LKMC.Atoms.html#LKMC.Atoms.covalentRadius">[docs]</a><span class="k">def</span> <span class="nf">covalentRadius</span><span class="p">(</span><span class="n">sym</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the covalent radius of the element with the given symbol.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sym : str[2]</span>
+<span class="sd">        The symbol of the element.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    covRad : float</span>
+<span class="sd">        Covalent radius of the element.</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    KeyError</span>
+<span class="sd">        If the given symbol is not recognised.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_covalentRadiusDict</span><span class="p">[</span><span class="n">sym</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="RGB"><a class="viewcode-back" href="../../LKMC/LKMC.Atoms.html#LKMC.Atoms.RGB">[docs]</a><span class="k">def</span> <span class="nf">RGB</span><span class="p">(</span><span class="n">sym</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns RGB values for the element with the given symbol.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sym : str[2]</span>
+<span class="sd">        The symbol of the element.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    rgb : list[3]</span>
+<span class="sd">        List containing RGB values for the element.</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    KeyError</span>
+<span class="sd">        If the given symbol is not recognised.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_RGBDict</span><span class="p">[</span><span class="n">sym</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="initialise"><a class="viewcode-back" href="../../LKMC/LKMC.Atoms.html#LKMC.Atoms.initialise">[docs]</a><span class="k">def</span> <span class="nf">initialise</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read data in Atoms.IN file into dictionaries.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_atomicNumberDict</span><span class="p">,</span> <span class="n">_atomicMassDict</span><span class="p">,</span> <span class="n">_atomNameDict</span><span class="p">,</span> <span class="n">_covalentRadiusDict</span><span class="p">,</span> <span class="n">_RGBDict</span><span class="p">,</span> <span class="n">_specieDict</span>
+    
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;Atoms.IN&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;Atoms.IN&#39;</span>
+    
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;error: could not open atoms file: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;error: could not find atoms file: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
+    
+    <span class="c1"># read into dictionaries</span>
+    <span class="n">_atomicNumberDict</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">_atomicMassDict</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">_atomNameDict</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">_covalentRadiusDict</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">_RGBDict</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">_specieDict</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        
+        <span class="n">array</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        
+        <span class="n">key</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">key</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span>
+        
+        <span class="n">_atomicNumberDict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">_atomicMassDict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">_atomNameDict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">_covalentRadiusDict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+        <span class="n">_RGBDict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">5</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">6</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">7</span><span class="p">])]</span>
+        <span class="n">_specieDict</span><span class="p">[</span><span class="n">count</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
+        
+        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="k">pass</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">initialise</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

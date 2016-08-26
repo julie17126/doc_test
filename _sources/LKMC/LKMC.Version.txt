@@ -1,0 +1,7 @@
+LKMC.Version module
+===================
+
+.. automodule:: LKMC.Version
+    :members:
+    :undoc-members:
+    :show-inheritance:

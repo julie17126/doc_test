@@ -1,0 +1,7 @@
+LKMC.Profiling module
+=====================
+
+.. automodule:: LKMC.Profiling
+    :members:
+    :undoc-members:
+    :show-inheritance:

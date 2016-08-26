@@ -1,0 +1,297 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.tests.test_Utilities &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.tests.test_Utilities</h1><div class="highlight"><pre>
+<span></span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Tests for the Utilities module</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">BaseTestClass</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">Utilities</span>
+
+
+<div class="viewcode-block" id="TestUtilitiesModule"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Utilities.html#LKMC.tests.test_Utilities.TestUtilitiesModule">[docs]</a><span class="k">class</span> <span class="nc">TestUtilitiesModule</span><span class="p">(</span><span class="n">BaseTestClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Utilities module test suite</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<span class="c1">#     def test_checkDirectory(self):</span>
+<span class="c1">#         </span>
+<span class="c1">#         cwd = os.getcwd()</span>
+<span class="c1">#         dirPath = cwd + &quot;/Utilities/&quot;</span>
+<span class="c1">#         dirPath2 = cwd + &quot;/Utilities/testDir&quot;</span>
+<span class="c1">#         </span>
+<span class="c1">#         self.assertEqual(Utilities.checkDirectory(dirPath, 0, 1), 1)</span>
+<span class="c1">#         self.assertEqual(Utilities.checkDirectory(dirPath2, 0, 1), 0)</span>
+<span class="c1">#         self.assertEqual(Utilities.checkDirectory(dirPath2, 1, 1), 1)</span>
+<span class="c1">#         </span>
+<span class="c1">#         os.system(&quot;rm -rf %s&quot;%dirPath2)</span>
+        
+<div class="viewcode-block" id="TestUtilitiesModule.test_checkForFile"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Utilities.html#LKMC.tests.test_Utilities.TestUtilitiesModule.test_checkForFile">[docs]</a>    <span class="k">def</span> <span class="nf">test_checkForFile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check for file</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span>
+        <span class="n">filePath2</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;/Modules.py&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">checkForFile</span><span class="p">(</span><span class="n">filePath</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">checkForFile</span><span class="p">(</span><span class="n">filePath2</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span></div>
+        
+<span class="c1">#     def test_checkForZipped(self):</span>
+<span class="c1">#         </span>
+<span class="c1">#         cwd = os.getcwd()</span>
+<span class="c1">#         dirPath = cwd + &quot;/Utilities/&quot;</span>
+<span class="c1">#         filePath = dirPath + &quot;unzip.dat&quot;</span>
+<span class="c1">#         filePath2 = dirPath + &quot;bz2zip.dat&quot;</span>
+<span class="c1">#         filePath3 = dirPath + &quot;gzzip.dat&quot;</span>
+<span class="c1">#         </span>
+<span class="c1">#         self.assertEqual(Utilities.checkForZipped(filePath), 0, )</span>
+<span class="c1">#         self.assertEqual(Utilities.checkForZipped(filePath2), 1, )</span>
+<span class="c1">#         self.assertEqual(Utilities.checkForZipped(filePath3), 1, )</span>
+<span class="c1">#         </span>
+<span class="c1">#         os.system(&quot;rm -f %s %s&quot;%(filePath2, filePath3))</span>
+        
+<div class="viewcode-block" id="TestUtilitiesModule.test_convertStrToType"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Utilities.html#LKMC.tests.test_Utilities.TestUtilitiesModule.test_convertStrToType">[docs]</a>    <span class="k">def</span> <span class="nf">test_convertStrToType</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert str to type</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">strValue</span> <span class="o">=</span> <span class="s2">&quot;  test words &quot;</span>
+        <span class="n">strValue2</span> <span class="o">=</span> <span class="s2">&quot;23&quot;</span>
+        <span class="n">strValue3</span> <span class="o">=</span> <span class="s2">&quot;2.3&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">convertStrToType</span><span class="p">(</span><span class="n">strValue</span><span class="p">,</span> <span class="s2">&quot;str&quot;</span><span class="p">),</span> <span class="s2">&quot;test words&quot;</span><span class="p">,</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">convertStrToType</span><span class="p">(</span><span class="n">strValue2</span><span class="p">,</span> <span class="s2">&quot;int&quot;</span><span class="p">)),</span> <span class="nb">type</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">convertStrToType</span><span class="p">(</span><span class="n">strValue3</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">)),</span> <span class="nb">type</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),)</span></div>
+        
+<span class="c1">#     def test_deleteFile(self):</span>
+<span class="c1">#         </span>
+<span class="c1">#         cwd = os.getcwd()</span>
+<span class="c1">#         filePath = cwd + &quot;/Utilities/tobedelete.dat&quot;</span>
+<span class="c1">#         os.system(&quot;cp %s/Utilities/unzip.dat %s&quot;%(cwd, filePath))</span>
+<span class="c1">#         tmp = Utilities.checkForFile(filePath)</span>
+<span class="c1">#         Utilities.deleteFile(filePath)</span>
+<span class="c1">#         </span>
+<span class="c1">#         self.assertTrue((tmp) and (not Utilities.checkForFile(filePath)))</span>
+        
+<span class="c1">#     def test_doZip(self):</span>
+<span class="c1">#         </span>
+<span class="c1">#         cwd = os.getcwd()</span>
+<span class="c1">#         filePath = cwd + &quot;/Utilities/tobezip.dat&quot;</span>
+<span class="c1">#         os.system(&quot;cp %s/Utilities/unzip.dat %s&quot;%(cwd, filePath))</span>
+<span class="c1">#         Utilities.doZip(filePath)</span>
+<span class="c1">#         </span>
+<span class="c1">#         self.assertTrue(os.path.isfile(filePath+&quot;.gz&quot;))</span>
+<span class="c1">#         os.system(&quot;rm -f %s/Utilities/tobezip*&quot;)</span>
+        
+<span class="c1">#     def test_fileLineCount(self):</span>
+<span class="c1">#         </span>
+<span class="c1">#         cwd = os.getcwd()</span>
+<span class="c1">#         filePath = cwd + &quot;/Utilities/unzip.dat&quot;</span>
+<span class="c1">#         </span>
+<span class="c1">#         self.assertEqual(Utilities.fileLineCount(filePath), 54001, )</span>
+        
+<span class="c1">#     def test_findFiles(self):</span>
+<span class="c1">#         </span>
+<span class="c1">#         cwd = os.getcwd()</span>
+<span class="c1">#         stringToMatch = &quot;*.dat&quot;</span>
+<span class="c1">#         os.chdir(cwd+&quot;/Utilities/&quot;)</span>
+<span class="c1">#         </span>
+<span class="c1">#         self.assertEqual( Utilities.findFiles(stringToMatch), [&#39;unzip.dat&#39;])</span>
+<span class="c1">#         os.chdir(cwd)</span>
+        
+<span class="c1">#     def test_findLastKMCLattice(self):</span>
+<span class="c1">#         </span>
+<span class="c1">#         cwd = os.getcwd()</span>
+<span class="c1">#         os.chdir(cwd+&quot;/Utilities/KMC/&quot;)</span>
+<span class="c1">#         filename, index = Utilities.findLastKMCLattice()</span>
+<span class="c1">#         </span>
+<span class="c1">#         self.assertEqual(index, 24, )</span>
+<span class="c1">#         os.chdir(cwd)</span>
+        
+<span class="c1">#     def test_getPathToDreadnaut(self):</span>
+<span class="c1">#         </span>
+<span class="c1">#         self.assertNotEqual(Utilities.getPathToDreadnaut(), None,)</span>
+<span class="c1">#         </span>
+<span class="c1">#     def test_getPathToThirdparty(self):</span>
+<span class="c1">#         </span>
+<span class="c1">#         self.assertNotEqual(Utilities.getPathToThirdparty(), None, )</span>
+        
+<span class="c1">#     def test_getTheLineCount(self):</span>
+<span class="c1">#         </span>
+<span class="c1">#         cwd = os.getcwd()</span>
+<span class="c1">#         filePath = cwd + &quot;/Utilities/unzip.dat&quot;</span>
+<span class="c1">#         </span>
+<span class="c1">#         self.assertEqual(Utilities.getTheLineCount(filePath), 54001, )</span>
+        
+<div class="viewcode-block" id="TestUtilitiesModule.test_idGenerator"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Utilities.html#LKMC.tests.test_Utilities.TestUtilitiesModule.test_idGenerator">[docs]</a>    <span class="k">def</span> <span class="nf">test_idGenerator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ID generator</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">idGenerator</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)),</span> <span class="mi">6</span><span class="p">,</span> <span class="p">)</span></div>
+        
+<div class="viewcode-block" id="TestUtilitiesModule.test_isMax"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Utilities.html#LKMC.tests.test_Utilities.TestUtilitiesModule.test_isMax">[docs]</a>    <span class="k">def</span> <span class="nf">test_isMax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Is max?</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">isMax</span><span class="p">(</span><span class="mf">5.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="mi">5</span><span class="p">,</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">isMax</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mf">4.1</span><span class="p">),</span> <span class="mi">5</span><span class="p">,</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">isMax</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mf">6.2</span><span class="p">),</span> <span class="mf">6.2</span><span class="p">,</span> <span class="p">)</span></div>
+        
+<div class="viewcode-block" id="TestUtilitiesModule.test_isMin"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Utilities.html#LKMC.tests.test_Utilities.TestUtilitiesModule.test_isMin">[docs]</a>    <span class="k">def</span> <span class="nf">test_isMin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Is min?</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">isMin</span><span class="p">(</span><span class="mf">5.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="mi">5</span><span class="p">,</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">isMin</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mf">4.1</span><span class="p">),</span> <span class="mf">4.1</span><span class="p">,</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">isMin</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mf">6.2</span><span class="p">),</span> <span class="mi">5</span><span class="p">,</span> <span class="p">)</span></div>
+        
+<div class="viewcode-block" id="TestUtilitiesModule.test_makeBarrierCriteria"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Utilities.html#LKMC.tests.test_Utilities.TestUtilitiesModule.test_makeBarrierCriteria">[docs]</a>    <span class="k">def</span> <span class="nf">test_makeBarrierCriteria</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make barrier criteria</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">inputString</span> <span class="o">=</span> <span class="s2">&quot;1-0.1,4-0.4,2-0.2,3-0.3&quot;</span>
+        <span class="n">cnt</span><span class="p">,</span> <span class="n">iterList</span><span class="p">,</span> <span class="n">enerList</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">makeBarrierCriteria</span><span class="p">(</span><span class="n">inputString</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">cnt</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">iterList</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">enerList</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.3</span><span class="p">],</span> <span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestUtilitiesModule.test_uniqueItems"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Utilities.html#LKMC.tests.test_Utilities.TestUtilitiesModule.test_uniqueItems">[docs]</a>    <span class="k">def</span> <span class="nf">test_uniqueItems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Unique items</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">uniqueItems</span><span class="p">(</span><span class="n">seq</span><span class="p">),</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="s1">&#39;c&#39;</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">],</span> <span class="p">)</span></div>
+        
+<div class="viewcode-block" id="TestUtilitiesModule.test_unique"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Utilities.html#LKMC.tests.test_Utilities.TestUtilitiesModule.test_unique">[docs]</a>    <span class="k">def</span> <span class="nf">test_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Unique</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">result1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">result2</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="n">result1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="n">result2</span><span class="p">))</span></div>
+        
+<div class="viewcode-block" id="TestUtilitiesModule.test_union"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Utilities.html#LKMC.tests.test_Utilities.TestUtilitiesModule.test_union">[docs]</a>    <span class="k">def</span> <span class="nf">test_union</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Union</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="n">result</span><span class="p">,</span> <span class="p">))</span></div>
+        
+<div class="viewcode-block" id="TestUtilitiesModule.test_intersect"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Utilities.html#LKMC.tests.test_Utilities.TestUtilitiesModule.test_intersect">[docs]</a>    <span class="k">def</span> <span class="nf">test_intersect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Intersect</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">Utilities</span><span class="o">.</span><span class="n">intersect</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="n">result</span><span class="p">,</span> <span class="p">))</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

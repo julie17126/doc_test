@@ -1,0 +1,184 @@
+
+Main
+====
+
+The section includes the main (general) parameters for running the code.
+
+JOBTYPE
+-------
+String: 'KMC' or 'GROWTH'
+
+The type of simulation to run:
+
+* KMC: normal on-the-fly kinetic Monte Carlo simulation
+* GROWTH: on-the-fly kMC with depositions
+
+Default: 'KMC'
+
+jobStatus
+---------
+String: 'BEGIN' or 'CNTIN'
+   
+Begin a new simulation (this will overwrite an old one in the current directory) or continue an
+old one.
+
+Default: BEGIN
+
+KMCMaxSteps
+-----------
+Integer; positive
+
+Maximum number of steps to run the simulation for.
+
+Default: 1000000
+
+KMCMaxTime
+----------
+Real; non-negative (seconds)
+
+Maximum simulation time to run the KMC for.
+
+If set to 0, the run time is unlimited.
+
+Default: 0.0
+
+kmcNoSearch
+-----------
+Integer; positive
+
+Number of transition searches per defect volume
+
+Default: 200
+
+extraJobs
+---------
+Integer; positive
+
+Percentage of extra jobs to add when running searches.
+
+If set to zero, exactly `kmcNoSearch`_ jobs will be added; it is usually desirable
+to add more jobs so that long running jobs (that are usually failures) can be ignored, i.e. we take
+the first `kmcNoSearch`_ results and discard the rest.
+
+Default: 10
+
+KMCLookFrom
+-----------
+Integer; non-negative
+
+When resuming a simulation start looking from this index when looking for last lattice file.
+
+Default: 0
+
+verboseLevel
+------------
+Integer; non-negative
+
+Control how much output is generated:
+
+- 0: minimial, only very important stuff
+- 1: slightly more, only important stuff
+- 2: additional output useful for understanding what's happending
+- 3: a lot of extra debugging output
+- 4: loads of extra output, prints stuff for every force call
+
+Default: generally 1 is good for normal simulations, 2 for getting started, 4 prints out every
+force call
+
+MDType
+------
+String; {'LBOMD', 'LAMMPS', "SIESTA'}
+
+Which library to use for force calls:
+
+- LBOMD: use `LBOMD <http://magrid-server-5.lboro.ac.uk/master/LBOMD/wikis/home>`_
+- LAMMPS: use `LAMMPS <http://lammps.sandia.gov/>`_
+- SIESTA: use `siesta <http://departments.icmab.es/leem/siesta/>`_
+
+Default: 'LBOMD'
+
+fullPathToNodesFile
+-------------------
+String
+
+The path to the nodes file relative to the working directory.
+
+Default: 'nodes.IN'
+
+MDLocation
+----------
+String
+
+The path to the directory containing the input files required by the force call library, relative
+to the working directory. This should *not* be an absolute path.
+
+Default: 'md'
+
+inputDirectory
+--------------
+String
+
+The path to the directory containing the initial lattice files, relative to the working directory.
+
+Default: 'input'
+
+outputDirectory
+---------------
+String
+
+The path to the directory for storing the output from the simulation, relative to the working
+directory.
+
+Default: 'output'
+
+volumeDirectory
+---------------
+String
+
+The path to the directory where the defect volume transition database files should be stored,
+relatie to the working directory.
+
+Default: 'defectVolumes'
+
+noStoreVolumes
+--------------
+Integer; 0 or 1
+
+If set to 1 then do not store transitions for reuse (useful for debugging/testing certain things).
+
+Default: 0
+
+systemTemperature
+-----------------
+Real; positive
+
+The temperature of the system.
+
+Default: 450
+
+useSubLatticeForceCalc
+----------------------
+Integer; 0 or 1
+
+Use the sub-lattice force calculation, if it is supported within your chosen force library.
+
+**IMPORTANT**: this should always be set to one at the moment!
+
+Default: 1
+
+subLatticeIncludeRadius
+-----------------------
+Real; positive
+
+Skin to include atoms around those you need to know the forces accurately.  This depends on your
+potential.
+
+Default: 8.5
+
+useBasin
+--------
+Integer; 0 or 1
+
+If set to 1 then use the basin method.
+
+Default: 0

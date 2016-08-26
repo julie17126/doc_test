@@ -1,0 +1,134 @@
+Output
+======
+
+Parameters determining how much output is generated
+
+statusUpdateInterval
+^^^^^^^^^^^^^^^^^^^^
+
+Integer > 10 (seconds)
+
+How often to update LKMCStatus.html. This is not exact and depends on how busy
+the server is. The minimum value is 10.
+
+Default: 10
+
+flushSTDOUT
+^^^^^^^^^^^
+
+0 or 1
+
+If 1: flush STDOUT whenever a new status file is written.
+
+Default: 1
+
+outputSaddles
+^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: write saddle states out to a combined lattice file.
+
+Default: 1
+
+outputFinals
+^^^^^^^^^^^^
+
+0 or 1
+
+If 1: write final states out to a combined lattice file.
+
+Default: 1
+
+outputBarrierDistribution
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: plot the barrier distribution at each step.
+
+Default: 1
+
+visualisePathways
+^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: write out xyz files for each transition (NEB/String nodes).
+
+Default: 0
+
+plotPathways
+^^^^^^^^^^^^
+
+0 or 1
+
+If 1: plot pathways for each transition (NEB/String).
+
+Default: 0
+
+outputPathwayCSVs
+^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: write a csv file with pathway info: image number, energy,
+separation.
+
+Default: 0
+
+writePOVDefectsAll
+^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: store POV-Ray file for rendering all defects at each KMC
+step.
+
+Default: 0
+
+writePOVDefectsChosen
+^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: store POV-Ray file for rendering defects at each KMC step.
+
+Default: 0
+
+renderPOVDefectsAll
+^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: render all defects at each KMC step.
+
+Default: 1
+
+renderPOVDefectsChosen
+^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: render defects at each KMC step.
+
+Default: 1
+
+renderPOVVolumesChosen
+^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: render the chosen defects at each KMC step.
+
+Default: 0
+
+renderDefectVolumes
+^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: render defect volumes of transitions when
+*`debugBasin <parameters_basin>`__* is 1.
+
+Default: 0

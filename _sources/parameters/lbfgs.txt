@@ -1,0 +1,82 @@
+L-BFGS
+======
+
+We are using the SciPy implementation, see the `reference
+page <http://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin_l_bfgs_b.html>`__
+
+LBFGSTolerance
+^^^^^^^^^^^^^^
+
+Float
+
+Force tolerance. Note this tolerance is calculated from the max
+value of an element in the 3N force vector, not the max force acting on
+an atom. This is 'pgtol' on the
+`website <http://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin_l_bfgs_b.html>`__.
+
+Default: 1e-3
+
+LBFGSMemory
+^^^^^^^^^^^
+
+Integer
+
+How many terms to use in the approximation to the Hessian. 'm'
+on the
+`website <http://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin_l_bfgs_b.html>`__.
+
+Default: 10
+
+LBFGSMaxFuncEvals
+^^^^^^^^^^^^^^^^^
+
+Integer
+
+Maximum number of function evaluations.
+
+Default: 2000
+
+LBFGSMaxIter
+^^^^^^^^^^^^
+
+Integer
+
+Maximum number of iterations.
+
+Default: 1000
+
+LBFGSNEBTolerance
+^^^^^^^^^^^^^^^^^
+
+Float
+
+Tolerance value to use when using LBFGS minimiser with NEB method.
+
+Default: 1e-2
+
+LBFGSNEBMemory
+^^^^^^^^^^^^^^
+
+Integer
+
+Memory value to use when using LBFGS minimiser with NEB method.
+
+Default: 5
+
+LBFGSOutputMethod
+^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 0: print our custom output using a callback function at the
+end of every iteration
+
+If 1: use the default output from the Fortran
+library.
+
+Note if set to 1 and using the
+*`clientIndividualOutput <Parameters_Server>`__* option all LBFGS output
+will be sent to the head node file, not the individual file as I cannot
+redirect the output from the Fortran library.
+
+Default is 0

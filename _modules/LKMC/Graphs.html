@@ -1,0 +1,973 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Graphs &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Graphs</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Contains methods to apply graph theory on defect volumes.</span>
+
+<span class="sd">Copyright Tomas Lazauskas 2012</span>
+<span class="sd">Copyright Chris Scott 2014</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Utilities</span>
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.clibs</span> <span class="k">import</span> <span class="n">defects</span> <span class="k">as</span> <span class="n">c_defects</span>
+<span class="kn">from</span> <span class="nn">.clibs</span> <span class="k">import</span> <span class="n">graphs</span> <span class="k">as</span> <span class="n">c_graphs</span>
+<span class="kn">from</span> <span class="nn">.clibs</span> <span class="k">import</span> <span class="n">nauty_iface</span>
+
+
+<div class="viewcode-block" id="applyTransformMatrix"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.applyTransformMatrix">[docs]</a><span class="k">def</span> <span class="nf">applyTransformMatrix</span><span class="p">(</span><span class="n">atomsList1</span><span class="p">,</span> <span class="n">atomList2</span><span class="p">,</span> <span class="n">defectVolume</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">transfMatrix</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Applies transformation matrix on defect volume atoms</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">result</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+    <span class="n">atomsListLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomList2</span><span class="p">)</span>
+    
+    <span class="n">c_graphs</span><span class="o">.</span><span class="n">applyTransformMatrix</span><span class="p">(</span><span class="n">atomsListLen</span><span class="p">,</span> <span class="n">defectVolume</span><span class="p">,</span> <span class="n">atomsList1</span><span class="p">,</span> 
+                                  <span class="n">atomList2</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="p">,</span> <span class="n">transfMatrix</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="getDiffMatrix2StatesVolume"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.getDiffMatrix2StatesVolume">[docs]</a><span class="k">def</span> <span class="nf">getDiffMatrix2StatesVolume</span><span class="p">(</span><span class="n">defectVolume</span><span class="p">,</span> <span class="n">iniState</span><span class="p">,</span> <span class="n">finState</span><span class="p">,</span> <span class="n">atomList1</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a matrix of difference between two defect volumes</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">listLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomList1</span><span class="p">)</span>
+    
+    <span class="n">diffMatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">listLen</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    
+    <span class="n">c_graphs</span><span class="o">.</span><span class="n">getDiffMatrix2StatesVolume</span><span class="p">(</span><span class="n">listLen</span><span class="p">,</span> <span class="n">defectVolume</span><span class="p">,</span> <span class="n">atomList1</span><span class="p">,</span> <span class="n">iniState</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> 
+                                        <span class="n">finState</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="p">,</span> <span class="n">diffMatrix</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">diffMatrix</span></div>
+
+<div class="viewcode-block" id="doTheTransformation"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.doTheTransformation">[docs]</a><span class="k">def</span> <span class="nf">doTheTransformation</span><span class="p">(</span><span class="n">initialLattice1</span><span class="p">,</span> <span class="n">finalLattice1</span><span class="p">,</span> <span class="n">defectVolume1</span><span class="p">,</span> <span class="n">atomsList1</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> 
+                        <span class="n">atomsList2</span><span class="p">,</span> <span class="n">transformMatrix</span><span class="p">,</span> <span class="n">cntr1</span><span class="p">,</span> <span class="n">cntr2</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Does the transformation</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">transfLattice</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">lattice2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">transformMatrix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+        
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">atomsList1</span><span class="p">)):</span>
+        <span class="n">vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> 
+        
+        <span class="n">idxFr</span> <span class="o">=</span> <span class="n">atomsList1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">idxTo</span> <span class="o">=</span> <span class="n">atomsList2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        
+        <span class="n">atomFr</span> <span class="o">=</span> <span class="n">defectVolume1</span><span class="p">[</span><span class="n">idxFr</span><span class="p">]</span>
+        <span class="n">atomTo</span> <span class="o">=</span> <span class="n">defectVolume2</span><span class="p">[</span><span class="n">idxTo</span><span class="p">]</span>
+        
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">):</span>
+            <span class="n">vector</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">finalLattice1</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">atomFr</span><span class="o">*</span><span class="n">noOfCoords</span><span class="o">+</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">cntr1</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+        
+        <span class="n">vectorx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">transformMatrix</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">vector</span><span class="p">)</span>
+                
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">):</span>
+            <span class="n">transfLattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">atomTo</span><span class="o">*</span><span class="n">noOfCoords</span><span class="o">+</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">vectorx</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">cntr2</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            
+<span class="c1">#    matrixToFinal = getDiffMatrix2StatesVolume(defectVolume1, initialLattice1, </span>
+<span class="c1">#        finalLattice1, atomsList1, noOfCoords=noOfCoords)</span>
+<span class="c1">#    </span>
+<span class="c1">#    matrixToFinalTransf = np.dot(matrixToFinal, transformMatrix)</span>
+<span class="c1">#</span>
+<span class="c1">#    transfLattice = applyTransformMatrix(atomsList1, atomsList2, defectVolume2, lattice2, </span>
+<span class="c1">#        matrixToFinalTransf, noOfCoords=noOfCoords)</span>
+        
+    <span class="k">return</span> <span class="n">transfLattice</span></div>
+
+<div class="viewcode-block" id="getIsomorphism"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.getIsomorphism">[docs]</a><span class="k">def</span> <span class="nf">getIsomorphism</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get isomorphism between two graphs.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    params : `Input.InputParams`</span>
+<span class="sd">        The input parameters</span>
+<span class="sd">    defectVolume1 : `Defects.DefectVolume`</span>
+<span class="sd">        The first defect volume (graph)</span>
+<span class="sd">    lattice1 : `Lattice.Lattice`</span>
+<span class="sd">        The Lattice containing the first defect volume</span>
+<span class="sd">    defectVolume2 : `Defects.DefectVolume`</span>
+<span class="sd">        The second defect volume (graph)</span>
+<span class="sd">    lattice2 : `Lattice.Lattice`</span>
+<span class="sd">        The Lattice containing the second defect volume</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ismLst1 : `numpy.ndarray`</span>
+<span class="sd">        The isomorphism list for the first volume</span>
+<span class="sd">    ismLst2 : `numpy.ndarray`</span>
+<span class="sd">        The isomorphism list for the second volume</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        If the isomorphism could not be computed or if the volumes have</span>
+<span class="sd">        different lengths</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">defVolLen1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">defectVolume1</span><span class="p">)</span>
+    <span class="n">defVolLen2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">defectVolume2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">defVolLen1</span> <span class="o">!=</span> <span class="n">defVolLen2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Graphs cannot be isomorphic if they have different lengths (</span><span class="si">%d</span><span class="s2"> != </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">defVolLen1</span><span class="p">,</span> <span class="n">defVolLen2</span><span class="p">))</span>
+    
+    <span class="n">nvolatoms</span> <span class="o">=</span> <span class="n">defVolLen1</span>
+    
+    <span class="c1"># make volume position and specie arrays for volume 1</span>
+    <span class="n">defVolPos1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">nvolatoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">defVolSpecie1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">nvolatoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">c_graphs</span><span class="o">.</span><span class="n">makeDefectVolumePosAndSpecie</span><span class="p">(</span><span class="n">defectVolume1</span><span class="p">,</span> <span class="n">defVolPos1</span><span class="p">,</span> <span class="n">defVolSpecie1</span><span class="p">,</span> <span class="n">lattice1</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">lattice1</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span>
+    
+    <span class="c1"># make volume position and specie arrays for volume 1</span>
+    <span class="n">defVolPos2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">nvolatoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">defVolSpecie2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">nvolatoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">c_graphs</span><span class="o">.</span><span class="n">makeDefectVolumePosAndSpecie</span><span class="p">(</span><span class="n">defectVolume2</span><span class="p">,</span> <span class="n">defVolPos2</span><span class="p">,</span> <span class="n">defVolSpecie2</span><span class="p">,</span> <span class="n">lattice2</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">lattice2</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span>
+    
+    <span class="n">NSpecies</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lattice1</span><span class="o">.</span><span class="n">specieList</span><span class="p">)</span>
+    <span class="c1">#TODO: what happens if species are different?</span>
+    
+    <span class="n">cellDims3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">cellDims3</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice1</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">cellDims3</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice1</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">cellDims3</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice1</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>
+    
+    <span class="n">ismList1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">defVolLen1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">ismList2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">defVolLen2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">nauty_iface</span><span class="o">.</span><span class="n">findIsomorphism</span><span class="p">(</span><span class="n">nvolatoms</span><span class="p">,</span> <span class="n">defVolPos1</span><span class="p">,</span> <span class="n">defVolSpecie1</span><span class="p">,</span> <span class="n">defVolPos2</span><span class="p">,</span> <span class="n">defVolSpecie2</span><span class="p">,</span> <span class="n">NSpecies</span><span class="p">,</span> 
+                                         <span class="n">params</span><span class="o">.</span><span class="n">graphRadius</span><span class="p">,</span> <span class="n">cellDims3</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">,</span> <span class="n">ismList1</span><span class="p">,</span> <span class="n">ismList2</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not compute isomorphism (</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">status</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">ismList1</span><span class="p">,</span> <span class="n">ismList2</span></div>
+
+<div class="viewcode-block" id="getHashKeyForAVolume"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.getHashKeyForAVolume">[docs]</a><span class="k">def</span> <span class="nf">getHashKeyForAVolume</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">volumeAtoms</span><span class="p">,</span> <span class="n">lattice</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the hash key of a defect volume.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    params : `Input.InputParams`</span>
+<span class="sd">        The input parameters</span>
+<span class="sd">    volumeAtoms : `numpy.ndarray`</span>
+<span class="sd">        The indexes of the atoms in the defect volume (graph)</span>
+<span class="sd">    lattice : `Lattice.Lattice`</span>
+<span class="sd">        The Lattice object containing the defect volume</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    hashKey : str</span>
+<span class="sd">        The hash key of the defect volume</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        If the hash key could not be calculated</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">numAtoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">volumeAtoms</span><span class="p">)</span>
+    <span class="n">numSpecies</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">)</span>
+    
+    <span class="n">cellDims3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">cellDims3</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">cellDims3</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">cellDims3</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>
+    
+    <span class="c1"># make volume position and specie arrays</span>
+    <span class="n">volumePos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">numAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">volumeSpecie</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">numAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">c_graphs</span><span class="o">.</span><span class="n">makeDefectVolumePosAndSpecie</span><span class="p">(</span><span class="n">volumeAtoms</span><span class="p">,</span> <span class="n">volumePos</span><span class="p">,</span> <span class="n">volumeSpecie</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span>
+    
+    <span class="c1"># compute the hash key</span>
+    <span class="n">hashKeyChar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">character</span><span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">nauty_iface</span><span class="o">.</span><span class="n">getGraphKey</span><span class="p">(</span><span class="n">numAtoms</span><span class="p">,</span> <span class="n">volumePos</span><span class="p">,</span> <span class="n">volumeSpecie</span><span class="p">,</span> <span class="n">numSpecies</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">graphRadius</span><span class="p">,</span> <span class="n">cellDims3</span><span class="p">,</span> 
+                                     <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">,</span> <span class="n">hashKeyChar</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Error computing hash key (</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">status</span><span class="p">)</span>
+    
+    <span class="c1"># convert hash key to str</span>
+    <span class="n">hashKey</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hashKeyChar</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">hashKey</span>          </div>
+
+<div class="viewcode-block" id="getIsomorphismBetweenTwoGraphs"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.getIsomorphismBetweenTwoGraphs">[docs]</a><span class="k">def</span> <span class="nf">getIsomorphismBetweenTwoGraphs</span><span class="p">(</span><span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">cntr1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cntr2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine the isomorphism between two graphs and the transformation matrix.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    defectVolume1 : `Defects.DefectVolume`</span>
+<span class="sd">        The first defect volume (graph)</span>
+<span class="sd">    lattice1 : `Lattice.Lattice`</span>
+<span class="sd">        The Lattice containing the first defect volume</span>
+<span class="sd">    defectVolume2 : `Defects.DefectVolume`</span>
+<span class="sd">        The second defect volume (graph)</span>
+<span class="sd">    lattice2 : `Lattice.Lattice`</span>
+<span class="sd">        The Lattice containing the second defect volume</span>
+<span class="sd">    params : `Input.InputParams`</span>
+<span class="sd">        The input parameters</span>
+<span class="sd">    noOfCoords : int, optional</span>
+<span class="sd">        The dimension of the problem. Default is 3</span>
+<span class="sd">    cntr1 : `numpy.ndarray[3]`, optional</span>
+<span class="sd">        The centre of mass of the first defect volume. Will be computed if it</span>
+<span class="sd">        is not provided.</span>
+<span class="sd">    cntr2 : `numpy.ndarray[3]`, optional</span>
+<span class="sd">        The centre of mass of the second defect volume. Will be computed if it</span>
+<span class="sd">        is not provided.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    atLst1 : `numpy.ndarray`</span>
+<span class="sd">        The isomorphism list for the first volume</span>
+<span class="sd">    atLst2 : `numpy.ndarray`</span>
+<span class="sd">        The isomorphism list for the second volume</span>
+<span class="sd">    transfMatrix : `numpy.ndarray[noOfCoords,noOfCoords]`</span>
+<span class="sd">        The transformation matrix</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># find the isomorphism</span>
+    <span class="n">atLst1</span><span class="p">,</span> <span class="n">atLst2</span> <span class="o">=</span> <span class="n">getIsomorphism</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">)</span>
+    
+    <span class="c1"># compute the transformation matrix</span>
+    <span class="n">transfMatrix</span> <span class="o">=</span> <span class="n">findTheTransformMatrix</span><span class="p">(</span><span class="n">atLst1</span><span class="p">,</span> <span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">atLst2</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> 
+                                          <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">,</span> <span class="n">cntr1</span><span class="o">=</span><span class="n">cntr1</span><span class="p">,</span> <span class="n">cntr2</span><span class="o">=</span><span class="n">cntr2</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">atLst1</span><span class="p">,</span> <span class="n">atLst2</span><span class="p">,</span> <span class="n">transfMatrix</span></div>
+
+<div class="viewcode-block" id="findTheTransformMatrix"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.findTheTransformMatrix">[docs]</a><span class="k">def</span> <span class="nf">findTheTransformMatrix</span><span class="p">(</span><span class="n">atomList1</span><span class="p">,</span> <span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">atomList2</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> 
+                           <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">cntr1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cntr2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Finds the transformation matrix between two graphs by solving LL</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">cntr1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cntr1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">c_graphs</span><span class="o">.</span><span class="n">getCenterOfMassOfAlist</span><span class="p">(</span><span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="p">,</span> <span class="n">cntr1</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">cntr2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cntr2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">c_graphs</span><span class="o">.</span><span class="n">getCenterOfMassOfAlist</span><span class="p">(</span><span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="p">,</span> <span class="n">cntr2</span><span class="p">)</span>    
+           
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">noOfCoords</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+   
+    <span class="n">X</span> <span class="o">=</span> <span class="n">makeMatrixForLLS</span><span class="p">(</span><span class="n">atomList1</span><span class="p">,</span> <span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">cntr1</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">):</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">makeVectorForLLS</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">atomList2</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> <span class="n">centr</span><span class="o">=</span><span class="n">cntr2</span><span class="p">)</span>
+                
+        <span class="n">lstsqResultArr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">):</span>            
+            <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">lstsqResultArr</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+    
+<span class="c1">#    Y = np.ones(len(atomList1), np.float64)</span>
+<span class="c1">#    </span>
+<span class="c1">#    lstsqResultArr = np.linalg.lstsq(X, Y)</span>
+<span class="c1">#    </span>
+<span class="c1">#    for j in range(noOfCoords+1):            </span>
+<span class="c1">#        A[noOfCoords][j] = lstsqResultArr[0][j]</span>
+<span class="c1">#        </span>
+<span class="c1">#    checkIfTheTransMatrixIsGood(atomList1, defectVolume1, lattice1, cntr1,</span>
+<span class="c1">#        atomList2, defectVolume2, lattice2, cntr2, A)</span>
+    
+    <span class="k">return</span> <span class="n">A</span></div>
+
+<div class="viewcode-block" id="makeMatrixForLLS"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.makeMatrixForLLS">[docs]</a><span class="k">def</span> <span class="nf">makeMatrixForLLS</span><span class="p">(</span><span class="n">atomList</span><span class="p">,</span> <span class="n">defectVolume</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">centr</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Makes a matrix for LLS method</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">listsLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomList</span><span class="p">)</span>
+        
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">listsLen</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    
+    <span class="n">c_graphs</span><span class="o">.</span><span class="n">makeMatrixForLLS</span><span class="p">(</span><span class="n">listsLen</span><span class="p">,</span> <span class="n">atomList</span><span class="p">,</span> <span class="n">defectVolume</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> 
+                              <span class="n">centr</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">matrix</span></div>
+
+<div class="viewcode-block" id="makeVectorForLLS"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.makeVectorForLLS">[docs]</a><span class="k">def</span> <span class="nf">makeVectorForLLS</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">atomList</span><span class="p">,</span> <span class="n">defectVolume</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">centr</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Makes a vector for LLS method</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">listsLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomList</span><span class="p">)</span>
+    
+    
+    <span class="n">vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">listsLen</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    
+    <span class="n">c_graphs</span><span class="o">.</span><span class="n">makeVectorForLLS</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">listsLen</span><span class="p">,</span> <span class="n">atomList</span><span class="p">,</span> <span class="n">defectVolume</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> 
+                              <span class="n">centr</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="p">,</span> <span class="n">vector</span><span class="p">)</span>
+         
+    <span class="k">return</span> <span class="n">vector</span></div>
+
+<div class="viewcode-block" id="prepareLatticeToBeTransf"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.prepareLatticeToBeTransf">[docs]</a><span class="k">def</span> <span class="nf">prepareLatticeToBeTransf</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">latticeIn</span><span class="p">,</span> <span class="n">defectVolume</span><span class="p">,</span> <span class="n">pbcInflVol</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">cntrOrig</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Makes a copy of a lattice object and modifies atoms positions of a defect</span>
+<span class="sd">    volume to make sure that they are in the same region.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">lattice</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">latticeIn</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pbcInflVol</span><span class="p">:</span>
+        <span class="n">removePBCsEffectOnVolume</span><span class="p">(</span><span class="n">defectVolume</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">latticeIn</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">graphRadius</span><span class="p">,</span> 
+                                 <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">,</span> <span class="n">cntrOrig</span><span class="o">=</span><span class="n">cntrOrig</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">lattice</span></div>
+
+<div class="viewcode-block" id="prepareTheMatrix"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.prepareTheMatrix">[docs]</a><span class="k">def</span> <span class="nf">prepareTheMatrix</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1In</span><span class="p">,</span> <span class="n">pbcInflVol1</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2In</span><span class="p">,</span> <span class="n">pbcInflVol2</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Construct the transformation matrix and other data required for reuse.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    params : `Input.InputParams`</span>
+<span class="sd">        The input parameters</span>
+<span class="sd">    defectVolume1 : `numpy.ndarray`</span>
+<span class="sd">        The indexes of the atoms in first volume</span>
+<span class="sd">    lattice1In : `Lattice.Lattice`</span>
+<span class="sd">        The Lattice object containing the first volume</span>
+<span class="sd">    pbcInflVol1 : bool</span>
+<span class="sd">        Expand periodic boundaries for the first volume (in case it crosses them)</span>
+<span class="sd">    defectVolume2 : `numpy.ndarray`</span>
+<span class="sd">        The indexes of the atoms in second volume</span>
+<span class="sd">    lattice2In : `Lattice.Lattice`</span>
+<span class="sd">        The Lattice object containing the second volume</span>
+<span class="sd">    pbcInflVol2 : bool</span>
+<span class="sd">        Expand periodic boundaries for the second volume (in case it crosses them)</span>
+<span class="sd">    noOfCoords : int, optional</span>
+<span class="sd">        Dimension of the system. Defaults to 3.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    trnsfMatrix : `numpy.ndarray[noOfCoords,noOfCoords]`</span>
+<span class="sd">        The transformation matrix</span>
+<span class="sd">    lattice1 : `Lattice.Lattice`</span>
+<span class="sd">        The first Lattice with periodic boundaries removed if required</span>
+<span class="sd">    atLst1 : `numpy.ndarray`</span>
+<span class="sd">        The list of atoms from the isomorphism calculation (first volume)</span>
+<span class="sd">    lattice2 : `Lattice.Lattice`</span>
+<span class="sd">        The second Lattice with periodic boundaries removed if required</span>
+<span class="sd">    atLst2 : `numpy.ndarray`</span>
+<span class="sd">        The list of atoms from the isomorphism calculation (second volume)</span>
+<span class="sd">    cntr1 : `numpy.ndarray`</span>
+<span class="sd">        The centre of mass of the first volume</span>
+<span class="sd">    cntr2 : `numpy.ndarray`</span>
+<span class="sd">        The centre of mass of the second volume</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># prepare the lattices</span>
+    <span class="n">lattice1</span> <span class="o">=</span> <span class="n">prepareLatticeToBeTransf</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">lattice1In</span><span class="p">,</span> <span class="n">defectVolume1</span><span class="p">,</span> <span class="n">pbcInflVol1</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">)</span>
+    <span class="n">lattice2</span> <span class="o">=</span> <span class="n">prepareLatticeToBeTransf</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">lattice2In</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">pbcInflVol2</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">)</span>
+    
+    <span class="c1"># centre of mass of defect volumes</span>
+    <span class="n">cntr1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">cntr2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">c_graphs</span><span class="o">.</span><span class="n">getCenterOfMassOfAlist</span><span class="p">(</span><span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="p">,</span> <span class="n">cntr1</span><span class="p">)</span>
+    <span class="n">c_graphs</span><span class="o">.</span><span class="n">getCenterOfMassOfAlist</span><span class="p">(</span><span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="p">,</span> <span class="n">cntr2</span><span class="p">)</span>    
+    
+    <span class="c1"># isomorphism calculation</span>
+    <span class="n">atLst1</span><span class="p">,</span> <span class="n">atLst2</span><span class="p">,</span> <span class="n">trnsfMatrix</span> <span class="o">=</span> <span class="n">getIsomorphismBetweenTwoGraphs</span><span class="p">(</span><span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">cntr1</span><span class="o">=</span><span class="n">cntr1</span><span class="p">,</span> <span class="n">cntr2</span><span class="o">=</span><span class="n">cntr2</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">trnsfMatrix</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">atLst1</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> <span class="n">atLst2</span><span class="p">,</span> <span class="n">cntr1</span><span class="p">,</span> <span class="n">cntr2</span></div>
+
+<div class="viewcode-block" id="removePBCsEffectOnVolume"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.removePBCsEffectOnVolume">[docs]</a><span class="k">def</span> <span class="nf">removePBCsEffectOnVolume</span><span class="p">(</span><span class="n">defectVolume</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">latticeOrig</span><span class="p">,</span> <span class="n">inclRad</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">getDiffVector</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">cntrOrig</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Modifies atoms positions of a defect volume to make sure that they are in </span>
+<span class="sd">    the same region.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">defectVolumeLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">defectVolume</span><span class="p">)</span>
+    
+    <span class="c1"># if defect volume contains only one atom or none </span>
+    <span class="k">if</span> <span class="n">defectVolumeLen</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">lattice</span>
+    
+    <span class="c1"># creates a list of atoms that are separated more than a defect inclusion </span>
+    <span class="c1">#    radius form the first atom in the defect volume atoms list</span>
+    <span class="n">sameDefectVolumeArr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">defectVolumeLen</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    
+    <span class="n">c_graphs</span><span class="o">.</span><span class="n">checkSepOnDefectVolumeAtoms</span><span class="p">(</span><span class="n">defectVolume</span><span class="p">,</span> <span class="n">inclRad</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> 
+                                         <span class="n">noOfCoords</span><span class="p">,</span> <span class="n">sameDefectVolumeArr</span><span class="p">)</span>
+    
+    <span class="c1"># calculates center positions</span>
+    <span class="n">cntr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    
+    <span class="n">c_graphs</span><span class="o">.</span><span class="n">getCenterOfMassOfAlistExt</span><span class="p">(</span><span class="n">defectVolume</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="p">,</span> 
+                                       <span class="n">sameDefectVolumeArr</span><span class="p">,</span> <span class="n">cntr</span><span class="p">)</span>
+
+    <span class="c1"># modifies positions of the atoms that are separated from the volume</span>
+    <span class="n">c_graphs</span><span class="o">.</span><span class="n">modifyVolumeAtoms</span><span class="p">(</span><span class="n">defectVolume</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="p">,</span> 
+                               <span class="n">sameDefectVolumeArr</span><span class="p">,</span> <span class="n">cntr</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">cntrOrig</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">):</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">cntr</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">cntrOrig</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">j</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">:</span>
+                <span class="n">modifyNum</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">copysign</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">diff</span><span class="p">)</span> <span class="o">*</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">j</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">defectVolumeLen</span><span class="p">):</span>
+                    <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="n">noOfCoords</span><span class="o">+</span><span class="n">j</span><span class="p">]</span> <span class="o">-=</span> <span class="n">modifyNum</span></div>
+    
+<span class="c1">################################################################################</span>
+<span class="c1">#                     OLD</span>
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="getCenterOfMassOfAlist"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.getCenterOfMassOfAlist">[docs]</a><span class="k">def</span> <span class="nf">getCenterOfMassOfAlist</span><span class="p">(</span><span class="n">defectVolume</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    
+    <span class="n">NAtoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">defectVolume</span><span class="p">)</span>
+    <span class="n">NAtomsf</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">NAtoms</span><span class="p">)</span>
+        
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NAtoms</span><span class="p">):</span>
+        <span class="n">atom</span> <span class="o">=</span> <span class="n">defectVolume</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">):</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">noOfCoords</span><span class="o">*</span><span class="n">atom</span><span class="o">+</span><span class="n">j</span><span class="p">]</span>
+            
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">):</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="n">NAtomsf</span>
+        
+    <span class="k">return</span> <span class="n">result</span></div>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="getCoordinateCenter"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.getCoordinateCenter">[docs]</a><span class="k">def</span> <span class="nf">getCoordinateCenter</span><span class="p">(</span><span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">):</span>
+    
+    <span class="n">cntr1x</span><span class="p">,</span> <span class="n">cntr1y</span><span class="p">,</span> <span class="n">cntr1z</span> <span class="o">=</span> <span class="n">getCenterOfMassOfAlist</span><span class="p">(</span><span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">)</span>
+    <span class="n">cntr2x</span><span class="p">,</span> <span class="n">cntr2y</span><span class="p">,</span> <span class="n">cntr2z</span> <span class="o">=</span> <span class="n">getCenterOfMassOfAlist</span><span class="p">(</span><span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">)</span>
+    
+    <span class="n">cntrx</span> <span class="o">=</span> <span class="p">(</span><span class="n">cntr1x</span> <span class="o">+</span> <span class="n">cntr2x</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="n">cntry</span> <span class="o">=</span> <span class="p">(</span><span class="n">cntr1y</span> <span class="o">+</span> <span class="n">cntr2y</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="n">cntrz</span> <span class="o">=</span> <span class="p">(</span><span class="n">cntr1z</span> <span class="o">+</span> <span class="n">cntr2z</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+    
+    <span class="k">return</span> <span class="n">cntrx</span><span class="p">,</span> <span class="n">cntry</span><span class="p">,</span> <span class="n">cntrz</span></div>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="getDiffVectorOfMassCntrs"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.getDiffVectorOfMassCntrs">[docs]</a><span class="k">def</span> <span class="nf">getDiffVectorOfMassCntrs</span><span class="p">(</span><span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> 
+                             <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">cntr1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cntr2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    
+    <span class="k">if</span> <span class="n">cntr1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cntr1</span> <span class="o">=</span> <span class="n">getCenterOfMassOfAlist</span><span class="p">(</span><span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">cntr2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cntr2</span> <span class="o">=</span> <span class="n">getCenterOfMassOfAlist</span><span class="p">(</span><span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">)</span>
+    
+    <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">):</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">cntr1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">cntr2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="reuseTransition"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.reuseTransition">[docs]</a><span class="k">def</span> <span class="nf">reuseTransition</span><span class="p">(</span><span class="n">transformMatrix</span><span class="p">,</span> <span class="n">atomsList1</span><span class="p">,</span> <span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">cntr1</span><span class="p">,</span> 
+        <span class="n">saddle1</span><span class="p">,</span> <span class="n">final1</span><span class="p">,</span> <span class="n">atomsList2</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> <span class="n">cntr2</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    
+    <span class="k">if</span> <span class="n">saddle1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">matrixToSaddle</span> <span class="o">=</span> <span class="n">getDiffMatrix2StatesVolume</span><span class="p">(</span><span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> 
+                                                    <span class="n">saddle1</span><span class="p">,</span> <span class="n">atomsList1</span><span class="p">,</span> <span class="n">atomsList2</span><span class="p">,</span> 
+                                                    <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">)</span>
+        
+        <span class="n">matrixToSaddleTransf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">transformMatrix</span><span class="p">,</span> <span class="n">matrixToSaddle</span><span class="p">)</span>
+                
+        <span class="n">saddle2</span> <span class="o">=</span> <span class="n">applyTransformMatrix</span><span class="p">(</span><span class="n">atomsList2</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> 
+                                       <span class="n">matrixToSaddleTransf</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">saddle2</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">if</span> <span class="n">final1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>    
+        <span class="n">matrixToFinal</span> <span class="o">=</span> <span class="n">getDiffMatrix2StatesVolume</span><span class="p">(</span><span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> 
+                                                   <span class="n">final1</span><span class="p">,</span> <span class="n">atomsList1</span><span class="p">,</span> <span class="n">atomsList2</span><span class="p">,</span> 
+                                                   <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">)</span>
+
+        <span class="n">matrixToFinalTransf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">transformMatrix</span><span class="p">,</span> <span class="n">matrixToFinal</span><span class="p">)</span>
+                      
+        <span class="n">final2</span> <span class="o">=</span> <span class="n">applyTransformMatrix</span><span class="p">(</span><span class="n">atomsList2</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> 
+                                      <span class="n">matrixToFinalTransf</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">final2</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">return</span> <span class="n">saddle2</span><span class="p">,</span> <span class="n">final2</span></div>
+
+
+
+
+<div class="viewcode-block" id="getSepSqBetweenTwoAtoms"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.getSepSqBetweenTwoAtoms">[docs]</a><span class="k">def</span> <span class="nf">getSepSqBetweenTwoAtoms</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">atom1</span><span class="p">,</span> <span class="n">atom2</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">dist</span> <span class="o">=</span> <span class="mf">0.0</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">):</span>
+        <span class="n">dist</span> <span class="o">+=</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">noOfCoords</span><span class="o">*</span><span class="n">atom1</span><span class="o">+</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">noOfCoords</span><span class="o">*</span><span class="n">atom2</span><span class="o">+</span><span class="n">i</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">dist</span></div>
+
+<div class="viewcode-block" id="cmpTwoIsomorphicGraphsDreadnaut"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.cmpTwoIsomorphicGraphsDreadnaut">[docs]</a><span class="k">def</span> <span class="nf">cmpTwoIsomorphicGraphsDreadnaut</span><span class="p">(</span><span class="n">graphFile1</span><span class="p">,</span> <span class="n">graphFile2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calls dreadnaut two get isomorphism between two graphs </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="n">graphFile1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">graphFile2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="n">dreadnaut</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">getPathToDreadnaut</span><span class="p">()</span>
+    
+    <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;echo &#39;&lt;</span><span class="si">%s</span><span class="s2"> x @ &lt;</span><span class="si">%s</span><span class="s2"> c x ##&#39; | </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">graphFile2</span><span class="p">,</span> <span class="n">graphFile1</span><span class="p">,</span> <span class="n">dreadnaut</span><span class="p">)</span>
+    
+    <span class="n">output</span><span class="p">,</span> <span class="n">stderr</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;WARNING: dreadnaut FAILED&quot;</span>
+        <span class="nb">print</span> <span class="n">stderr</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="n">array</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+     
+    <span class="k">return</span> <span class="n">line</span></div>
+
+<div class="viewcode-block" id="makeGraphFile"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.makeGraphFile">[docs]</a><span class="k">def</span> <span class="nf">makeGraphFile</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">defectVolume</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">useGraphRadius</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates graph input file for nauty according to the defect volume atoms</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">defectVolLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">defectVolume</span><span class="p">)</span>
+    
+    <span class="n">defectVolumePos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">defectVolLen</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">defectVolumeSpecie</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">defectVolLen</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">defectVolLen</span><span class="p">):</span>
+        <span class="n">atom</span> <span class="o">=</span> <span class="n">defectVolume</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        
+        <span class="n">defectVolumeSpecie</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">specie</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span>
+        
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">defectVolumePos</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">atom</span><span class="o">*</span><span class="mi">3</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span>
+    
+    <span class="n">NSpecies</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">)</span>
+
+    <span class="n">graphFileDesc</span><span class="p">,</span> <span class="n">graphFile</span>  <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="n">graphFile</span>
+    <span class="n">cellDims3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">cellDims3</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">cellDims3</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">cellDims3</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>
+<span class="c1">#     if useGraphRadius:</span>
+<span class="c1">#         radius = params.graphRadius</span>
+<span class="c1">#     else:</span>
+<span class="c1">#         print &quot;Warning: graph file is generated with inclusionRadius, NOT graphRadius.&quot;</span>
+<span class="c1">#         radius = params.inclusionRadius</span>
+    <span class="n">c_defects</span><span class="o">.</span><span class="n">makeGraphFileFromDefectVolume</span><span class="p">(</span><span class="n">defectVolLen</span><span class="p">,</span> <span class="n">defectVolumePos</span><span class="p">,</span> <span class="n">NSpecies</span><span class="p">,</span> <span class="n">defectVolumeSpecie</span><span class="p">,</span> 
+                                            <span class="n">params</span><span class="o">.</span><span class="n">graphRadius</span><span class="p">,</span> <span class="n">cellDims3</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">,</span> <span class="n">graphFile</span><span class="p">)</span>
+    
+    <span class="c1"># close descriptor</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">graphFileDesc</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">graphFile</span></div>
+
+<div class="viewcode-block" id="removePBCsEffectOnAtomPos"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.removePBCsEffectOnAtomPos">[docs]</a><span class="k">def</span> <span class="nf">removePBCsEffectOnAtomPos</span><span class="p">(</span><span class="n">defectVolume</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">latticeOrig</span><span class="p">,</span> <span class="n">inclRad</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    
+    <span class="n">inclRadSq</span> <span class="o">=</span> <span class="n">inclRad</span> <span class="o">*</span> <span class="n">inclRad</span>
+    <span class="n">defectVolumeLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">defectVolume</span><span class="p">)</span>
+    
+    <span class="n">defectVolumeIn</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">defectVolumeLen</span><span class="p">):</span>
+        <span class="n">atom</span> <span class="o">=</span> <span class="n">defectVolume</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">defectVolumeIn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
+    
+    <span class="n">tempDefectVolume</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">xcontinue</span> <span class="o">=</span> <span class="kc">True</span>
+        
+    <span class="k">while</span> <span class="n">xcontinue</span><span class="p">:</span>
+        <span class="n">xcontinue</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tempDefectVolume</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># lets find atoms that are within inclRadius of newly built defectVolume</span>
+            <span class="n">defVolTmpLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tempDefectVolume</span><span class="p">)</span>
+            <span class="n">defVolInLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">defectVolumeIn</span><span class="p">)</span>
+            
+            <span class="n">xcontinue</span> <span class="o">=</span> <span class="kc">False</span>
+            
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">defVolTmpLen</span><span class="p">):</span>
+                <span class="n">breakLoop</span> <span class="o">=</span> <span class="kc">False</span>
+                
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">defVolInLen</span><span class="p">):</span>
+                    <span class="n">atom1</span> <span class="o">=</span> <span class="n">tempDefectVolume</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="n">atom2</span> <span class="o">=</span> <span class="n">defectVolumeIn</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                    
+                    <span class="n">dist</span> <span class="o">=</span> <span class="n">getSepSqBetweenTwoAtoms</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">atom1</span><span class="p">,</span> <span class="n">atom2</span><span class="p">)</span>
+                    
+                    <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;=</span> <span class="n">inclRadSq</span><span class="p">:</span>
+                        <span class="n">tempDefectVolume</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom2</span><span class="p">)</span>
+                        <span class="n">defectVolumeIn</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+                        <span class="n">defVolInLen</span> <span class="o">-=</span> <span class="mi">1</span>
+                        
+                        <span class="n">xcontinue</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">breakLoop</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+                
+                <span class="k">if</span> <span class="n">breakLoop</span><span class="p">:</span>
+                    <span class="k">break</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">atom</span> <span class="o">=</span> <span class="n">defectVolumeIn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">defectVolumeIn</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">tempDefectVolume</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
+            <span class="n">xcontinue</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="n">cntr</span> <span class="o">=</span> <span class="n">getCenterOfMassOfAlist</span><span class="p">(</span><span class="n">tempDefectVolume</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">)</span>
+        
+    <span class="n">defVolInLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">defectVolumeIn</span><span class="p">)</span>
+        
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">defVolInLen</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">defectVolumeIn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">noOfCoords</span><span class="o">+</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">cntr</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">j</span><span class="p">]</span><span class="o">/</span><span class="mf">2.0</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">defectVolumeIn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">noOfCoords</span><span class="o">+</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">cntr</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                    <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">defectVolumeIn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">noOfCoords</span><span class="o">+</span><span class="n">j</span><span class="p">]</span> <span class="o">-=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">j</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">defectVolumeIn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">noOfCoords</span><span class="o">+</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">j</span><span class="p">]</span>
+                
+    <span class="n">diffVector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">noOfCoords</span><span class="o">*</span><span class="n">defectVolumeLen</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">defectVolumeLen</span><span class="p">):</span>
+        <span class="n">atom</span> <span class="o">=</span> <span class="n">defectVolume</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">noOfCoords</span><span class="p">):</span>
+            <span class="n">diffVector</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="n">noOfCoords</span><span class="o">+</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">latticeOrig</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">atom</span><span class="o">*</span><span class="n">noOfCoords</span><span class="o">+</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">atom</span><span class="o">*</span><span class="n">noOfCoords</span><span class="o">+</span><span class="n">j</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">diffVector</span></div>
+
+<div class="viewcode-block" id="transformResultLineFromDreanaut"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.transformResultLineFromDreanaut">[docs]</a><span class="k">def</span> <span class="nf">transformResultLineFromDreanaut</span><span class="p">(</span><span class="n">resultLine</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transforms isomorphism line from dreadnaut into two lists</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="n">resultLine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    
+    <span class="n">atomList1</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">atomList2</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="n">array</span> <span class="o">=</span> <span class="n">resultLine</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">array</span><span class="p">)):</span>
+        <span class="n">equalGraphVertices</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">arrayEqualAtoms</span> <span class="o">=</span> <span class="n">equalGraphVertices</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+        
+        <span class="n">atomList1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">arrayEqualAtoms</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">atomList2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">arrayEqualAtoms</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    
+    <span class="n">ismList1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">atomList1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">ismList2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">atomList2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">ismList1</span><span class="p">,</span> <span class="n">ismList2</span></div>
+
+<span class="c1">################### TESTING PROCEDURES ########################################</span>
+
+<div class="viewcode-block" id="doTheMagic"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.doTheMagic">[docs]</a><span class="k">def</span> <span class="nf">doTheMagic</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1In</span><span class="p">,</span> <span class="n">saddle1In</span><span class="p">,</span> <span class="n">final1In</span><span class="p">,</span> <span class="n">pbcInflVol1</span><span class="p">,</span>
+               <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2In</span><span class="p">,</span> <span class="n">pbcInflVol2</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>    
+    
+    <span class="n">lattice1</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">lattice1In</span><span class="p">)</span>
+    <span class="n">saddle1</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">saddle1In</span><span class="p">)</span>
+    <span class="n">final1</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">final1In</span><span class="p">)</span>
+    
+    <span class="n">lattice2</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">lattice2In</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">pbcInflVol1</span><span class="p">:</span>
+        <span class="n">lattice1</span><span class="p">,</span> <span class="n">diffVectorl1</span> <span class="o">=</span> <span class="n">removePBCsEffectOnAtomPos</span><span class="p">(</span><span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">lattice1In</span><span class="p">,</span> 
+                                                           <span class="n">params</span><span class="o">.</span><span class="n">graphRadius</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">saddle1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  
+            <span class="n">saddle1</span><span class="p">,</span> <span class="n">diffVectors1</span> <span class="o">=</span> <span class="n">removePBCsEffectOnAtomPos</span><span class="p">(</span><span class="n">defectVolume1</span><span class="p">,</span> <span class="n">saddle1</span><span class="p">,</span> <span class="n">saddle1In</span><span class="p">,</span> 
+                                                              <span class="n">params</span><span class="o">.</span><span class="n">graphRadius</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">)</span>
+            
+        <span class="k">if</span> <span class="n">final1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">final1</span><span class="p">,</span> <span class="n">diffVectorf1</span> <span class="o">=</span> <span class="n">removePBCsEffectOnAtomPos</span><span class="p">(</span><span class="n">defectVolume1</span><span class="p">,</span> <span class="n">final1</span><span class="p">,</span> <span class="n">final1In</span><span class="p">,</span> 
+                                                             <span class="n">params</span><span class="o">.</span><span class="n">graphRadius</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">pbcInflVol2</span><span class="p">:</span>
+        <span class="n">lattice2</span><span class="p">,</span> <span class="n">diffVectorl2</span> <span class="o">=</span> <span class="n">removePBCsEffectOnAtomPos</span><span class="p">(</span><span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> <span class="n">lattice2In</span><span class="p">,</span> 
+                                                           <span class="n">params</span><span class="o">.</span><span class="n">graphRadius</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">)</span>
+    
+    <span class="n">cntr1</span> <span class="o">=</span> <span class="n">getCenterOfMassOfAlist</span><span class="p">(</span><span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">)</span>
+    <span class="n">cntr2</span> <span class="o">=</span> <span class="n">getCenterOfMassOfAlist</span><span class="p">(</span><span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="n">noOfCoords</span><span class="p">)</span>    
+    
+    <span class="n">graphFile1</span> <span class="o">=</span> <span class="n">makeGraphFile</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">)</span>
+    <span class="n">graphFile2</span> <span class="o">=</span> <span class="n">makeGraphFile</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">)</span>
+    
+    <span class="c1"># transformation matrix can only by applied for the systems that have mass </span>
+    <span class="c1">#    centers at their origin</span>
+    <span class="n">atomsList1</span><span class="p">,</span> <span class="n">atomsList2</span><span class="p">,</span> <span class="n">trnsfMatrix</span> <span class="o">=</span> <span class="n">getIsomorphismBetweenTwoGraphs</span><span class="p">(</span><span class="n">graphFile1</span><span class="p">,</span> <span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> 
+                                                                         <span class="n">graphFile2</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> 
+                                                                         <span class="n">params</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">cntr1</span><span class="o">=</span><span class="n">cntr1</span><span class="p">,</span> 
+                                                                         <span class="n">cntr2</span><span class="o">=</span><span class="n">cntr2</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">atomsList1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">atomsList2</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">trnsfMatrix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span><span class="kc">None</span>
+    
+    <span class="n">saddle2</span><span class="p">,</span> <span class="n">final2</span> <span class="o">=</span> <span class="n">reuseTransition</span><span class="p">(</span><span class="n">trnsfMatrix</span><span class="p">,</span> <span class="n">atomsList1</span><span class="p">,</span> <span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">cntr1</span><span class="p">,</span> <span class="n">saddle1</span><span class="p">,</span> <span class="n">final1</span><span class="p">,</span> 
+                                      <span class="n">atomsList2</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> <span class="n">cntr2</span><span class="p">,</span> <span class="n">noOfCoords</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    
+    <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">graphFile1</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">graphFile2</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">saddle2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">saddle2</span><span class="o">.</span><span class="n">wrapAtoms</span><span class="p">()</span>
+    
+    <span class="k">if</span> <span class="n">final2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">final2</span><span class="o">.</span><span class="n">wrapAtoms</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">saddle2</span><span class="p">,</span> <span class="n">final2</span></div>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="checkIfTheTransMatrixIsGood"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.checkIfTheTransMatrixIsGood">[docs]</a><span class="k">def</span> <span class="nf">checkIfTheTransMatrixIsGood</span><span class="p">(</span><span class="n">atomList1</span><span class="p">,</span> <span class="n">defectVolume1</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">cntr1</span><span class="p">,</span>
+        <span class="n">atomList2</span><span class="p">,</span> <span class="n">defectVolume2</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> <span class="n">cntr2</span><span class="p">,</span> <span class="n">A</span><span class="p">):</span>
+        
+    <span class="n">array</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">atomList1</span><span class="p">)):</span>
+        <span class="n">array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    
+    <span class="n">sumx</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">sumy</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">sumz</span> <span class="o">=</span> <span class="mf">0.0</span>
+    
+    <span class="n">sumx2</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">sumy2</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">sumz2</span> <span class="o">=</span> <span class="mf">0.0</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">array</span><span class="p">:</span>
+        <span class="n">chkAtom</span> <span class="o">=</span> <span class="n">i</span>
+         
+        <span class="n">point4Ini</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">point4Fin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        
+        <span class="n">point4Ini</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice1</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">defectVolume1</span><span class="p">[</span><span class="n">atomList1</span><span class="p">[</span><span class="n">chkAtom</span><span class="p">]]</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">cntr1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">point4Ini</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice1</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">defectVolume1</span><span class="p">[</span><span class="n">atomList1</span><span class="p">[</span><span class="n">chkAtom</span><span class="p">]]</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">cntr1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">point4Ini</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice1</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">defectVolume1</span><span class="p">[</span><span class="n">atomList1</span><span class="p">[</span><span class="n">chkAtom</span><span class="p">]]</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">cntr1</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> 
+        <span class="c1">#point4Ini[3] = 1</span>
+           
+        <span class="n">point4Fin</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice2</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">defectVolume2</span><span class="p">[</span><span class="n">atomList2</span><span class="p">[</span><span class="n">chkAtom</span><span class="p">]]</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">cntr2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">point4Fin</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice2</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">defectVolume2</span><span class="p">[</span><span class="n">atomList2</span><span class="p">[</span><span class="n">chkAtom</span><span class="p">]]</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">cntr2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">point4Fin</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice2</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">defectVolume2</span><span class="p">[</span><span class="n">atomList2</span><span class="p">[</span><span class="n">chkAtom</span><span class="p">]]</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">cntr2</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="c1">#point4Fin[3] = 1</span>
+        
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">point4Ini</span><span class="p">)</span>
+        
+        <span class="n">sumx</span> <span class="o">+=</span> <span class="n">Y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">sumy</span> <span class="o">+=</span> <span class="n">Y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">sumz</span> <span class="o">+=</span> <span class="n">Y</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                
+        <span class="n">sumx2</span> <span class="o">+=</span> <span class="n">point4Fin</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">sumy2</span> <span class="o">+=</span> <span class="n">point4Fin</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">sumz2</span> <span class="o">+=</span> <span class="n">point4Fin</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        
+        
+        <span class="k">if</span> <span class="p">((</span><span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">point4Fin</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="o">&lt;</span> <span class="mf">0.01</span><span class="p">)</span> <span class="ow">and</span> 
+            <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">point4Fin</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="o">&lt;</span> <span class="mf">0.01</span><span class="p">)</span> <span class="ow">and</span>
+            <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">point4Fin</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>  <span class="o">&lt;</span> <span class="mf">0.01</span><span class="p">)):</span>
+            <span class="nb">print</span> <span class="n">atomList1</span><span class="p">[</span><span class="n">chkAtom</span><span class="p">],</span> <span class="s2">&quot;OK!!!!&quot;</span><span class="p">,</span> <span class="n">lattice2</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">defectVolume2</span><span class="p">[</span><span class="n">atomList2</span><span class="p">[</span><span class="n">chkAtom</span><span class="p">]]</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;BAD!!!&quot;</span><span class="p">,</span> <span class="n">atomList1</span><span class="p">[</span><span class="n">chkAtom</span><span class="p">],</span> <span class="s2">&quot;&lt;--&gt;&quot;</span><span class="p">,</span> <span class="n">atomList2</span><span class="p">[</span><span class="n">chkAtom</span><span class="p">],</span> <span class="s2">&quot;Initial transformed&quot;</span><span class="p">,</span> <span class="n">Y</span> <span class="p">,</span> <span class="s2">&quot;&lt;--&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;Final point&quot;</span><span class="p">,</span> <span class="n">point4Fin</span>
+    
+    <span class="n">sumx</span> <span class="o">=</span> <span class="n">sumx</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomList1</span><span class="p">)</span>
+    <span class="n">sumy</span> <span class="o">=</span> <span class="n">sumy</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomList1</span><span class="p">)</span>
+    <span class="n">sumz</span> <span class="o">=</span> <span class="n">sumz</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomList1</span><span class="p">)</span>
+    
+    <span class="n">sumx2</span> <span class="o">=</span> <span class="n">sumx2</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomList1</span><span class="p">)</span>
+    <span class="n">sumy2</span> <span class="o">=</span> <span class="n">sumy2</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomList1</span><span class="p">)</span>
+    <span class="n">sumz2</span> <span class="o">=</span> <span class="n">sumz2</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomList1</span><span class="p">)</span>
+    
+    <span class="nb">print</span> <span class="s2">&quot;CENTRE 1&quot;</span><span class="p">,</span> <span class="n">sumx</span><span class="p">,</span> <span class="n">sumy</span><span class="p">,</span> <span class="n">sumz</span>
+    <span class="nb">print</span> <span class="s2">&quot;CENTRE 2&quot;</span><span class="p">,</span> <span class="n">sumx2</span><span class="p">,</span> <span class="n">sumy2</span><span class="p">,</span> <span class="n">sumz2</span></div>
+
+<div class="viewcode-block" id="convertOldVolumeFiles"><a class="viewcode-back" href="../../LKMC/LKMC.Graphs.html#LKMC.Graphs.convertOldVolumeFiles">[docs]</a><span class="k">def</span> <span class="nf">convertOldVolumeFiles</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert old defect volume files to use hash key from new nauty interface.</span>
+<span class="sd">    </span>
+<span class="sd">    Old files are backed up...</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Lattice</span>
+    
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Checking if there are any old defect volume files that need to be converted&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">volumeDirectory</span><span class="p">):</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;The volume database directory does not exist; skipping&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span>
+    
+    <span class="kn">import</span> <span class="nn">glob</span>
+    <span class="n">volFiles</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">volumeDirectory</span><span class="p">,</span> <span class="s2">&quot;*.vol&quot;</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">volFiles</span><span class="p">):</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;No volume files exists; skipping&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span>
+    
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Found </span><span class="si">{0}</span><span class="s2"> volume files to check...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">volFiles</span><span class="p">)),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    
+    <span class="kn">import</span> <span class="nn">datetime</span>
+    <span class="n">backupDate</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%y%m</span><span class="si">%d</span><span class="s2">-%H%M%S&quot;</span><span class="p">)</span>
+    
+    <span class="n">updateCount</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">count</span><span class="p">,</span> <span class="n">oldfn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">volFiles</span><span class="p">):</span>
+        <span class="n">bn</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">oldfn</span><span class="p">)</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Checking old volume file </span><span class="si">{0}</span><span class="s2">: &#39;</span><span class="si">{1}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">bn</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="n">oldHash</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">bn</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Old hash key is: &#39;</span><span class="si">{0}</span><span class="s2">&#39; (LEN=</span><span class="si">{1}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">oldHash</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">oldHash</span><span class="p">)),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        
+        <span class="c1"># read in positions of graph atoms</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">oldfn</span><span class="p">)</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">natoms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> atoms in the volume&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">natoms</span><span class="p">),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">Lattice</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">natoms</span><span class="p">):</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="n">array</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">array</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span>
+            <span class="n">sym</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">addAtom</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        
+        <span class="c1"># get new graph key</span>
+        <span class="n">volatoms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">natoms</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">newHash</span> <span class="o">=</span> <span class="n">getHashKeyForAVolume</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">volatoms</span><span class="p">,</span> <span class="n">lattice</span><span class="p">)</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;New hash key is: &#39;</span><span class="si">{0}</span><span class="s2">&#39; (LEN=</span><span class="si">{1}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">newHash</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">newHash</span><span class="p">)),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">oldHash</span> <span class="o">==</span> <span class="n">newHash</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Old and new keys are the same; skipping update&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># backup the old file</span>
+            <span class="n">backupName</span> <span class="o">=</span> <span class="n">oldfn</span> <span class="o">+</span> <span class="s2">&quot;.backup-</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">backupDate</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Backing up old volume file as: &#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">backupName</span><span class="p">)),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">oldfn</span><span class="p">,</span> <span class="n">backupName</span><span class="p">)</span>
+            
+            <span class="c1"># check new file does not already exist</span>
+            <span class="n">newfn</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">volumeDirectory</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.vol&quot;</span> <span class="o">%</span> <span class="n">newHash</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">newfn</span><span class="p">):</span>
+                <span class="k">pass</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># rename old volume file to new</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Renaming volume file to: &#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">newfn</span><span class="p">)),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">oldfn</span><span class="p">,</span> <span class="n">newfn</span><span class="p">)</span>
+                
+                <span class="n">updateCount</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="k">if</span> <span class="n">updateCount</span><span class="p">:</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Successfully updated </span><span class="si">{0}</span><span class="s2"> old volume files&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">updateCount</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

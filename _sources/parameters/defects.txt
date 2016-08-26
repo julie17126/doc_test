@@ -1,0 +1,107 @@
+Defects
+=======
+
+Parameters for finding defects in the lattice.
+
+defectMethod
+^^^^^^^^^^^^
+
+0 or 1
+
+The method to use for identifying defects in the lattice. 0 identifies
+point defects by comparison to the reference lattice. 1 looks for
+under coordinated atoms and creates a defect volume for each one. This
+is useful when performing growth simulations where the whole surface
+may be treated as a single volume using method 0.
+
+Default: 0
+
+vacancyRadius
+^^^^^^^^^^^^^
+
+Real number
+
+If there is no atom within this distance of a
+lattice site then the site is a vacancy; if an atom is not within this
+distance of a lattice site it is an interstitial.
+
+Default: 1.0
+
+antisiteDefects
+^^^^^^^^^^^^^^^
+
+0 or 1
+
+Whether antisite defects should be considered as defects during
+the simulation.
+
+vacancyDefects
+^^^^^^^^^^^^^^
+
+0 or 1
+
+Whether vacancies should be considered as defects during the
+simulation.
+
+interstitialDefects
+^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+Whether interstitials should be considered as defects during the
+simulation.
+
+forceSpecieDefect
+^^^^^^^^^^^^^^^^^
+
+String
+
+Comma separated list of symbols (eg. "H\_,He" or "H\_"). Force these
+elements to be considered as defects.
+
+excludeSpecieDefect
+^^^^^^^^^^^^^^^^^^^
+
+String
+
+Comma separated list of symbols (eg "H\_,He" or "H\_"). These elements
+cannot be considered as defects
+
+debugDefects
+^^^^^^^^^^^^
+
+0 or 1
+
+Write lattice files containing interstitials, vacancies,
+antisites and the subsystem
+
+debugSearch
+^^^^^^^^^^^
+
+0 or 1
+
+Initial displacement is a normalised vector of 1's.
+
+timeDefectSearch
+^^^^^^^^^^^^^^^^
+
+0 or 1
+
+Report timings for defect searches.
+
+speciesCoordMax
+^^^^^^^^^^^^^^^
+
+String
+
+Comma separated list of pairs containing the species symbol and the
+maximum coordination of an under coordinated atom. For example:
+"Ag,11,Zn,10".
+
+coordMaxDefault
+^^^^^^^^^^^^^^^
+
+Integer
+
+The maximum coordination value for under coordinated atoms to
+use for species that are not specified in `speciesCoordMax`_.

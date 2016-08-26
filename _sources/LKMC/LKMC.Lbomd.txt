@@ -1,0 +1,7 @@
+LKMC.Lbomd module
+=================
+
+.. automodule:: LKMC.Lbomd
+    :members:
+    :undoc-members:
+    :show-inheritance:

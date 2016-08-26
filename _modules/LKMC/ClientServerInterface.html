@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.ClientServerInterface &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.ClientServerInterface</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Objects/methods for interfacing between Clients and Server.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+
+
+<span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="DataQueueItem"><a class="viewcode-back" href="../../LKMC/LKMC.ClientServerInterface.html#LKMC.ClientServerInterface.DataQueueItem">[docs]</a><span class="k">class</span> <span class="nc">DataQueueItem</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Data queue item.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataDict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exitStatus</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dataID</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataDict</span> <span class="o">=</span> <span class="n">dataDict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exitStatus</span> <span class="o">=</span> <span class="n">exitStatus</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataID</span> <span class="o">=</span> <span class="n">dataID</span></div>
+
+<span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="JobQueueItem"><a class="viewcode-back" href="../../LKMC/LKMC.ClientServerInterface.html#LKMC.ClientServerInterface.JobQueueItem">[docs]</a><span class="k">class</span> <span class="nc">JobQueueItem</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Item for the job queue.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ID</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(),</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{},</span> <span class="n">clearData</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dataID</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ID</span> <span class="o">=</span> <span class="n">ID</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="n">obj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repeat</span> <span class="o">=</span> <span class="n">repeat</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clearData</span> <span class="o">=</span> <span class="n">clearData</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataID</span> <span class="o">=</span> <span class="n">dataID</span></div>
+
+<span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="CommandQueueItem"><a class="viewcode-back" href="../../LKMC/LKMC.ClientServerInterface.html#LKMC.ClientServerInterface.CommandQueueItem">[docs]</a><span class="k">class</span> <span class="nc">CommandQueueItem</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Command object for the command queue.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commandID</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">commandType</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commands</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">commandID</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">commandType</span>
+    
+<div class="viewcode-block" id="CommandQueueItem.addCommand"><a class="viewcode-back" href="../../LKMC/LKMC.ClientServerInterface.html#LKMC.ClientServerInterface.CommandQueueItem.addCommand">[docs]</a>    <span class="k">def</span> <span class="nf">addCommand</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(),</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add command to the list of commands.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">method</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span></div></div>
+
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="TimeLog"><a class="viewcode-back" href="../../LKMC/LKMC.ClientServerInterface.html#LKMC.ClientServerInterface.TimeLog">[docs]</a><span class="k">class</span> <span class="nc">TimeLog</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    timeLog class for timing results.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">taskList</span><span class="p">,</span> <span class="n">timeList</span><span class="p">,</span> <span class="n">succList</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">taskList</span> <span class="o">=</span> <span class="n">taskList</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeList</span> <span class="o">=</span> <span class="n">timeList</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">succList</span> <span class="o">=</span> <span class="n">succList</span></div>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="Result"><a class="viewcode-back" href="../../LKMC/LKMC.ClientServerInterface.html#LKMC.ClientServerInterface.Result">[docs]</a><span class="k">class</span> <span class="nc">Result</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Results class for results in the result queue.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">job</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">barrier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">saddle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">images</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">infoString</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sadSearchDebugInfo</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">externalEvent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volumeObject</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">linkedTransIndex</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">calculatorBarrier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">searchBarrier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reuseHashKey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">reuseWorkVolId</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">linkedBarrier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transitionObject</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">currentVolIndex</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverseBarrier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">NSmallMoves</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">calcPrefactor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">worker</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">saddleSumLogEVs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initialSumLogEVs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">failedReason</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">fixIndex</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">storeVolIndex</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">searchTimingDict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        
+        <span class="c1"># TLA remove calcPrefactor, rate</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="o">=</span> <span class="n">jobID</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">=</span> <span class="n">rank</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job</span> <span class="o">=</span> <span class="n">job</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timing</span> <span class="o">=</span> <span class="n">timing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">externalEvent</span> <span class="o">=</span> <span class="n">externalEvent</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">volumeObject</span> <span class="o">=</span> <span class="n">volumeObject</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transitionObject</span> <span class="o">=</span> <span class="n">transitionObject</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">currentVolIndex</span> <span class="o">=</span> <span class="n">currentVolIndex</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="n">barrier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reverseBarrier</span> <span class="o">=</span> <span class="n">reverseBarrier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final</span> <span class="o">=</span> <span class="n">final</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saddle</span> <span class="o">=</span> <span class="n">saddle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="n">images</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">infoString</span> <span class="o">=</span> <span class="n">infoString</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sadSearchDebugInfo</span> <span class="o">=</span> <span class="n">sadSearchDebugInfo</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">linkedTransIndex</span> <span class="o">=</span> <span class="n">linkedTransIndex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linkedBarrier</span> <span class="o">=</span> <span class="n">linkedBarrier</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">calculatorBarrier</span> <span class="o">=</span> <span class="n">calculatorBarrier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">searchBarrier</span> <span class="o">=</span> <span class="n">searchBarrier</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">reuseHashKey</span> <span class="o">=</span> <span class="n">reuseHashKey</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reuseWorkVolId</span> <span class="o">=</span> <span class="n">reuseWorkVolId</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">runTime</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NSmallMoves</span> <span class="o">=</span> <span class="n">NSmallMoves</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">calcPrefactor</span> <span class="o">=</span> <span class="n">calcPrefactor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rate</span> <span class="o">=</span> <span class="n">rate</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">worker</span> <span class="o">=</span> <span class="n">worker</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">failedReason</span> <span class="o">=</span> <span class="n">failedReason</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saddleSumLogEVs</span> <span class="o">=</span> <span class="n">saddleSumLogEVs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialSumLogEVs</span> <span class="o">=</span> <span class="n">initialSumLogEVs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fixIndex</span> <span class="o">=</span> <span class="n">fixIndex</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">storeVolIndex</span> <span class="o">=</span> <span class="n">storeVolIndex</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">searchTimingDict</span> <span class="o">=</span> <span class="n">searchTimingDict</span>
+    
+<div class="viewcode-block" id="Result.setRunTime"><a class="viewcode-back" href="../../LKMC/LKMC.ClientServerInterface.html#LKMC.ClientServerInterface.Result.setRunTime">[docs]</a>    <span class="k">def</span> <span class="nf">setRunTime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runTime</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set run time of job.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runTime</span> <span class="o">=</span> <span class="n">runTime</span></div></div>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="checkJobStatus"><a class="viewcode-back" href="../../LKMC/LKMC.ClientServerInterface.html#LKMC.ClientServerInterface.checkJobStatus">[docs]</a><span class="k">def</span> <span class="nf">checkJobStatus</span><span class="p">(</span><span class="n">jobID</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check status of job.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">jobStatusDict</span> <span class="o">=</span> <span class="n">Globals</span><span class="o">.</span><span class="n">jobStatusDict</span>
+    <span class="n">jobStatusLock</span> <span class="o">=</span> <span class="n">Globals</span><span class="o">.</span><span class="n">jobStatusLock</span>
+    
+    <span class="k">if</span> <span class="n">jobStatusDict</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">jobStatusLock</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">jobID</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">jobStatusLock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">jobStatusDict</span><span class="p">[</span><span class="n">jobID</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="mi">2</span>
+        
+        <span class="n">jobStatusLock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+    
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;DEBUGCHECKSTATUS: STATUS IS POSITIVE: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">status</span><span class="p">,),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">status</span></div>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="checkTaskStatus"><a class="viewcode-back" href="../../LKMC/LKMC.ClientServerInterface.html#LKMC.ClientServerInterface.checkTaskStatus">[docs]</a><span class="k">def</span> <span class="nf">checkTaskStatus</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check the status.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">taskStatus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Globals</span><span class="o">.</span><span class="n">taskStatus</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">return</span> <span class="n">status</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

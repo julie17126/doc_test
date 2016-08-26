@@ -1,0 +1,12 @@
+Filtering
+=========
+
+Parameters for filtering transitions.
+
+--------------
+
+filterByDefectMovement
+^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1 If 1: discard transitions where defects haven't moved
+(experimental!) (boolean) Default: 0

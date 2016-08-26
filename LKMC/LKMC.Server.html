@@ -1,0 +1,459 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Server module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Status module" href="LKMC.Status.html" />
+    <link rel="prev" title="LKMC.Search module" href="LKMC.Search.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Status.html" title="LKMC.Status module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Search.html" title="LKMC.Search module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Server">
+<span id="lkmc-server-module"></span><h1>LKMC.Server module<a class="headerlink" href="#module-LKMC.Server" title="Permalink to this headline">¶</a></h1>
+<p>Contains the LKMCServer class.</p>
+<p>Copyright Chris Scott 2014</p>
+<dl class="class">
+<dt id="LKMC.Server.LKMCServer">
+<em class="property">class </em><code class="descclassname">LKMC.Server.</code><code class="descname">LKMCServer</code><span class="sig-paren">(</span><em>LKMCInputFile='lkmcInput.IN'</em>, <em>lkmcParams=None</em>, <em>port=8098</em>, <em>numProcs=None</em>, <em>statusObj=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>The LKMCServer class for running parallel jobs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>inputFile</strong> : str, optional</p>
+<blockquote>
+<div><p>Path to the LKMC input file. Defaults to &#8216;lkmcInput.IN&#8217;.</p>
+</div></blockquote>
+<p><strong>params</strong> : <cite>Input.InputParams</cite>, optional</p>
+<blockquote>
+<div><p>Parameters instance. If <cite>inputFile</cite> is not specified then this must be.</p>
+</div></blockquote>
+<p><strong>port</strong> : int, optional</p>
+<blockquote>
+<div><p>The port the server should listen on. Defaults to 8098.</p>
+</div></blockquote>
+<p><strong>numProcs</strong> : int, optional</p>
+<blockquote>
+<div><p>The number of processors to use from the nodes file. Defaults to all of
+the specified processors.</p>
+</div></blockquote>
+<p><strong>statusObj</strong> : <cite>Status.LKMCStatusObject</cite>, optional</p>
+<blockquote class="last">
+<div><p>Status object. Will create its own if None is passed.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="5%" />
+<col width="95%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>writer</td>
+<td>(<cite>Writer.LKMCWriter</cite>) The writer instance associated with this server. Performs asynchronous IO intensive tasks.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="attribute">
+<dt id="LKMC.Server.LKMCServer.NUniqueNodes">
+<code class="descname">NUniqueNodes</code><em class="property"> = 0</em><a class="headerlink" href="#LKMC.Server.LKMCServer.NUniqueNodes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.addJob">
+<code class="descname">addJob</code><span class="sig-paren">(</span><em>jobQItem</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.addJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.addJob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add job to jobQ.</p>
+<p>ID: unique identifier of job
+obj: the object
+job: tuple of (method, args, kwargs) for client to run</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.checkInNodes">
+<code class="descname">checkInNodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.checkInNodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.checkInNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait for unique nodes to check in.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.checkNodes">
+<code class="descname">checkNodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.checkNodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.checkNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check can access nodes and get info about environment</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.cleanNodeWorkspace">
+<code class="descname">cleanNodeWorkspace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.cleanNodeWorkspace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.cleanNodeWorkspace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete work space on nodes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.clearData">
+<code class="descname">clearData</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.clearData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.clearData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear current data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.clearResultQ">
+<code class="descname">clearResultQ</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.clearResultQ"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.clearResultQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the results Q.</p>
+<p>NEEDS TESTING!!!</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.clearUniquenessList">
+<code class="descname">clearUniquenessList</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.clearUniquenessList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.clearUniquenessList" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Clear the unique list (and tell clients to </dt>
+<dd>clear their local copies)</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="LKMC.Server.LKMCServer.clientDict">
+<code class="descname">clientDict</code><em class="property"> = {}</em><a class="headerlink" href="#LKMC.Server.LKMCServer.clientDict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="LKMC.Server.LKMCServer.clientOutputDir">
+<code class="descname">clientOutputDir</code><em class="property"> = None</em><a class="headerlink" href="#LKMC.Server.LKMCServer.clientOutputDir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="LKMC.Server.LKMCServer.clientWorkspace">
+<code class="descname">clientWorkspace</code><em class="property"> = {}</em><a class="headerlink" href="#LKMC.Server.LKMCServer.clientWorkspace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.communicateToNodes">
+<code class="descname">communicateToNodes</code><span class="sig-paren">(</span><em>message</em>, <em>extraData=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.communicateToNodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.communicateToNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send the message to the head 
+client on each unique node.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.copyClientOutputFiles">
+<code class="descname">copyClientOutputFiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.copyClientOutputFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.copyClientOutputFiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy the client STDOUT and STDERR files</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.finalise">
+<code class="descname">finalise</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.finalise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.finalise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shutdown the server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.getCommandQ">
+<code class="descname">getCommandQ</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.getCommandQ"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.getCommandQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns reference to command Q.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.getObjectQ">
+<code class="descname">getObjectQ</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.getObjectQ"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.getObjectQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns reference to object Q.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.getResult">
+<code class="descname">getResult</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.getResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.getResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a result from the result queue.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.initiate">
+<code class="descname">initiate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.initiate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.initiate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initiate the server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.makeServerManager">
+<code class="descname">makeServerManager</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.makeServerManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.makeServerManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a manager for the server, listening on the given port.
+Manager object has getJobQ and getResultsQ methods.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.prepareForTask">
+<code class="descname">prepareForTask</code><span class="sig-paren">(</span><em>outdir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.prepareForTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.prepareForTask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare output directory.
+Not the best way but will do while testing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.prepareNodesForClients">
+<code class="descname">prepareNodesForClients</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.prepareNodesForClients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.prepareNodesForClients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepares nodes for the clients to run on them.
+This assumes the clients need:</p>
+<blockquote>
+<div>Source code (this scripts directory)
+MD Code (location specified in Globals module after readGlobals)
+LKMC input file: we need that to get this far anyway</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.readNodesFile">
+<code class="descname">readNodesFile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.readNodesFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.readNodesFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read nodes file.</p>
+<ul class="simple">
+<li>Each line should contain the address of a node.</li>
+<li>If numProcs is specified only read that many lines.</li>
+<li>Blank lines and lines starting with &#8216;#&#8217; are ignored</li>
+</ul>
+<dl class="docutils">
+<dt>Note: if there are less lines than numProcs we continue</dt>
+<dd>anyway.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.restartWriter">
+<code class="descname">restartWriter</code><span class="sig-paren">(</span><em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.restartWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.restartWriter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restart the writer process</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.serverDebuggingOutput">
+<code class="descname">serverDebuggingOutput</code><span class="sig-paren">(</span><em>startTime</em>, <em>totalTime</em>, <em>NResults</em>, <em>clientDict</em>, <em>taskOutputDir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.serverDebuggingOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.serverDebuggingOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write debugging ouput</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="LKMC.Server.LKMCServer.serverManagers">
+<code class="descname">serverManagers</code><em class="property"> = []</em><a class="headerlink" href="#LKMC.Server.LKMCServer.serverManagers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="LKMC.Server.LKMCServer.serverPID">
+<code class="descname">serverPID</code><em class="property"> = None</em><a class="headerlink" href="#LKMC.Server.LKMCServer.serverPID" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.setData">
+<code class="descname">setData</code><span class="sig-paren">(</span><em>data</em>, <em>dataID=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.setData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.setData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the data (a dictionary) on the clients.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : <cite>dict</cite></p>
+<blockquote>
+<div><p>Dictionary containing the data to send to the clients</p>
+</div></blockquote>
+<p><strong>dataID</strong> : <cite>UUID</cite>, optional</p>
+<blockquote>
+<div><p>Unique identifier for this data. Will be automatically
+generated if not provide.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>TypeError</strong></p>
+<blockquote>
+<div><p>If the <cite>data</cite> argument is not a <cite>dict</cite></p>
+</div></blockquote>
+<p><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>If the <cite>data</cite> argument contains the key &#8216;id&#8217;. This key
+is reserved.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.setJobIDs">
+<code class="descname">setJobIDs</code><span class="sig-paren">(</span><em>jobIDs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.setJobIDs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.setJobIDs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set job IDs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.shutdownServerManager">
+<code class="descname">shutdownServerManager</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.shutdownServerManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.shutdownServerManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean shutdown of server manager.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.startClients">
+<code class="descname">startClients</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.startClients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.startClients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start clients over ssh.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.stopClients">
+<code class="descname">stopClients</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.stopClients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.stopClients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tell the clients to exit</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.stopJob">
+<code class="descname">stopJob</code><span class="sig-paren">(</span><em>ID</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.stopJob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.stopJob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop the job.</p>
+<p>ID: unique identifier of job to stop.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="LKMC.Server.LKMCServer.termCommandProxy">
+<code class="descname">termCommandProxy</code><em class="property"> = None</em><a class="headerlink" href="#LKMC.Server.LKMCServer.termCommandProxy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="LKMC.Server.LKMCServer.termCondition">
+<code class="descname">termCondition</code><em class="property"> = None</em><a class="headerlink" href="#LKMC.Server.LKMCServer.termCondition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="LKMC.Server.LKMCServer.termQ">
+<code class="descname">termQ</code><em class="property"> = None</em><a class="headerlink" href="#LKMC.Server.LKMCServer.termQ" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="LKMC.Server.LKMCServer.terminate">
+<em class="property">static </em><code class="descname">terminate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.terminate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.terminate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate the server</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="LKMC.Server.LKMCServer.terminated">
+<code class="descname">terminated</code><em class="property"> = False</em><a class="headerlink" href="#LKMC.Server.LKMCServer.terminated" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.waitForClients">
+<code class="descname">waitForClients</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.waitForClients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.waitForClients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Waits for the client processes to terminate</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="LKMC.Server.LKMCServer.writerList">
+<code class="descname">writerList</code><em class="property"> = []</em><a class="headerlink" href="#LKMC.Server.LKMCServer.writerList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Server.LKMCServer.zipCombinedFiles">
+<code class="descname">zipCombinedFiles</code><span class="sig-paren">(</span><em>taskOutDir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#LKMCServer.zipCombinedFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.LKMCServer.zipCombinedFiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zips all combined files in the output directory
+Combined files have extension .cdt</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Server.handler">
+<code class="descclassname">LKMC.Server.</code><code class="descname">handler</code><span class="sig-paren">(</span><em>signum</em>, <em>frame</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Server.html#handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Server.handler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Search.html"
+                        title="previous chapter">LKMC.Search module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Status.html"
+                        title="next chapter">LKMC.Status module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Server.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Status.html" title="LKMC.Status module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Search.html" title="LKMC.Search module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

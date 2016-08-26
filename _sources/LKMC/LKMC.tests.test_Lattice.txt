@@ -1,0 +1,7 @@
+LKMC.tests.test_Lattice module
+==============================
+
+.. automodule:: LKMC.tests.test_Lattice
+    :members:
+    :undoc-members:
+    :show-inheritance:

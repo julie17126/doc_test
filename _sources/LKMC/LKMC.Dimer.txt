@@ -1,0 +1,7 @@
+LKMC.Dimer module
+=================
+
+.. automodule:: LKMC.Dimer
+    :members:
+    :undoc-members:
+    :show-inheritance:

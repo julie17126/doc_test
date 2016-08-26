@@ -1,0 +1,7 @@
+LKMC.slow_tests.test_Minimise module
+====================================
+
+.. automodule:: LKMC.slow_tests.test_Minimise
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,430 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.clibs.vectors &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.clibs.vectors</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Wrapper to vectors.c</span>
+
+<span class="sd">Copyright 2013 Chris Scott</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">ctypes</span> <span class="k">import</span> <span class="n">CDLL</span><span class="p">,</span> <span class="n">c_double</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">,</span> <span class="n">c_int</span>
+
+<span class="kn">from</span> <span class="nn">.numpy_utils</span> <span class="k">import</span> <span class="n">CPtrToDouble</span><span class="p">,</span> <span class="n">CPtrToInt</span>
+
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># load lib</span>
+<span class="n">_lib</span> <span class="o">=</span> <span class="n">CDLL</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s2">&quot;_vectors.so&quot;</span><span class="p">))</span>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># partialDotProduct prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">partialDotProduct</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_double</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">partialDotProduct</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># partialDotProduct force</span>
+<div class="viewcode-block" id="partialDotProduct"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.partialDotProduct">[docs]</a><span class="k">def</span> <span class="nf">partialDotProduct</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">displAtoms</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    partialDotProduct</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">partialDotProduct</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">displAtoms</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">displAtoms</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># applyPartialDisplacementReverse prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">applyPartialDisplacementReverse</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">applyPartialDisplacementReverse</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># applyPartialDisplacementReverse force</span>
+<div class="viewcode-block" id="applyPartialDisplacementReverse"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.applyPartialDisplacementReverse">[docs]</a><span class="k">def</span> <span class="nf">applyPartialDisplacementReverse</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">displAtoms</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    applyPartialDisplacementReverse</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">applyPartialDisplacementReverse</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">displAtoms</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">displAtoms</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># applyPartialDisplacement prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">applyPartialDisplacement</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">applyPartialDisplacement</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># applyPartialDisplacement force</span>
+<div class="viewcode-block" id="applyPartialDisplacement"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.applyPartialDisplacement">[docs]</a><span class="k">def</span> <span class="nf">applyPartialDisplacement</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">displAtoms</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    applyPartialDisplacement</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">applyPartialDisplacement</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">displAtoms</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">displAtoms</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># calcForceInfNorm prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">calcForceInfNorm</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">calcForceInfNorm</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># calcForceInfNorm force</span>
+<div class="viewcode-block" id="calcForceInfNorm"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.calcForceInfNorm">[docs]</a><span class="k">def</span> <span class="nf">calcForceInfNorm</span><span class="p">(</span><span class="n">returnVector</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    calcForceInfNorm</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">calcForceInfNorm</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># scaleVector prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">scaleVector</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">scaleVector</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_double</span><span class="p">]</span>
+
+<span class="c1"># scaleVector force</span>
+<div class="viewcode-block" id="scaleVector"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.scaleVector">[docs]</a><span class="k">def</span> <span class="nf">scaleVector</span><span class="p">(</span><span class="n">returnVector</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">factor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    scaleVector</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">scaleVector</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">factor</span><span class="p">)</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># addVectors prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">addVectors</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">addVectors</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># addVectors force</span>
+<div class="viewcode-block" id="addVectors"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.addVectors">[docs]</a><span class="k">def</span> <span class="nf">addVectors</span><span class="p">(</span><span class="n">returnVector</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    addVectors</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">addVectors</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos2</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># maxMovement prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">maxMovement</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">maxMovement</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># maxMovement force</span>
+<div class="viewcode-block" id="maxMovement"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.maxMovement">[docs]</a><span class="k">def</span> <span class="nf">maxMovement</span><span class="p">(</span><span class="n">returnVector</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">PBC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    maxMovement</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">maxMovement</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> 
+                            <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">PBC</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># subtractVectors prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">subtractVectors</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">subtractVectors</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># subtractVectors force</span>
+<div class="viewcode-block" id="subtractVectors"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.subtractVectors">[docs]</a><span class="k">def</span> <span class="nf">subtractVectors</span><span class="p">(</span><span class="n">returnVector</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    subtractVectors</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">subtractVectors</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos2</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># addVectorsInplace prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">addVectorsInplace</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">addVectorsInplace</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># addVectorsInplace force</span>
+<div class="viewcode-block" id="addVectorsInplace"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.addVectorsInplace">[docs]</a><span class="k">def</span> <span class="nf">addVectorsInplace</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    addVectorsInplace</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">addVectorsInplace</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos2</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># dotProduct prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">dotProduct</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_double</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">dotProduct</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># dotProduct force</span>
+<div class="viewcode-block" id="dotProduct"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.dotProduct">[docs]</a><span class="k">def</span> <span class="nf">dotProduct</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    dotProduct</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">dotProduct</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos2</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># imageSeparationMagnitude_fixed prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">imageSeparationMagnitude_fixed</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_double</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">imageSeparationMagnitude_fixed</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> 
+                                                <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># imageSeparationMagnitude_fixed force</span>
+<div class="viewcode-block" id="imageSeparationMagnitude_fixed"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.imageSeparationMagnitude_fixed">[docs]</a><span class="k">def</span> <span class="nf">imageSeparationMagnitude_fixed</span><span class="p">(</span><span class="n">image1</span><span class="p">,</span> <span class="n">image2</span><span class="p">,</span> <span class="n">imageNAtoms</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">PBC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    imageSeparationMagnitude_fixed</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">imageSeparationMagnitude_fixed</span><span class="p">(</span><span class="n">image1</span><span class="p">,</span> <span class="n">image2</span><span class="p">,</span> <span class="n">imageNAtoms</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> 
+                                               <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">PBC</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># magnitude prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">magnitude</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_double</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">magnitude</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># magnitude force</span>
+<div class="viewcode-block" id="magnitude"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.magnitude">[docs]</a><span class="k">def</span> <span class="nf">magnitude</span><span class="p">(</span><span class="n">pos</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    magnitude</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">magnitude</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># imageSeparationMagnitude prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">imageSeparationMagnitude</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_double</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">imageSeparationMagnitude</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># imageSeparationMagnitude force</span>
+<div class="viewcode-block" id="imageSeparationMagnitude"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.imageSeparationMagnitude">[docs]</a><span class="k">def</span> <span class="nf">imageSeparationMagnitude</span><span class="p">(</span><span class="n">image1</span><span class="p">,</span> <span class="n">image2</span><span class="p">,</span> <span class="n">imageNAtoms</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">PBC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    imageSeparationMagnitude</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">imageSeparationMagnitude</span><span class="p">(</span><span class="n">image1</span><span class="p">,</span> <span class="n">image2</span><span class="p">,</span> <span class="n">imageNAtoms</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">PBC</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># separationMagnitude prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">separationMagnitude</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_double</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">separationMagnitude</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> 
+                                                <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># separationMagnitude force</span>
+<div class="viewcode-block" id="separationMagnitude"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.separationMagnitude">[docs]</a><span class="k">def</span> <span class="nf">separationMagnitude</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">PBC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    separationMagnitude</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">separationMagnitude</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> 
+                                    <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">PBC</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># imageSeparationVector_fixed prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">imageSeparationVector_fixed</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">imageSeparationVector_fixed</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> 
+                                             <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># imageSeparationVector_fixed force</span>
+<div class="viewcode-block" id="imageSeparationVector_fixed"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.imageSeparationVector_fixed">[docs]</a><span class="k">def</span> <span class="nf">imageSeparationVector_fixed</span><span class="p">(</span><span class="n">returnVector</span><span class="p">,</span> <span class="n">image1</span><span class="p">,</span> <span class="n">image2</span><span class="p">,</span> <span class="n">imageNAtoms</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">PBC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    imageSeparationVector_fixed</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">imageSeparationVector_fixed</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="n">image1</span><span class="p">,</span> <span class="n">image2</span><span class="p">,</span> <span class="n">imageNAtoms</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> 
+                                            <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">PBC</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># imageSeparationVector prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">imageSeparationVector</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">imageSeparationVector</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> 
+                                       <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># imageSeparationVector</span>
+<div class="viewcode-block" id="imageSeparationVector"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.imageSeparationVector">[docs]</a><span class="k">def</span> <span class="nf">imageSeparationVector</span><span class="p">(</span><span class="n">returnVector</span><span class="p">,</span> <span class="n">image1</span><span class="p">,</span> <span class="n">image2</span><span class="p">,</span> <span class="n">imageNAtoms</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">PBC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    imageSeparationVector</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">imageSeparationVector</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="n">image1</span><span class="p">,</span> <span class="n">image2</span><span class="p">,</span> <span class="n">imageNAtoms</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> 
+                                            <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">PBC</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># separationVector prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">separationVector</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">separationVector</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> 
+                                  <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># separationVector</span>
+<div class="viewcode-block" id="separationVector"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.separationVector">[docs]</a><span class="k">def</span> <span class="nf">separationVector</span><span class="p">(</span><span class="n">returnVector</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">PBC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    separationVector</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">separationVector</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="n">length</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> 
+                                 <span class="nb">len</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">PBC</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># extractVector3f prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">extractVector3f</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">extractVector3f</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># extractVector3f</span>
+<div class="viewcode-block" id="extractVector3f"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.extractVector3f">[docs]</a><span class="k">def</span> <span class="nf">extractVector3f</span><span class="p">(</span><span class="n">indexes</span><span class="p">,</span> <span class="n">fullVector</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    extractVector3f</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">extractVector3f</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indexes</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">indexes</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">fullVector</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">fullVector</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">vector</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># expandVector3f prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">expandVector3f</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">expandVector3f</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># expandVector3f</span>
+<div class="viewcode-block" id="expandVector3f"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.expandVector3f">[docs]</a><span class="k">def</span> <span class="nf">expandVector3f</span><span class="p">(</span><span class="n">indexes</span><span class="p">,</span> <span class="n">fullVector</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    expandVector3f</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">expandVector3f</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indexes</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">indexes</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">fullVector</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">fullVector</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">vector</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># includeSubVector3f prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">includeSubVector3f</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">includeSubVector3f</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># includeSubVector3f</span>
+<div class="viewcode-block" id="includeSubVector3f"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.includeSubVector3f">[docs]</a><span class="k">def</span> <span class="nf">includeSubVector3f</span><span class="p">(</span><span class="n">indexes</span><span class="p">,</span> <span class="n">inputVector</span><span class="p">,</span> <span class="n">outputVector</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    includeSubVector3f</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">includeSubVector3f</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indexes</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">indexes</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">inputVector</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">outputVector</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># excludeSubVector3f prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">excludeSubVector3f</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">excludeSubVector3f</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># excludeSubVector3f</span>
+<div class="viewcode-block" id="excludeSubVector3f"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.excludeSubVector3f">[docs]</a><span class="k">def</span> <span class="nf">excludeSubVector3f</span><span class="p">(</span><span class="n">indexes</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    excludeSubVector3f</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">excludeSubVector3f</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indexes</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">indexes</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">vector</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># separationVectorSubSystem prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">separationVectorSubSystem</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">separationVectorSubSystem</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> 
+                                           <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">]</span>
+
+<span class="c1"># separationVectorSubSystem</span>
+<div class="viewcode-block" id="separationVectorSubSystem"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.vectors.html#LKMC.clibs.vectors.separationVectorSubSystem">[docs]</a><span class="k">def</span> <span class="nf">separationVectorSubSystem</span><span class="p">(</span><span class="n">returnVector</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">subSystem</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">PBC</span><span class="p">,</span> <span class="n">fullLen</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    separationVectorSubSystem</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">separationVectorSubSystem</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">returnVector</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> 
+                                 <span class="nb">len</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">subSystem</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">subSystem</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span> 
+                                 <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">PBC</span><span class="p">),</span> <span class="n">fullLen</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

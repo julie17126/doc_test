@@ -1,0 +1,78 @@
+ART
+===
+
+Parameters for the Activation Relaxation Technique (ART) method.
+
+artAplha
+^^^^^^^^
+
+Real
+
+Constant value for the translation calculation each step.
+
+Default: 0.625
+
+artMaxBarrier
+^^^^^^^^^^^^^
+
+Real
+
+Criteria to kill ART if barrier is getting higher then this value.
+
+Default: 10.0
+
+artMaxMoveDistance
+^^^^^^^^^^^^^^^^^^
+
+Real
+
+Criteria to kill ART if one of the atoms moves more then this
+distance from it's original position.
+
+Default: 10.0
+
+artMaxFuncEval
+^^^^^^^^^^^^^^
+
+Integer
+
+Criteria to kill ART if function evaluation count reaches this
+number.
+
+Default: 1000
+
+artRadius
+^^^^^^^^^
+
+Real
+
+Radius of defect area to be moved with art method.
+
+Default: 3.0
+
+artTranslationStep
+^^^^^^^^^^^^^^^^^^
+
+Real
+
+Constant for a translation step.
+
+Default: 0.00467
+
+artDebugMode
+^^^^^^^^^^^^
+
+0 or 1
+
+If 1: run ART in debug mode (developer mode).
+
+Default: 0
+
+timeArt
+^^^^^^^
+
+0 or 1
+
+If 1: use timer on ART method.
+
+Default: 1

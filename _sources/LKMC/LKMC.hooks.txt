@@ -1,0 +1,19 @@
+LKMC.hooks package
+==================
+
+Submodules
+----------
+
+.. toctree::
+
+   LKMC.hooks.addRemoveVacs
+   LKMC.hooks.example_hook
+   LKMC.hooks.hook_utils
+
+Module contents
+---------------
+
+.. automodule:: LKMC.hooks
+    :members:
+    :undoc-members:
+    :show-inheritance:

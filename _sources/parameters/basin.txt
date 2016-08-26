@@ -1,0 +1,50 @@
+Basin
+=====
+
+Parameters for the basin method.
+
+basinReset
+^^^^^^^^^^
+
+0 or 1 - 1: for a resuming job, ignore all basin built and stored
+before, and start building new basins; - 0: for a resuming job, read in
+all basin built and stored before, and continuing build and use these
+basins. Default: 0
+
+basinCOMTol
+^^^^^^^^^^^
+
+Float When checking a volume is a basin states or not, the tolerance of
+checking center of mass. Default: 0.4
+
+basinMomentTol
+^^^^^^^^^^^^^^
+
+Float > 0.0 When checking a volume is a basin states or not, the
+tolerance of checking moment. Default: 0.1
+
+basinLowBarrier
+^^^^^^^^^^^^^^^
+
+Float > 0.0 If both forward and reverse barriers are lower than this
+value, this transition is regarded as a basin event. Default: 0.1
+
+basinTransSep
+^^^^^^^^^^^^^
+
+Float > 0.0 For two transitions, if the separation of saddles are
+smaller than this value, we assume they are identical. Default: 0.5
+
+basinSepTol
+^^^^^^^^^^^
+
+Float > 0.0 Even the hash keys of two volumes are different, we still
+check the separation of these two volumes. If the separation is smaller
+than this value, we assume these volumes are identical. Default: 1.0
+
+debugBasin
+^^^^^^^^^^
+
+0 or 1 If 1, debug mode of basin method. Will print out information
+about the basin, e.g. origin/basin rates, whole built basin info, chosen
+transition's basin info, etc. Default: 0

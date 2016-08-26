@@ -1,0 +1,7 @@
+LKMC.Dummy module
+=================
+
+.. automodule:: LKMC.Dummy
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,138 @@
+Minimisation
+============
+
+Parameters for minimisation.
+
+minimizationType
+^^^^^^^^^^^^^^^^
+
+'CG', 'CGSCIPY', 'SD' or 'LBFGS'
+
+The method used for minimisation:
+
+- CG: conjugate gradient
+- CGSCIPY: conjugate gradient minimiser from SciPy
+- SD: Steepest descent
+- LBFGS: limited memory BFGS minimiser from SciPy
+
+Default: 'LBFGS'
+
+minimizationCriteria
+^^^^^^^^^^^^^^^^^^^^
+
+'force', 'force_element' or 'energy'
+
+The stopping criteria to be checked is converging by:
+
+- force: the magnitude of the force vector
+- force_element: the largest element of the force vector
+- energy: the change in energy
+
+Note: this parameter does not effect the L-BFGS method, which
+has its own parameter section (...).
+
+Default: 'force_element'
+
+minimizationTolerance
+^^^^^^^^^^^^^^^^^^^^^
+
+Real
+
+The stopping criteria to be checked.
+
+Default: 0.0001
+
+minimizationExclusion
+^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1 or 2
+
+- 0: whole lattice to be minimized
+- 1: atoms exclude defect area to be minimized
+- 2: only atoms from defect area to be minimized
+
+Default: 0
+
+minimizationExclusionReverseEveryFEval
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+???
+
+Default: 0
+
+minimizationLineSearch
+^^^^^^^^^^^^^^^^^^^^^^
+
+'secant''
+
+The line search algorithm to be used.
+
+- secant: secant method
+
+Default: 'secant'
+
+minimisationLineSearchStep
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Real
+
+The step size used in line search algorithm.
+
+Default: 0.01
+
+minimisationMaxIterations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Integer
+
+The maximum number of iterations allowed during minimisation.
+
+Default: 1000
+
+minimisationMaxRunTime
+^^^^^^^^^^^^^^^^^^^^^^
+
+Integer (seconds)
+
+Maximum run time for a minimisation.
+
+Default: 2000
+
+minimisationPlotEnergies
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: plot the energy against step number.
+
+Default: 0
+
+minimisationDebug
+^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: debugging mode. Will print out lots of information.
+
+Default: 0
+
+minimisationNoOutput
+^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 0: print out energy/force/FEvals info in each minimization
+step.
+
+Default: 0
+
+timeMinimization
+^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: turn on minimisation time tracking.
+
+Default: 0

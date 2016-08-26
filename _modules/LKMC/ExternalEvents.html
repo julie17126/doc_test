@@ -1,0 +1,531 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.ExternalEvents &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.ExternalEvents</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">ExternatEvents.py is a module to handle the inclusion of special events in LKMC using software such as LBOMD or LAMMPS.</span>
+<span class="sd">For a given mean rate of occurrence, an equivalent &quot;energy barrier&quot; is calculated, such that a possible event might be</span>
+<span class="sd">selected along side ordinary KMC moves.</span>
+
+<span class="sd">Copyright Mark Wootton 2015</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Atoms</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Minimise</span>
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Lbomd</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Lammps</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Vectors</span>
+
+
+<div class="viewcode-block" id="EventThermalisationFailed"><a class="viewcode-back" href="../../LKMC/LKMC.ExternalEvents.html#LKMC.ExternalEvents.EventThermalisationFailed">[docs]</a><span class="k">class</span> <span class="nc">EventThermalisationFailed</span><span class="p">(</span><span class="ne">BaseException</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Thermalisation for the external event failed.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="EventRunMDFailed"><a class="viewcode-back" href="../../LKMC/LKMC.ExternalEvents.html#LKMC.ExternalEvents.EventRunMDFailed">[docs]</a><span class="k">class</span> <span class="nc">EventRunMDFailed</span><span class="p">(</span><span class="ne">BaseException</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run MD for the external event failed.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="EventMinimisationFailed"><a class="viewcode-back" href="../../LKMC/LKMC.ExternalEvents.html#LKMC.ExternalEvents.EventMinimisationFailed">[docs]</a><span class="k">class</span> <span class="nc">EventMinimisationFailed</span><span class="p">(</span><span class="ne">BaseException</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Minimisation for the external event failed.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="ExternalEvent"><a class="viewcode-back" href="../../LKMC/LKMC.ExternalEvents.html#LKMC.ExternalEvents.ExternalEvent">[docs]</a><span class="k">class</span> <span class="nc">ExternalEvent</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For running external events during LKMC</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    params : `Input.InputParams` object</span>
+<span class="sd">        This object contains all parameters which are read from ``lkmcInput.IN`` by default.</span>
+<span class="sd">    refState : `Lattice.Lattice` object</span>
+<span class="sd">        This object hold information about the reference state (perfect lattice) of a system.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">refState</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># store the parameters and reference state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refState</span> <span class="o">=</span> <span class="n">refState</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="o">=</span> <span class="n">jobID</span>
+        
+        <span class="c1"># required parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forceLibrary</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minAfter</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minUseLAMMPS</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minFailUseLAMMPS</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minStyle</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxEval</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="c1"># lammps object</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">MDType</span> <span class="o">==</span> <span class="s2">&quot;LAMMPS&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span> <span class="o">=</span> <span class="n">Lammps</span><span class="o">.</span><span class="n">LammpsInterface</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span> <span class="o">=</span> <span class="kc">None</span>
+    
+<div class="viewcode-block" id="ExternalEvent.getVelocityFromKE"><a class="viewcode-back" href="../../LKMC/LKMC.ExternalEvents.html#LKMC.ExternalEvents.ExternalEvent.getVelocityFromKE">[docs]</a>    <span class="k">def</span> <span class="nf">getVelocityFromKE</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sym</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the velocity for the given kinetic energy and species.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        energy : float</span>
+<span class="sd">            The kinetic energy of the atom in eV.</span>
+<span class="sd">        direction : `numpy.ndarray`, optional</span>
+<span class="sd">            A vector of length 3 defining the direction of the atom. If specified the returned value will also be a</span>
+<span class="sd">            vector of length 3 containing the components of velocity, otherwise the magnitude of the velocity is</span>
+<span class="sd">            returned</span>
+<span class="sd">        sym : str[2], optional</span>
+<span class="sd">            The symbol of the species, eg. &#39;H_&#39; or &quot;Fe&quot;. One of `sym` or `mass` must be specified. Mass is used if both</span>
+<span class="sd">            are given.</span>
+<span class="sd">        mass : float, optional</span>
+<span class="sd">            The total mass of the atom(s) you are calculating the velocity for. One of `sym` or `mass` must be</span>
+<span class="sd">            specified. Mass is used if both are given.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        velocity : float or `numpy.ndarray`</span>
+<span class="sd">            Depending on the value of `direction` this is the magnitude of the velocity of a vector containing the</span>
+<span class="sd">            components of velocity. The units depend on the MD library. For LBOMD it will be Å/fs, for LAMMPS it will</span>
+<span class="sd">            be Å/ps (assuming metal units). Support for other LAMMPS units can also be added.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        LammpsUnitsNotSupported</span>
+<span class="sd">            If the value of the lammpsUnits parameter is not supported.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">sym</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">mass</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either sym or mass must be specified&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># parameters</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+        
+        <span class="k">if</span> <span class="n">mass</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># the mass of the atom, in LBOMD units</span>
+            <span class="n">mass</span> <span class="o">=</span> <span class="n">Atoms</span><span class="o">.</span><span class="n">atomicMass</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span>
+        
+        <span class="c1"># the magnitude of the velocity, in Å/fs</span>
+        <span class="n">velocityMag</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">energy</span> <span class="o">/</span> <span class="n">mass</span><span class="p">)</span>
+        
+        <span class="c1"># modify velocity for LAMMPS</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">MDType</span> <span class="o">==</span> <span class="s2">&quot;LAMMPS&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">lammpsUnits</span> <span class="o">==</span> <span class="s2">&quot;metal&quot;</span><span class="p">:</span>
+                <span class="c1"># convert to Å/ps</span>
+                <span class="n">velocityMag</span> <span class="o">*=</span> <span class="mi">1</span><span class="n">e3</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">Lammps</span><span class="o">.</span><span class="n">LammpsUnitsNotSupported</span><span class="p">(</span><span class="s2">&quot;LAMMPS &#39;</span><span class="si">%s</span><span class="s2">&#39; units have not been implemented&quot;</span> <span class="o">%</span> <span class="n">params</span><span class="o">.</span><span class="n">lammpsUnits</span><span class="p">)</span>
+        
+        <span class="c1"># construct result depending on direction kwarg</span>
+        <span class="k">if</span> <span class="n">direction</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">velocity</span> <span class="o">=</span> <span class="n">velocityMag</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># modulus of direction indices</span>
+            <span class="n">direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">mod</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">magnitude</span><span class="p">(</span><span class="n">direction</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mod</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Supplied vector has magnitude zero&quot;</span><span class="p">)</span>
+            <span class="n">velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">velocity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">velocityMag</span> <span class="o">*</span> <span class="n">direction</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">mod</span>
+            <span class="n">velocity</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">velocityMag</span> <span class="o">*</span> <span class="n">direction</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">mod</span>
+            <span class="n">velocity</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">velocityMag</span> <span class="o">*</span> <span class="n">direction</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">mod</span>
+            
+            <span class="c1"># check</span>
+            <span class="n">mag</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">magnitude</span><span class="p">(</span><span class="n">velocity</span><span class="p">)</span>
+            <span class="n">ke</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">mass</span> <span class="o">*</span> <span class="n">mag</span> <span class="o">*</span> <span class="n">mag</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">MDType</span> <span class="o">==</span> <span class="s2">&quot;LAMMPS&quot;</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">lammpsUnits</span> <span class="o">==</span> <span class="s2">&quot;metal&quot;</span><span class="p">:</span>
+                <span class="n">ke</span> <span class="o">/=</span> <span class="mi">1</span><span class="n">e6</span>
+            <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">ke</span> <span class="o">-</span> <span class="n">energy</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">4</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;KE is wrong (</span><span class="si">%f</span><span class="s2"> not </span><span class="si">%f</span><span class="s2"> as expected) </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ke</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">velocity</span><span class="p">))</span>
+        
+        <span class="k">return</span> <span class="n">velocity</span></div>
+    
+<div class="viewcode-block" id="ExternalEvent.minimise"><a class="viewcode-back" href="../../LKMC/LKMC.ExternalEvents.html#LKMC.ExternalEvents.ExternalEvent.minimise">[docs]</a>    <span class="k">def</span> <span class="nf">minimise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">minAfter</span><span class="p">,</span> <span class="n">minUseLAMMPS</span><span class="p">,</span> <span class="n">minFailUseLAMMPS</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Minimise the system.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lattice : `Lattice.Lattice`</span>
+<span class="sd">            The lattice to be minimised</span>
+<span class="sd">        minAfter : `True` or `False`</span>
+<span class="sd">            If `True` we perform the minimisation</span>
+<span class="sd">        minUseLAMMPS : `True` or `False`</span>
+<span class="sd">            Minimisate the system using LAMMPS</span>
+<span class="sd">        minFailUseLAMMPS : `True` or `False`</span>
+<span class="sd">            If the minimisation fails, try to minimise using LAMMPS</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">minAfter</span> <span class="ow">and</span> <span class="n">minUseLAMMPS</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">MDType</span> <span class="o">==</span> <span class="s2">&quot;LAMMPS&quot;</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Minimising lattice after external event (using LAMMPS)&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            
+            <span class="c1"># minimise using LAMMPS</span>
+            <span class="c1"># TODO: test is initialise=False works (it should)</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">minimise</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">initialise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">minAfter</span><span class="p">:</span>
+            <span class="c1"># Minimise using LKMC</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Minimising lattice after external event&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            
+            <span class="c1"># run the minimisation</span>
+            <span class="n">minimiser</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">getMinimiser</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">minimiser</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+            
+            <span class="c1"># If LKMC failed, try CGSCIPY</span>
+            <span class="c1"># TODO: this should not be hardcoded</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">minimizationType</span> <span class="o">!=</span> <span class="s2">&quot;CGSCIPY&quot;</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Minimisation using LKMC </span><span class="si">%s</span><span class="s2"> failed, try CGSCIPY.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">minimizationType</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">minimiser</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">ConjugateGradientSciPyMinimiser</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="n">minimiser</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+            
+            <span class="c1"># minimise using LKMC failed. Try LAMMPS</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="ow">and</span> <span class="n">minFailUseLAMMPS</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">MDType</span> <span class="o">==</span> <span class="s2">&quot;LAMMPS&quot;</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">minimise</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EventMinimisationFailed</span><span class="p">(</span><span class="s2">&quot;Failed to minimise the lattice post external event&quot;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ExternalEvent.runMD"><a class="viewcode-back" href="../../LKMC/LKMC.ExternalEvents.html#LKMC.ExternalEvents.ExternalEvent.runMD">[docs]</a>    <span class="k">def</span> <span class="nf">runMD</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">thermType</span><span class="p">,</span> <span class="n">runTime</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run a molecular dynamics simulation.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lattice : `Lattice.Lattice`</span>
+<span class="sd">            The lattice to run the simulation in.</span>
+<span class="sd">        velocity : `numpy.ndarray`</span>
+<span class="sd">            Array containing the initial velocities of the atoms.</span>
+<span class="sd">        thermType : str</span>
+<span class="sd">            The type of thermalisation (e.g. BERENDSEN, NO_THERMOSTAT)</span>
+<span class="sd">        runTime : float</span>
+<span class="sd">            The run time of the simulation (fs).</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the force library specified in the input parameters is not recognised.</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Certain parameters, such as `thermType` will be passed directly to the forces library without being checked. It</span>
+<span class="sd">        is up to the user to ensure they were specified correctly in the input file.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">MDType</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;LBOMD&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_runMDLbomd</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">thermType</span><span class="p">,</span> <span class="n">runTime</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">MDType</span> <span class="o">==</span> <span class="s2">&quot;LAMMPS&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_runMDLammps</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">thermType</span><span class="p">,</span> <span class="n">runTime</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognised force library for running MD: &#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">MDType</span><span class="p">))</span></div>
+    
+    <span class="k">def</span> <span class="nf">_runMDLbomd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">thermType</span><span class="p">,</span> <span class="n">runTime</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run an MD simulation using LBOMD.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lattice : `Lattice.Lattice`</span>
+<span class="sd">            The lattice to run the simulation in.</span>
+<span class="sd">        velocity : `numpy.ndarray`</span>
+<span class="sd">            Array containing the initial velocities of the atoms.</span>
+<span class="sd">        thermType : str</span>
+<span class="sd">            The type of thermalisation (e.g. BERENDSEN, NO_THERMOSTAT)</span>
+<span class="sd">        runTime : float</span>
+<span class="sd">            The run time of the simulation (fs).</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        EventRunMDFailed</span>
+<span class="sd">            If running the MD simulation failed.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Running MD simulation using LBOMD&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># parameters</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">systemTemperature</span>
+        <span class="n">fileOutput</span> <span class="o">=</span> <span class="kc">True</span>
+        
+        <span class="c1"># run the MD simulation</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Lbomd</span><span class="o">.</span><span class="n">runMD</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">runTime</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">thermType</span><span class="p">,</span> <span class="n">initialVelocity</span><span class="o">=</span><span class="n">velocity</span><span class="p">,</span> <span class="n">fileOutput</span><span class="o">=</span><span class="n">fileOutput</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EventRunMDFailed</span><span class="p">(</span><span class="s2">&quot;Lbomd.runMD failed with status: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">status</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">_runMDLammps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">thermType</span><span class="p">,</span> <span class="n">runTime</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run an MD simulation using LAMMPS.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lattice : `Lattice.Lattice`</span>
+<span class="sd">            The lattice to run the simulation in.</span>
+<span class="sd">        velocity : `numpy.ndarray`</span>
+<span class="sd">            Array containing the initial velocities of the atoms.</span>
+<span class="sd">        runTime : float</span>
+<span class="sd">            The run time of the simulation (fs).</span>
+<span class="sd">        thermType : str</span>
+<span class="sd">            The type of thermalisation (e.g. BERENDSEN, NO_THERMOSTAT)</span>
+<span class="sd">        runTime : float</span>
+<span class="sd">            The run time of the simulation (fs).</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        EventRunMDFailed</span>
+<span class="sd">            If running the MD simulation failed.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Running MD simulation using LAMMPS&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># run LAMMPS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">runMD</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">runTime</span><span class="p">,</span> <span class="n">thermType</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="ExternalEvent.switchToOutputDirectory"><a class="viewcode-back" href="../../LKMC/LKMC.ExternalEvents.html#LKMC.ExternalEvents.ExternalEvent.switchToOutputDirectory">[docs]</a>    <span class="k">def</span> <span class="nf">switchToOutputDirectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outputDirectory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create and switch to the output directory.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        step : int, optional</span>
+<span class="sd">            Current KMC step, to allow changing into the appropriate working directory.</span>
+<span class="sd">        outputDirectory : str, optional</span>
+<span class="sd">            Path to the desired output directory. If specified this overrides the default location.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        root : str</span>
+<span class="sd">            The original working directory.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Record current working directory</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        
+        <span class="c1"># user specified output directory</span>
+        <span class="k">if</span> <span class="n">outputDirectory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">stepPath</span> <span class="o">=</span> <span class="n">outputDirectory</span>
+        <span class="c1"># default location</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># determine the path to the output directory</span>
+            <span class="n">stepPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">outputDirectory</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">eventStoreMDOutput</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">stepPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stepPath</span><span class="p">,</span> <span class="s2">&quot;Step</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">step</span><span class="p">)</span>
+                <span class="n">stepPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stepPath</span><span class="p">,</span> <span class="s2">&quot;md_files&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">stepPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stepPath</span><span class="p">,</span> <span class="s2">&quot;last_md_files&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># create the directory if it doesn&#39;t exist and switch to it</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Switching to output directory: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">stepPath</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">stepPath</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">stepPath</span><span class="p">,</span> <span class="mi">0755</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">stepPath</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">root</span></div>
+    
+<div class="viewcode-block" id="ExternalEvent.thermalise"><a class="viewcode-back" href="../../LKMC/LKMC.ExternalEvents.html#LKMC.ExternalEvents.ExternalEvent.thermalise">[docs]</a>    <span class="k">def</span> <span class="nf">thermalise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">thermaliseFlag</span><span class="p">,</span> <span class="n">fullTime</span><span class="p">,</span> <span class="n">constrainedTime</span><span class="p">,</span> <span class="n">thermType</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Thermalise the lattice if required, otherwise return zeroes for velocities.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lattice : `Lattice.Lattice`</span>
+<span class="sd">            The lattice to be thermalised.</span>
+<span class="sd">        thermaliseFlag : `True` or `False`</span>
+<span class="sd">            Whether to thermalise the lattice or not.</span>
+<span class="sd">        fullTime : float</span>
+<span class="sd">            Thermalisation time for the full system</span>
+<span class="sd">        constrainedTime : float</span>
+<span class="sd">            Thermalisation time for the constrained system</span>
+<span class="sd">        themType : str</span>
+<span class="sd">            The type of thermalisation (e.g. BERENDSEN)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        velocity : `numpy.ndarray`</span>
+<span class="sd">            Array containing the velocities of the atoms.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the force library specified in the input parameters is not recognised.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">thermaliseFlag</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Thermalising lattice&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            
+            <span class="c1"># thermalise the lattice</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">MDType</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;LBOMD&quot;</span><span class="p">):</span>
+                <span class="n">velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thermaliseLBOMD</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">fullTime</span><span class="p">,</span> <span class="n">constrainedTime</span><span class="p">,</span> <span class="n">thermType</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">MDType</span> <span class="o">==</span> <span class="s2">&quot;LAMMPS&quot;</span><span class="p">:</span>
+                <span class="n">velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thermaliseLAMMPS</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">fullTime</span><span class="p">,</span> <span class="n">constrainedTime</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognised force library for thermalisation: &#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">MDType</span><span class="p">))</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># set velocities to zero</span>
+            <span class="n">velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">velocity</span></div>
+    
+    <span class="k">def</span> <span class="nf">_thermaliseLBOMD</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">fullTime</span><span class="p">,</span> <span class="n">constrainedTime</span><span class="p">,</span> <span class="n">thermType</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Thermalise lattice before event</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lattice : `Lattice.Lattice`</span>
+<span class="sd">            The lattice to be thermalised.</span>
+<span class="sd">        fullTime : float</span>
+<span class="sd">            Thermalisation time for the full system</span>
+<span class="sd">        constrainedTime : float</span>
+<span class="sd">            Thermalisation time for the constrained system</span>
+<span class="sd">        themType : str</span>
+<span class="sd">            The type of thermalisation (e.g. BERENDSEN)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        velocity : `numpy.ndarray`</span>
+<span class="sd">            Array containing the velocities of each atom in the system after thermalization.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        EventThermalisationFailed</span>
+<span class="sd">            If the lattice could not be thermalised</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">systemTemperature</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span>
+            <span class="s2">&quot;Thermalising system to </span><span class="si">%.0f</span><span class="s2"> K using the thermostat type </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">thermType</span><span class="p">),</span>
+            <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c1"># thermalise</span>
+        <span class="n">status</span><span class="p">,</span> <span class="n">velocity</span> <span class="o">=</span> <span class="n">Lbomd</span><span class="o">.</span><span class="n">runThermalisation</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">fullTime</span><span class="p">,</span> <span class="n">constrainedTime</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span>
+                                                   <span class="n">thermType</span><span class="p">,</span> <span class="n">fileOutput</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+        <span class="c1"># raise an exception here</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EventThermalisationFailed</span><span class="p">(</span><span class="s2">&quot;LBOMD thermalisation failed (</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">status</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">velocity</span>
+    
+    <span class="k">def</span> <span class="nf">_thermaliseLAMMPS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">fullTime</span><span class="p">,</span> <span class="n">constrainedTime</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Thermalise the lattice before simulation.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lattice : `Lattice.Lattice`</span>
+<span class="sd">            The lattice to be thermalised.</span>
+<span class="sd">        fullTime : float</span>
+<span class="sd">            Thermalisation time for the full system</span>
+<span class="sd">        constrainedTime : float</span>
+<span class="sd">            Thermalisation time for the constrained system</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        lost : int</span>
+<span class="sd">            Number of atoms lost during the thermalization.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">systemTemperature</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Thermalising system to </span><span class="si">%.0f</span><span class="s2"> K (LAMMPS).&quot;</span> <span class="o">%</span> <span class="n">temperature</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c1"># run the thermalisation</span>
+        <span class="n">velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">thermalise</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">fullTime</span><span class="p">,</span> <span class="n">constrainedTime</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">velocity</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

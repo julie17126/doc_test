@@ -1,0 +1,17 @@
+LKMC.slow_tests package
+=======================
+
+Submodules
+----------
+
+.. toctree::
+
+   LKMC.slow_tests.test_Minimise
+
+Module contents
+---------------
+
+.. automodule:: LKMC.slow_tests
+    :members:
+    :undoc-members:
+    :show-inheritance:

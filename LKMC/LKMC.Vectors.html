@@ -1,0 +1,248 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Vectors module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Version module" href="LKMC.Version.html" />
+    <link rel="prev" title="LKMC.Utilities module" href="LKMC.Utilities.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Version.html" title="LKMC.Version module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Utilities.html" title="LKMC.Utilities module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Vectors">
+<span id="lkmc-vectors-module"></span><h1>LKMC.Vectors module<a class="headerlink" href="#module-LKMC.Vectors" title="Permalink to this headline">¶</a></h1>
+<p>Vector operations.</p>
+<dl class="function">
+<dt id="LKMC.Vectors.addVectors">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">addVectors</code><span class="sig-paren">(</span><em>vect1</em>, <em>vect2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#addVectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.addVectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return vector addition of vect1 an vect2</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.addVectorsInplace">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">addVectorsInplace</code><span class="sig-paren">(</span><em>vect1</em>, <em>vect2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#addVectorsInplace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.addVectorsInplace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vector addition of vect1 an vect2. vect1[i] = vect1[i] + vect2[i]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.applyPartialDisplacement">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">applyPartialDisplacement</code><span class="sig-paren">(</span><em>vect1</em>, <em>vect2</em>, <em>atomList</em>, <em>reverseMd=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#applyPartialDisplacement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.applyPartialDisplacement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.calcForceInfNorm">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">calcForceInfNorm</code><span class="sig-paren">(</span><em>force</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#calcForceInfNorm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.calcForceInfNorm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the infinity norm of a force array.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.dotProduct">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">dotProduct</code><span class="sig-paren">(</span><em>vect1</em>, <em>vect2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#dotProduct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.dotProduct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dot product of vect1 with vect2</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.excludeSubVector3">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">excludeSubVector3</code><span class="sig-paren">(</span><em>indexes</em>, <em>vector</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#excludeSubVector3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.excludeSubVector3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new vector with zeroed components for the given indexes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.expandVector3">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">expandVector3</code><span class="sig-paren">(</span><em>indexes</em>, <em>vector</em>, <em>fullVectorLen</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#expandVector3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.expandVector3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expand the 3N sub-vector identified by the list of indexes, to be same size 
+as full system vector</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.extractVector3">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">extractVector3</code><span class="sig-paren">(</span><em>indexes</em>, <em>fullVector</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#extractVector3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.extractVector3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the 3N sub-vector identified by the list of indexes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.includeSubVector3">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">includeSubVector3</code><span class="sig-paren">(</span><em>indexes</em>, <em>inputVector</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#includeSubVector3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.includeSubVector3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new vector from the input vector which only has non-zero components for the given indexes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.magnitude">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">magnitude</code><span class="sig-paren">(</span><em>vect</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#magnitude"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.magnitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return magnitude of vect</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.maxMovement">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">maxMovement</code><span class="sig-paren">(</span><em>pos1</em>, <em>pos2</em>, <em>cellDims</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#maxMovement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.maxMovement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return tuple containing index of max moved atom, its movement, the 
+average movement, and the lattice separation.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.normalise">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">normalise</code><span class="sig-paren">(</span><em>vect</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#normalise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.normalise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return vect normalised</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.partialDotProduct">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">partialDotProduct</code><span class="sig-paren">(</span><em>vect1</em>, <em>vect2</em>, <em>atomList</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#partialDotProduct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.partialDotProduct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dot product of vect1 and vect2. SUM += vect1[Atom] * vect2[i]
+Where Atom is from atomList</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.projection">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">projection</code><span class="sig-paren">(</span><em>vect1</em>, <em>vect2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#projection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.projection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return projection of vect1 on vect2.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.randomVector">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">randomVector</code><span class="sig-paren">(</span><em>N</em>, <em>randomSeed=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#randomVector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.randomVector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return normalised vector of length N containing random 
+numbers between -1 and 1</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.scaleVector">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">scaleVector</code><span class="sig-paren">(</span><em>vect1</em>, <em>factor</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#scaleVector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.scaleVector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scales vect1 by factor.
+Returns new vector</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.separation">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">separation</code><span class="sig-paren">(</span><em>pos1</em>, <em>pos2</em>, <em>cellDims</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#separation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.separation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return magnitude of the separation vector between pos1 and pos2.
+i.e. ||pos2 - pos1||</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.separationVector">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">separationVector</code><span class="sig-paren">(</span><em>pos1</em>, <em>pos2</em>, <em>cellDims</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#separationVector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.separationVector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return separation vector between position vectors pos1 and pos2.
+i.e. pos2 - pos1</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.separationVectorSubSystem">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">separationVectorSubSystem</code><span class="sig-paren">(</span><em>pos1</em>, <em>pos2</em>, <em>defectSubSystem</em>, <em>cellDims</em>, <em>norm=False</em>, <em>fullList=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#separationVectorSubSystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.separationVectorSubSystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return separation vector between position vectors pos1 and pos2.
+i.e. pos2 - pos1</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Vectors.subtractVectors">
+<code class="descclassname">LKMC.Vectors.</code><code class="descname">subtractVectors</code><span class="sig-paren">(</span><em>vect1</em>, <em>vect2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Vectors.html#subtractVectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Vectors.subtractVectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return vect1 - vect2</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Utilities.html"
+                        title="previous chapter">LKMC.Utilities module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Version.html"
+                        title="next chapter">LKMC.Version module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Vectors.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Version.html" title="LKMC.Version module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Utilities.html" title="LKMC.Utilities module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Writer module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.setup module" href="LKMC.setup.html" />
+    <link rel="prev" title="LKMC.Version module" href="LKMC.Version.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.setup.html" title="LKMC.setup module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Version.html" title="LKMC.Version module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Writer">
+<span id="lkmc-writer-module"></span><h1>LKMC.Writer module<a class="headerlink" href="#module-LKMC.Writer" title="Permalink to this headline">¶</a></h1>
+<p>Copyright Chris Scott 2012</p>
+<p>Contains the LKMCWriter class.</p>
+<dl class="class">
+<dt id="LKMC.Writer.LKMCWriter">
+<em class="property">class </em><code class="descclassname">LKMC.Writer.</code><code class="descname">LKMCWriter</code><span class="sig-paren">(</span><em>logDir=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Writer.html#LKMCWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Writer.LKMCWriter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>The Writer class for asynchronous writing/plotting.</p>
+<p>The writer runs in a separate process, working from a queue.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="89%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>initiated</td>
+<td>(bool) &#8216;True&#8217; if the <cite>LKMCWriter</cite> has been initiated, &#8216;False&#8217; otherwise.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Writer.LKMCWriter.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>writeItem</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Writer.html#LKMCWriter.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Writer.LKMCWriter.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add <cite>writeItem</cite> to the queue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>writeItem</strong> : <cite>WriterItem</cite></p>
+<blockquote class="last">
+<div><p>The item to be written/plotted.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Writer.LKMCWriter.checkAlive">
+<code class="descname">checkAlive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Writer.html#LKMCWriter.checkAlive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Writer.LKMCWriter.checkAlive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether or not the Writer process is still alive.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dead</strong> : int</p>
+<blockquote class="last">
+<div><p>The number of dead writer processes.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Writer.LKMCWriter.initiate">
+<code class="descname">initiate</code><span class="sig-paren">(</span><em>params</em>, <em>NWorkers=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Writer.html#LKMCWriter.initiate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Writer.LKMCWriter.initiate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the writer thread.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>params</strong> : <cite>Input.InputParams</cite></p>
+<blockquote class="last">
+<div><p>Parameters object.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Writer.LKMCWriter.terminate">
+<code class="descname">terminate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Writer.html#LKMCWriter.terminate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Writer.LKMCWriter.terminate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tell the writer process to exit.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Writer.LKMCWriter.writerItem">
+<code class="descname">writerItem</code><span class="sig-paren">(</span><em>job</em>, <em>dataType=None</em>, <em>data=[]</em>, <em>outdir=None</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Writer.html#LKMCWriter.writerItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Writer.LKMCWriter.writerItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return writer item object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Writer.WriterItem">
+<em class="property">class </em><code class="descclassname">LKMC.Writer.</code><code class="descname">WriterItem</code><span class="sig-paren">(</span><em>job</em>, <em>dataType=None</em>, <em>data=[]</em>, <em>outdir=None</em>, <em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Writer.html#WriterItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Writer.WriterItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>An object to be placed into <cite>LKMCWriter</cite> queue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>job</strong> : str</p>
+<blockquote>
+<div><p>The name of the job. Does nothing currently. If you set <cite>job</cite> to
+&#8216;EXIT&#8217; the writer process will terminate.</p>
+</div></blockquote>
+<p><strong>dataType</strong> : {&#8216;plot&#8217;, &#8216;object&#8217;}</p>
+<blockquote>
+<div><p>The type of data you are passing. If you are writing an object 
+<cite>dataType</cite> should be &#8216;object&#8217;, whereas if you are doing a plot
+then <cite>dataType</cite> should be &#8216;plot&#8217;.</p>
+</div></blockquote>
+<p><strong>data</strong> : list, optional</p>
+<blockquote>
+<div><p>For &#8216;object&#8217; <cite>dataType</cite> the first item in the list should be the
+object. For &#8216;plot&#8217; <cite>dataType</cite> this list is not required.</p>
+</div></blockquote>
+<p><strong>outdir</strong> : str</p>
+<blockquote>
+<div><p>The directory to write into. Relative paths should be specified
+relative to the <em>params.outputDirectory</em>.</p>
+</div></blockquote>
+<p><strong>filename</strong> : str, optional</p>
+<blockquote class="last">
+<div><p>The name of the file to write. Generally not required as it is
+normally part of the args tuple.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="2%" />
+<col width="98%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>commands</td>
+<td>(list) List of commands to run on the object or plots to plot. Each item should be a tuple containing: * the objects method you want to run / plot you want to plot (str) * the tuple containing the positional arguments for the method or plot (tuple) * the dictionary of key word arguments for the method or plot (dict)</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Writer.WriterItem.addCommand">
+<code class="descname">addCommand</code><span class="sig-paren">(</span><em>method</em>, <em>args</em>, <em>kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Writer.html#WriterItem.addCommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Writer.WriterItem.addCommand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a command to list of commands.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>method</strong> : str</p>
+<blockquote>
+<div><p>The name of the method/plot to run.</p>
+</div></blockquote>
+<p><strong>args</strong> : tuple</p>
+<blockquote>
+<div><p>The positional arguments to pass when calling <cite>method</cite>.</p>
+</div></blockquote>
+<p><strong>kwargs</strong> : dict</p>
+<blockquote class="last">
+<div><p>The key word arguments to pass when calling <cite>method</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Version.html"
+                        title="previous chapter">LKMC.Version module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.setup.html"
+                        title="next chapter">LKMC.setup module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Writer.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.setup.html" title="LKMC.setup module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Version.html" title="LKMC.Version module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

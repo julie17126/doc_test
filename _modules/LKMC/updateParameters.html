@@ -1,0 +1,335 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.updateParameters &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.updateParameters</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module allow user to update/compare their input parameter file.</span>
+
+<span class="sd">@author Miao Yu 2015</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Constants</span> <span class="k">as</span> <span class="n">const</span>
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="commandLineArgs"><a class="viewcode-back" href="../../LKMC/LKMC.updateParameters.html#LKMC.updateParameters.commandLineArgs">[docs]</a><span class="k">def</span> <span class="nf">commandLineArgs</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse command line arguments</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">argparse</span>
+    
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    Update/Compare parameter input file to the latest version.</span>
+<span class="s2">        (default: OLD = &#39;lkmcInput.IN&#39;, NEW = &#39;&lt;LKMC_Folder&gt;/input/lkmcInput.IN&#39;)</span>
+<span class="s2">    ********************************************************</span>
+<span class="s2">    - params not in NEW will be ignored;</span>
+<span class="s2">    - params not in OLD will be added;  </span>
+<span class="s2">    - param values equal to OLD if exist;</span>
+<span class="s2">    - all comments will be from NEW. &quot;&quot;&quot;</span><span class="p">,</span> <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawTextHelpFormatter</span><span class="p">)</span>
+    
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-o&#39;</span><span class="p">,</span><span class="s1">&#39;--old&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;INPUTFILE_old&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;lkmcInput.IN&quot;</span><span class="p">,</span> 
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;OLD: The old version of lkmcInput file, where the parameter values will be kept.</span><span class="se">\n</span><span class="s2">(default = &#39;lkmcInput.IN&#39;)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span><span class="s1">&#39;--new&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;INPUTFILE_new&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">)),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="s2">&quot;lkmcInput.IN&quot;</span><span class="p">),</span> 
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;NEW: The latest version of lkmcInput file</span><span class="se">\n</span><span class="s2">(default = &#39;&lt;LKMC_Folder&gt;/input/lkmcInput.IN&#39;)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span><span class="s1">&#39;--print&#39;</span><span class="p">,</span> <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">dest</span> <span class="o">=</span> <span class="s2">&quot;print_flag&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Option to print out params whose values are different in OLD and NEW</span><span class="se">\n</span><span class="s2">(Only new added params are printed out by default)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span><span class="s1">&#39;--compare&#39;</span><span class="p">,</span> <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">dest</span> <span class="o">=</span> <span class="s2">&quot;compare_flag&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Option to compare params whose values are different in OLD and NEW</span><span class="se">\n</span><span class="s2">(OLD is untouched and no output file)&quot;</span><span class="p">)</span>
+<span class="c1">#     parser.add_argument(&#39;-r&#39;,&#39;--return&#39;, action = &quot;store_true&quot;, dest = &quot;return_flag&quot;, default=False, </span>
+<span class="c1">#                         help=&quot;Return Mode. Count number of params which are deleted, added, changed, respectively&quot;)</span>
+    
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
+
+
+<span class="c1">################################################################################</span>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../LKMC/LKMC.updateParameters.html#LKMC.updateParameters.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    
+    <span class="n">progargs</span> <span class="o">=</span> <span class="n">commandLineArgs</span><span class="p">()</span>
+    <span class="n">inputFile_new</span> <span class="o">=</span> <span class="n">progargs</span><span class="o">.</span><span class="n">INPUTFILE_new</span>
+    <span class="n">inputFile_old</span> <span class="o">=</span> <span class="n">progargs</span><span class="o">.</span><span class="n">INPUTFILE_old</span>
+    <span class="n">print_flag</span> <span class="o">=</span> <span class="n">progargs</span><span class="o">.</span><span class="n">print_flag</span>
+    <span class="n">compare_flag</span> <span class="o">=</span> <span class="n">progargs</span><span class="o">.</span><span class="n">compare_flag</span>
+<span class="c1">#     return_flag = progargs.return_flag</span>
+    <span class="n">return_flag</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">return_flag</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;[Re-run with &#39;-h&#39; for detailed usage]&quot;</span>
+    <span class="k">if</span> <span class="n">compare_flag</span><span class="p">:</span>
+        <span class="n">print_flag</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="n">run</span><span class="p">(</span><span class="n">inputFile_new</span><span class="p">,</span> <span class="n">inputFile_old</span><span class="p">,</span> <span class="n">print_flag</span><span class="p">,</span> <span class="n">compare_flag</span><span class="p">,</span> <span class="n">return_flag</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="run"><a class="viewcode-back" href="../../LKMC/LKMC.updateParameters.html#LKMC.updateParameters.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">inputFile_new</span><span class="p">,</span> <span class="n">inputFile_old</span><span class="p">,</span> <span class="n">print_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">compare_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This script will merge old input file into new input file. </span>
+<span class="sd">    Params not in new will be ignored, params not in old will be added, param values equal to old if exist, all comments will be from new. </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">return_flag</span><span class="p">:</span>
+        <span class="n">compare_flag</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="k">if</span> <span class="n">compare_flag</span><span class="p">:</span>
+        <span class="n">print_flag</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">outputFolder</span><span class="p">,</span> <span class="n">outputFile</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">()</span>
+    
+    <span class="c1"># start merging</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">f_new</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">inputFile_new</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: could not open file: &quot;</span> <span class="o">+</span> <span class="n">inputFile_new</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">f_old</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">inputFile_old</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: could not open file: &quot;</span> <span class="o">+</span> <span class="n">inputFile_old</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">compare_flag</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">f_out</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">outputFile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: could not open file: &quot;</span> <span class="o">+</span> <span class="n">outputFile</span><span class="p">)</span>
+    
+    <span class="n">searchlines</span> <span class="o">=</span> <span class="n">f_old</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">searchlines_n</span> <span class="o">=</span> <span class="n">f_new</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    
+    <span class="n">f_old</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">f_new</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">return_flag</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">compare_flag</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;Comparing two input files...&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;Updating input file...&quot;</span>
+        <span class="k">if</span> <span class="n">print_flag</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;&quot;&quot;***********************************************************************************</span>
+<span class="s2">Parameters which have different values in OLD and NEW are listed here: </span>
+<span class="s2">(OLD = </span><span class="si">%r</span><span class="s2">, NEW = </span><span class="si">%r</span><span class="s2">)</span>
+<span class="s2">(Values in the output file will be value_in_old, except it&#39;s a new added parameter.)</span>
+<span class="s2">***********************************************************************************</span>
+
+<span class="s2">                         Param_Name  :         value_in_new &gt;&gt;         value_in_old</span>
+<span class="s2">      ------------------------------ : -------------------- &gt;&gt; --------------------&quot;&quot;&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">inputFile_old</span><span class="p">,</span> <span class="n">inputFile_new</span><span class="p">)</span>
+    
+    <span class="c1"># First find out all parames which are deleted in the new version</span>
+    <span class="n">findParamName</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">NoDel</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">searchlines</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">const</span><span class="o">.</span><span class="n">ignorLineSign</span> <span class="ow">or</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">sectionStartMark</span><span class="p">)]</span> <span class="o">==</span> <span class="n">const</span><span class="o">.</span><span class="n">sectionStartMark</span> <span class="ow">or</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span> <span class="n">const</span><span class="o">.</span><span class="n">sectionEndMark</span><span class="p">)]</span> <span class="o">==</span> <span class="n">const</span><span class="o">.</span><span class="n">sectionEndMark</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">findParamName</span> <span class="ow">and</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;%&quot;</span><span class="p">:</span>
+            <span class="n">paramName</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">findParamName</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+        <span class="k">elif</span> <span class="n">findParamName</span><span class="p">:</span>
+            <span class="n">findParamName</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">value_o</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+            
+            <span class="c1">#search param in new</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="o">+</span><span class="n">paramName</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">searchlines_n</span><span class="p">:</span>
+                <span class="n">NoDel</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">print_flag</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">return_flag</span><span class="p">:</span>
+                    <span class="nb">print</span> <span class="s2">&quot;&gt;DEL&gt; </span><span class="si">%30s</span><span class="s2"> : </span><span class="si">%20r</span><span class="s2"> &gt;&gt; </span><span class="si">%20r</span><span class="s2">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">paramName</span><span class="p">,</span> <span class="s2">&quot;****&lt;DELETED&gt;****&quot;</span><span class="p">,</span><span class="n">value_o</span><span class="p">)</span> 
+                <span class="k">elif</span> <span class="ow">not</span> <span class="n">return_flag</span><span class="p">:</span>
+                    <span class="nb">print</span> <span class="s2">&quot;    &gt;&gt;Deleted Parameter: </span><span class="si">%26r</span><span class="s2"> : </span><span class="si">%20r</span><span class="s2">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="o">+</span><span class="n">paramName</span><span class="o">+</span><span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot;(&quot;</span><span class="o">+</span><span class="n">value_o</span><span class="o">+</span><span class="s2">&quot;)&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Undefined error in updateParameters: check the format of your input file!&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># keep comments from new, and write to out</span>
+    <span class="n">comments</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">sectionName</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">findParamName</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">NoNew</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">NoDiff</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">searchlines_n</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">const</span><span class="o">.</span><span class="n">ignorLineSign</span><span class="p">:</span>
+            <span class="n">comments</span> <span class="o">+=</span> <span class="n">line</span>
+            <span class="k">continue</span>
+            
+        <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+        
+        <span class="c1">#find section start, write comments for this section</span>
+        <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">sectionStartMark</span><span class="p">)]</span> <span class="o">==</span> <span class="n">const</span><span class="o">.</span><span class="n">sectionStartMark</span><span class="p">:</span>
+            <span class="n">sectionName</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">sectionStartMark</span><span class="p">):</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">compare_flag</span><span class="p">:</span>
+                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">comments</span><span class="p">)</span>
+                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">sectionStartMark</span> <span class="o">+</span> <span class="n">sectionName</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        
+        <span class="c1">#find section end, clear comments and sectionName for this section</span>
+        <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span> <span class="n">const</span><span class="o">.</span><span class="n">sectionEndMark</span><span class="p">)]</span> <span class="o">==</span> <span class="n">const</span><span class="o">.</span><span class="n">sectionEndMark</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">compare_flag</span><span class="p">:</span>
+                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">sectionEndMark</span> <span class="o">+</span> <span class="n">sectionName</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">comments</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">sectionName</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">continue</span>
+        
+        <span class="c1">#read in and write params</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">findParamName</span> <span class="ow">and</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;%&quot;</span><span class="p">:</span>
+            <span class="n">paramName</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">findParamName</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">compare_flag</span><span class="p">:</span>
+                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;%&quot;</span> <span class="o">+</span> <span class="n">paramName</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        
+        <span class="k">elif</span> <span class="n">findParamName</span><span class="p">:</span>
+            <span class="n">findParamName</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">value_n</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+            
+            <span class="c1">#search param value in old</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">lines</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">searchlines</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="o">+</span><span class="n">paramName</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">searchlines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+                    <span class="k">break</span>
+            
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">NoNew</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value_n</span>
+                <span class="k">if</span> <span class="n">print_flag</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">return_flag</span><span class="p">:</span>
+                    <span class="nb">print</span> <span class="s2">&quot;&gt;NEW&gt; </span><span class="si">%30s</span><span class="s2"> : </span><span class="si">%20r</span><span class="s2"> &gt;&gt; </span><span class="si">%20r</span><span class="s2">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">paramName</span><span class="p">,</span> <span class="n">value_n</span><span class="p">,</span> <span class="s2">&quot;***&lt;NEW PARAM&gt;***&quot;</span><span class="p">)</span>
+                    <span class="c1">#print &quot;&gt;NEW&gt;&quot;, paramName, &quot;:&quot;, value_n, &quot;&gt;&gt; None&quot;</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="n">return_flag</span><span class="p">:</span>
+                    <span class="c1">#print &quot;&gt;&gt;NEW Parameter:&quot;, paramName, &quot;:&quot;, value_n</span>
+                    <span class="nb">print</span> <span class="s2">&quot;    &gt;&gt;NEW Parameter: </span><span class="si">%30r</span><span class="s2"> : </span><span class="si">%20r</span><span class="s2">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">paramName</span><span class="p">,</span> <span class="n">value_n</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">value_n</span> <span class="o">!=</span> <span class="n">value</span><span class="p">:</span> 
+                <span class="n">NoDiff</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">print_flag</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">return_flag</span><span class="p">:</span>
+                    <span class="c1">#print &quot;     &quot;, paramName, &quot;:&quot;, value_n, &quot;&gt;&gt;&quot;, value</span>
+                    <span class="nb">print</span> <span class="s2">&quot;      </span><span class="si">%30s</span><span class="s2"> : </span><span class="si">%20r</span><span class="s2"> &gt;&gt; </span><span class="si">%20r</span><span class="s2">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">paramName</span><span class="p">,</span> <span class="n">value_n</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">compare_flag</span><span class="p">:</span>
+                <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Error&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">comments</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">compare_flag</span><span class="p">:</span>
+            <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">comments</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">print_flag</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">return_flag</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;***********************************************************************************&quot;</span>
+    
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">compare_flag</span><span class="p">:</span>
+        <span class="n">f_out</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        
+        <span class="c1"># If input file is outdated. Backup and update.</span>
+        <span class="k">if</span> <span class="n">NoDel</span> <span class="ow">or</span> <span class="n">NoNew</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">datetime</span>
+            <span class="n">backup_file</span> <span class="o">=</span> <span class="n">inputFile_old</span><span class="o">+</span><span class="s2">&quot;.&quot;</span><span class="o">+</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M%S&quot;</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;.backup&quot;</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;mv </span><span class="si">%r</span><span class="s2"> </span><span class="si">%r</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">inputFile_old</span><span class="p">,</span> <span class="n">backup_file</span><span class="p">))</span>
+            <span class="nb">print</span> <span class="s2">&quot;OLD input file is backed up at </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">backup_file</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;cp </span><span class="si">%r</span><span class="s2"> </span><span class="si">%r</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">outputFile</span> <span class="p">,</span><span class="n">inputFile_old</span><span class="p">))</span>
+            
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">outputFolder</span><span class="p">)</span>
+            <span class="c1">#os.unlink(outputFile)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;Your input file is up-to-date. </span><span class="si">%3d</span><span class="s2"> parameters are different from the default. </span><span class="se">\n</span><span class="s2">Re-run with &#39;-c&#39; to see differences.&quot;</span><span class="o">%</span><span class="n">NoDiff</span>
+            
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">outputFolder</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">outputFile</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">compare_flag</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">return_flag</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;Comparing Finished. </span><span class="si">%3d</span><span class="s2"> deleted, </span><span class="si">%3d</span><span class="s2"> new, </span><span class="si">%3d</span><span class="s2"> different parameters</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">NoDel</span><span class="p">,</span> <span class="n">NoNew</span><span class="p">,</span> <span class="n">NoDiff</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">return_flag</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Parameters are updated. </span><span class="si">%3d</span><span class="s2"> deleted, </span><span class="si">%3d</span><span class="s2"> new, </span><span class="si">%3d</span><span class="s2"> different parameters</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">NoDel</span><span class="p">,</span> <span class="n">NoNew</span><span class="p">,</span> <span class="n">NoDiff</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="n">return_flag</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">NoDel</span><span class="p">,</span> <span class="n">NoNew</span><span class="p">,</span> <span class="n">NoDiff</span></div>
+    
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

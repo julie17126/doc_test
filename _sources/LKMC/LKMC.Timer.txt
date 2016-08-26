@@ -1,0 +1,7 @@
+LKMC.Timer module
+=================
+
+.. automodule:: LKMC.Timer
+    :members:
+    :undoc-members:
+    :show-inheritance:

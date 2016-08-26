@@ -1,0 +1,7 @@
+LKMC.clibs.neb module
+=====================
+
+.. automodule:: LKMC.clibs.neb
+    :members:
+    :undoc-members:
+    :show-inheritance:

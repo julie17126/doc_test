@@ -1,0 +1,555 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.ART &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.ART</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">ART method.</span>
+
+<span class="sd">Script to run ART method for saddle point search.</span>
+
+<span class="sd">(C) Tomas Lazauskas (2012)</span>
+<span class="sd">Converted to object by Chris Scott (03/2014)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Timer</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Input</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Minimise</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Vectors</span>
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">ClientServerInterface</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Lanczos</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Utilities</span>
+
+<span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="ARTNMethod"><a class="viewcode-back" href="../../LKMC/LKMC.ART.html#LKMC.ART.ARTNMethod">[docs]</a><span class="k">class</span> <span class="nc">ARTNMethod</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ART Nouveau method.</span>
+<span class="sd">    </span>
+<span class="sd">    See: http://dx.doi.org/10.1155/2012/925278</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialPos</span> <span class="o">=</span> <span class="kc">None</span> 
+        
+<div class="viewcode-block" id="ARTNMethod.setParams"><a class="viewcode-back" href="../../LKMC/LKMC.ART.html#LKMC.ART.ARTNMethod.setParams">[docs]</a>    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set params object.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ARTNMethod.setJobID"><a class="viewcode-back" href="../../LKMC/LKMC.ART.html#LKMC.ART.ARTNMethod.setJobID">[docs]</a>    <span class="k">def</span> <span class="nf">setJobID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jobID</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set job ID.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="o">=</span> <span class="n">jobID</span></div>
+    
+<div class="viewcode-block" id="ARTNMethod.run"><a class="viewcode-back" href="../../LKMC/LKMC.ART.html#LKMC.ART.ARTNMethod.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the dimer method.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">timeArt</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runWithTiming</span><span class="p">(</span><span class="n">inputState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runWithoutTiming</span><span class="p">(</span><span class="n">inputState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">result</span></div>
+    
+    <span class="nd">@Timer</span><span class="o">.</span><span class="n">timerProfile</span>
+<div class="viewcode-block" id="ARTNMethod.runWithTiming"><a class="viewcode-back" href="../../LKMC/LKMC.ART.html#LKMC.ART.ARTNMethod.runWithTiming">[docs]</a>    <span class="k">def</span> <span class="nf">runWithTiming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run with timing.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runMain</span><span class="p">(</span><span class="n">inputState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">result</span></div>
+    
+<div class="viewcode-block" id="ARTNMethod.runWithoutTiming"><a class="viewcode-back" href="../../LKMC/LKMC.ART.html#LKMC.ART.ARTNMethod.runWithoutTiming">[docs]</a>    <span class="k">def</span> <span class="nf">runWithoutTiming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run without timing.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runMain</span><span class="p">(</span><span class="n">inputState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">result</span></div>
+    
+<div class="viewcode-block" id="ARTNMethod.runMain"><a class="viewcode-back" href="../../LKMC/LKMC.ART.html#LKMC.ART.ARTNMethod.runMain">[docs]</a>    <span class="k">def</span> <span class="nf">runMain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputStateIni</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Main run routine.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">inputStateIni</span><span class="p">)</span>
+        
+        <span class="n">climb</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">climbCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">artParam</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">artParam</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">le_rVector</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">le_rVectorFull</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numConsecNegEVs</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># get Lanczos convergence minimisers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saddleFinder</span> <span class="o">=</span> <span class="n">Lanczos</span><span class="o">.</span><span class="n">LanczosLBFGSSaddleFinder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saddleFinder</span><span class="o">.</span><span class="n">setJobID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+        
+        <span class="c1"># Stores initial positions of Atoms</span>
+        <span class="n">initialPos</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+        
+        <span class="c1"># Calculates initial forces</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">defectFlag</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">correctTE</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failed on calcForce&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;ART FAILED: CALC FORCE 1&quot;</span>
+        
+        <span class="n">energyOrig</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">totalEnergy</span>
+    
+        <span class="c1"># Checks if the defect list is defined</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">defectList</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;ART Failed: no defects&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;ART FAILED: NO DEFECTS&quot;</span>
+            
+        <span class="c1"># Estimates initial, min and max step sizes</span>
+        <span class="n">translationStep</span> <span class="o">=</span> <span class="n">artParam</span><span class="o">.</span><span class="n">artTranslationStep</span>
+        <span class="n">minStepSize</span> <span class="o">=</span> <span class="n">translationStep</span> <span class="o">/</span> <span class="mf">5.0</span>
+        <span class="n">maxStepSize</span> <span class="o">=</span> <span class="n">translationStep</span> <span class="o">*</span> <span class="mf">5.0</span>
+        
+        <span class="k">if</span> <span class="n">artParam</span><span class="o">.</span><span class="n">artDebugMode</span><span class="p">:</span>
+            <span class="n">randomNumber</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">randomNumber</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+            
+        <span class="n">initialStep</span> <span class="o">=</span> <span class="n">translationStep</span> <span class="o">*</span> <span class="n">randomNumber</span> <span class="o">*</span> <span class="mf">2.0</span>
+        
+        <span class="k">assert</span> <span class="n">lattice</span><span class="o">.</span><span class="n">NSubSystem</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">fixSearchObj</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">TransitionFix</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Fixing search&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span> <span class="o">=</span> <span class="n">fixSearchObj</span><span class="o">.</span><span class="n">displacementVector</span>
+            <span class="n">initialStep</span> <span class="o">=</span> <span class="n">fixSearchObj</span><span class="o">.</span><span class="n">stepSize</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">le_rVectorFull</span> <span class="o">=</span> <span class="n">fixSearchObj</span><span class="o">.</span><span class="n">rVector</span>
+        
+        <span class="c1"># Gets the defects subsystem and initiates the first random move</span>
+        <span class="n">lattice</span><span class="o">.</span><span class="n">initiateDefectDisplacement</span><span class="p">(</span><span class="n">initialStep</span><span class="p">,</span> <span class="n">artParam</span><span class="p">)</span>
+        
+        <span class="c1"># creating a vector to save the difference between original defect subsystem positions and new ones</span>
+        <span class="n">subSystemDiffVec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">lattice</span><span class="o">.</span><span class="n">NSubSystem</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            
+        <span class="c1"># Some initial parameters</span>
+        <span class="n">FdotFPrev</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">FPrevdotFPrevPrev</span> <span class="o">=</span> <span class="mf">0.0</span>
+          
+        <span class="c1"># Climbs up</span>
+        <span class="n">stepCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">climb</span><span class="p">:</span>          
+            <span class="k">if</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">checkJobStatus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;ART FAILED: JOB STATUS&quot;</span>
+            
+            <span class="c1"># saving forces acting before translation</span>
+            <span class="n">FPrev</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+    
+            <span class="c1"># initiating atom movement</span>
+            <span class="k">if</span> <span class="n">climbCount</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">Vectors</span><span class="o">.</span><span class="n">applyPartialDisplacement</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">translationStep</span> <span class="o">*</span> <span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">)</span>
+            
+            <span class="c1"># Calculating forces on displaced lattice by translation step</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">defectFlag</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">correctTE</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failed on calcForce&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;ART FAILED: CALC FORCE 2&quot;</span>
+            
+            <span class="n">energy</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">totalEnergy</span>
+                    
+            <span class="n">barrier</span> <span class="o">=</span> <span class="n">energy</span> <span class="o">-</span> <span class="n">energyOrig</span>
+            
+            <span class="c1"># Checks for displacements</span>
+            <span class="n">maxMoveAtomIdx</span><span class="p">,</span> <span class="n">maxMove</span><span class="p">,</span> <span class="n">avgMove</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">maxMovement</span><span class="p">(</span><span class="n">initialPos</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">)</span>
+            
+            <span class="c1"># Gets the difference between original defect subsystem positions and new ones.</span>
+            <span class="n">subSystemDiffVec</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">separationVectorSubSystem</span><span class="p">(</span><span class="n">initialPos</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            
+            <span class="c1"># Calculates the dot product between vectors: position difference vector and force vector acting on defect subsystem atoms</span>
+            <span class="n">FdotRP</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">partialDotProduct</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">subSystemDiffVec</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">)</span>
+            
+            <span class="c1"># Makes new translation vector</span>
+            <span class="c1">#TODO: write in C</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">NSubSystem</span><span class="p">):</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                
+                <span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">index</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">artParam</span><span class="o">.</span><span class="n">artAplha</span><span class="p">)</span> <span class="o">*</span> <span class="n">FdotRP</span> <span class="o">*</span> <span class="n">subSystemDiffVec</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">index</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">artParam</span><span class="o">.</span><span class="n">artAplha</span><span class="p">)</span> <span class="o">*</span> <span class="n">FdotRP</span> <span class="o">*</span> <span class="n">subSystemDiffVec</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">index</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">artParam</span><span class="o">.</span><span class="n">artAplha</span><span class="p">)</span> <span class="o">*</span> <span class="n">FdotRP</span> <span class="o">*</span> <span class="n">subSystemDiffVec</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
+            
+            <span class="c1"># Normalizes translation vector</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">normalise</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span><span class="p">)</span>
+            
+            <span class="c1"># Checks if we need to increase/decrease translation step depending whether the forces increased</span>
+            <span class="n">FdotFPrev</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">dotProduct</span><span class="p">(</span><span class="n">FPrev</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+            
+            
+            <span class="n">absValue</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">FPrevdotFPrevPrev</span> <span class="o">-</span> <span class="n">FdotFPrev</span><span class="p">)</span> <span class="o">/</span> <span class="n">FdotFPrev</span>
+            
+            <span class="k">if</span> <span class="p">(</span><span class="n">absValue</span> <span class="o">&lt;</span> <span class="mf">0.2</span><span class="p">):</span>
+                <span class="n">translationStep</span> <span class="o">*=</span> <span class="mf">1.2</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">translationStep</span> <span class="o">/=</span> <span class="mf">2.0</span>
+            
+            <span class="k">if</span> <span class="n">translationStep</span> <span class="o">&gt;</span> <span class="n">maxStepSize</span><span class="p">:</span>
+                <span class="n">translationStep</span> <span class="o">=</span> <span class="n">maxStepSize</span>
+            <span class="k">elif</span> <span class="n">translationStep</span> <span class="o">&lt;</span> <span class="n">minStepSize</span><span class="p">:</span>
+                <span class="n">translationStep</span> <span class="o">=</span> <span class="n">minStepSize</span>
+            
+            <span class="n">FPrev</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+            <span class="n">FPrevdotFPrevPrev</span> <span class="o">=</span> <span class="n">FdotFPrev</span>
+            
+            <span class="n">climbCount</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Step </span><span class="si">%d</span><span class="s2">. Barrier </span><span class="si">%f</span><span class="s2">; MaxMoveAtom </span><span class="si">%d</span><span class="s2">; MaxAtomMove </span><span class="si">%f</span><span class="s2">; StepSize </span><span class="si">%f</span><span class="s2">; FdotRP </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">climbCount</span><span class="p">,</span> <span class="n">barrier</span><span class="p">,</span> <span class="n">maxMoveAtomIdx</span><span class="p">,</span> 
+                                                                                                           <span class="n">maxMove</span><span class="p">,</span> <span class="n">translationStep</span><span class="p">,</span> <span class="n">FdotRP</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">barrier</span> <span class="o">&gt;</span> <span class="n">artParam</span><span class="o">.</span><span class="n">artMaxBarrier</span> <span class="ow">or</span> <span class="n">maxMove</span> <span class="o">&gt;</span> <span class="n">artParam</span><span class="o">.</span><span class="n">artMaxMoveDistance</span> <span class="ow">or</span> <span class="n">lattice</span><span class="o">.</span><span class="n">funcEval</span> <span class="o">&gt;</span> <span class="n">artParam</span><span class="o">.</span><span class="n">artMaxFuncEval</span><span class="p">:</span>
+                <span class="n">climb</span> <span class="o">=</span> <span class="kc">False</span>
+                
+                <span class="k">if</span> <span class="n">barrier</span> <span class="o">&gt;</span> <span class="n">artParam</span><span class="o">.</span><span class="n">artMaxBarrier</span><span class="p">:</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failure: barrier too high (</span><span class="si">%f</span><span class="s2"> &gt; </span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">barrier</span><span class="p">,</span> <span class="n">artParam</span><span class="o">.</span><span class="n">artMaxBarrier</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                    <span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;ART FAILED: max barrier too high&quot;</span>
+                
+                <span class="k">elif</span> <span class="n">maxMove</span> <span class="o">&gt;</span> <span class="n">artParam</span><span class="o">.</span><span class="n">artMaxMoveDistance</span><span class="p">:</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failure: max move too high (</span><span class="si">%f</span><span class="s2"> &gt; </span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">maxMove</span><span class="p">,</span> <span class="n">artParam</span><span class="o">.</span><span class="n">artMaxMoveDistance</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                    <span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;ART FAILED: max move too far&quot;</span>
+                
+                <span class="k">elif</span> <span class="n">lattice</span><span class="o">.</span><span class="n">funcEval</span> <span class="o">&gt;</span> <span class="n">artParam</span><span class="o">.</span><span class="n">artMaxFuncEval</span><span class="p">:</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failure: max move too high (</span><span class="si">%f</span><span class="s2"> &gt; </span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">funcEval</span><span class="p">,</span> <span class="n">artParam</span><span class="o">.</span><span class="n">artMaxFuncEval</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                    <span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;ART FAILED: max function evaluations exceeded&quot;</span>
+                
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failed: unknown reason (this shouldn&#39;t happen)&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                    <span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;ART FAILED: unknown reason&quot;</span>
+                
+                <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">failReason</span>
+            
+            <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">artUseLanczos</span> <span class="ow">and</span> <span class="n">stepCount</span> <span class="o">&gt;</span> <span class="n">params</span><span class="o">.</span><span class="n">artMinStepBeforeLanczos</span><span class="p">:</span>
+                <span class="n">lattice</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+                
+                <span class="n">le_mainIndexes</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span>
+                <span class="n">le_includeAtoms</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">le_mainIndexes</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">le_rVector</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">le_rVectorFull</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Using generated initial Lanczos Vector&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">le_rVector</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">extractVector3</span><span class="p">(</span><span class="n">le_mainIndexes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">le_rVectorFull</span><span class="p">)</span>
+                
+                <span class="n">status</span><span class="p">,</span> <span class="n">lowestEV</span><span class="p">,</span> <span class="n">resultVector</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Lanczos</span><span class="o">.</span><span class="n">lanczosMethodForASystem</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">le_mainIndexes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">le_rVector</span><span class="p">,</span> 
+                                                                                                   <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">normEigenVec</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
+                                                                                                   <span class="n">includeAtoms</span><span class="o">=</span><span class="n">le_includeAtoms</span><span class="p">,</span> <span class="n">returnMode</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Lanczos failed (looking for lowest eigenvalue)&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;ART FAILED: Lanczos looking for lowest EV&quot;</span>
+                
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">le_rVector</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">le_rVector</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">le_mainIndexes</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">le_rVector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">le_mainIndexes</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                
+                <span class="c1"># store eigenvector to use as initial guess at next step</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">le_rVector</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">extractVector3</span><span class="p">(</span><span class="n">le_mainIndexes</span><span class="p">,</span> <span class="n">resultVector</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">le_rVectorFull</span> <span class="o">=</span> <span class="n">resultVector</span>
+                
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Calculated lowest eigenvalue: </span><span class="si">%f</span><span class="s2"> (</span><span class="si">%d</span><span class="s2"> iterations)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lowestEV</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                
+                <span class="c1"># now we decide whether to start lanczos</span>
+                <span class="c1"># is the eigenvalue really negative</span>
+                <span class="k">if</span> <span class="n">lowestEV</span> <span class="o">&lt;</span> <span class="n">params</span><span class="o">.</span><span class="n">artNegEVThreshold</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">numConsecNegEVs</span> <span class="o">+=</span> <span class="mi">1</span>
+                    
+                    <span class="c1"># have we seen enough negative eigenvalues in a row</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numConsecNegEVs</span> <span class="o">&gt;=</span> <span class="n">params</span><span class="o">.</span><span class="n">artNumNegBeforeLanczos</span><span class="p">:</span>
+                        
+                        
+                        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Converging to saddle using Lanczos&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                        
+                        <span class="c1"># converge to saddle</span>
+                        <span class="n">climb</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convergeToSaddle</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+                        
+                        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;ART FAILED: Lanczos converge failed&quot;</span>
+                        
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">status</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">correctTE</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                            
+                            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                                <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;ART FAILED: post Lanczos converge calcForce&quot;</span>
+                            
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">barrier</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">-</span> <span class="n">energyOrig</span>
+                                <span class="k">return</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">barrier</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+                                
+                                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Success: Saddle point found! Barrier </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">barrier</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">numConsecNegEVs</span> <span class="o">=</span> <span class="mi">0</span>
+            
+            <span class="k">elif</span> <span class="n">FdotRP</span> <span class="o">&gt;</span> <span class="n">artParam</span><span class="o">.</span><span class="n">artFdotRPvalue</span> <span class="ow">and</span> <span class="n">maxMove</span> <span class="o">&gt;</span> <span class="n">artParam</span><span class="o">.</span><span class="n">artMaxMoveCriteria</span><span class="p">:</span>
+                <span class="n">climb</span> <span class="o">=</span> <span class="kc">False</span>
+                
+                <span class="n">status</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">correctTE</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failed on calcForce&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;ART FAILED: CALC FORCE 3&quot;</span>
+                
+                <span class="n">finalBarrier</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">-</span> <span class="n">energyOrig</span>         
+                
+                <span class="n">finalSep</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">initialPos</span><span class="p">[</span><span class="n">maxMoveAtomIdx</span><span class="o">*</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">maxMoveAtomIdx</span><span class="o">*</span><span class="mi">3</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> 
+                                     <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">initialPos</span><span class="p">[</span><span class="n">maxMoveAtomIdx</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">maxMoveAtomIdx</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> 
+                                     <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">initialPos</span><span class="p">[</span><span class="n">maxMoveAtomIdx</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">maxMoveAtomIdx</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+                
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Saddle point found! Barrier </span><span class="si">%f</span><span class="s2">; Steps used: </span><span class="si">%d</span><span class="s2">; MaxMoveAtom </span><span class="si">%d</span><span class="s2">; MaxMoveAtomDistance </span><span class="si">%f</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">finalBarrier</span><span class="p">,</span> <span class="n">climbCount</span><span class="p">,</span> 
+                                                                                                                           <span class="n">maxMoveAtomIdx</span><span class="p">,</span> <span class="n">finalSep</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                
+                <span class="c1"># return saddle and barrier and decide what to do with them elsewhere</span>
+                <span class="k">return</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">finalBarrier</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        
+            <span class="n">stepCount</span> <span class="o">+=</span> <span class="mi">1</span></div>
+    
+<div class="viewcode-block" id="ARTNMethod.prepareForConvergence"><a class="viewcode-back" href="../../LKMC/LKMC.ART.html#LKMC.ART.ARTNMethod.prepareForConvergence">[docs]</a>    <span class="k">def</span> <span class="nf">prepareForConvergence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepares rVector and index lists.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># not sure this is required!</span>
+        <span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="c1"># prepare main indexes and initial guess at eigenvector</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">saddleConvergeRadius</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">saddleConvergeRadius</span><span class="p">)</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">extractVector3</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">le_rVectorFull</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">)</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">le_rVector</span>
+        
+        <span class="c1"># prepare include atoms</span>
+        <span class="n">includeAtoms</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span><span class="p">)</span>
+        
+        <span class="c1"># store main indexes and include atoms on lattice object</span>
+        <span class="n">lattice</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">mainIndexes</span>
+        <span class="n">lattice</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="o">=</span> <span class="n">includeAtoms</span></div>
+    
+<div class="viewcode-block" id="ARTNMethod.convergeToSaddle"><a class="viewcode-back" href="../../LKMC/LKMC.ART.html#LKMC.ART.ARTNMethod.convergeToSaddle">[docs]</a>    <span class="k">def</span> <span class="nf">convergeToSaddle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converge to saddle point using Lanczos/LBFGS</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># minimise atoms that were held fixed during ART</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lanczosMinOuterFirst</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Minimising atoms that were held fixed before Lanczos&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">prms</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">prms</span><span class="o">.</span><span class="n">minimizationType</span> <span class="o">=</span> <span class="n">prms</span><span class="o">.</span><span class="n">lanczosMinOuterType</span>
+            <span class="n">prms</span><span class="o">.</span><span class="n">minimizationCriteria</span> <span class="o">=</span> <span class="n">prms</span><span class="o">.</span><span class="n">lanczosMinOuterCriteria</span>
+            <span class="n">prms</span><span class="o">.</span><span class="n">minimizationTolerance</span> <span class="o">=</span> <span class="n">prms</span><span class="o">.</span><span class="n">lanczosMinOuterTol</span>
+            <span class="n">prms</span><span class="o">.</span><span class="n">minimizationExclusion</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">prms</span><span class="o">.</span><span class="n">LBFGSTolerance</span> <span class="o">=</span> <span class="n">prms</span><span class="o">.</span><span class="n">lanczosMinOuterLBFGSTol</span>
+            
+            <span class="n">inipos</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+            
+            <span class="n">outmin</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">getMinimiser</span><span class="p">(</span><span class="n">prms</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">outmin</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Min outer atoms before Lanczos failed (</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">status</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">return</span> <span class="mi">134</span>
+            
+            <span class="n">sep</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">separation</span><span class="p">(</span><span class="n">inipos</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">)</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Separation after minimising outer atoms after Lanczos = </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sep</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># prepare to converge to saddle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepareForConvergence</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+        
+        <span class="c1"># converge to saddle</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saddleFinder</span><span class="o">.</span><span class="n">converge</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+                     
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failed (Lanczos-LBFGS saddle finder)&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">status</span></div></div>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="commandLineArgs"><a class="viewcode-back" href="../../LKMC/LKMC.ART.html#LKMC.ART.commandLineArgs">[docs]</a><span class="k">def</span> <span class="nf">commandLineArgs</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse command line arguments</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">argparse</span>
+    
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Run the ART method.&quot;</span><span class="p">)</span>
+    
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;inputFile&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The input lattice file.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;refFile&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The reference lattice file.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;paramFile&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;lkmcInput.IN&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;LKMC input file (default=lkmcInput.IN)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;saddleFile&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;File for storing saddle state to (default=None)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-P&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;profileCode&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Profile the code using the hotshot module (not for production) (default=False)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;statsFile&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;File for dumping profiling stats to (default=None)&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
+
+<span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../LKMC/LKMC.ART.html#LKMC.ART.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main routine from command line</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">progargs</span> <span class="o">=</span> <span class="n">commandLineArgs</span><span class="p">()</span>
+    
+    <span class="n">params</span> <span class="o">=</span> <span class="n">Input</span><span class="o">.</span><span class="n">getLKMCParams</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">progargs</span><span class="o">.</span><span class="n">paramFile</span><span class="p">)</span>
+    <span class="n">Input</span><span class="o">.</span><span class="n">readGlobals</span><span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">paramFile</span><span class="p">)</span>
+    
+<span class="c1">#     params.printInputParameters()</span>
+    
+    <span class="n">initialState</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">inputFile</span><span class="p">)</span>    
+
+    <span class="c1"># minimiser</span>
+    <span class="n">minimiser</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">getMinimiser</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    
+    <span class="c1"># minimise initial</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">minimiser</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">initialState</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;MIN INI FAILED&quot;</span><span class="p">)</span>
+    
+    <span class="n">referanceState</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">refFile</span><span class="p">)</span>
+    
+    <span class="n">initialState</span><span class="o">.</span><span class="n">findDefects</span><span class="p">(</span><span class="n">referanceState</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+    
+    <span class="n">initialState</span><span class="o">.</span><span class="n">currentDefectVolume</span> <span class="o">=</span> <span class="n">initialState</span><span class="o">.</span><span class="n">defectVolumes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">initialState</span><span class="o">.</span><span class="n">currentVolumeIndex</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="n">runner</span> <span class="o">=</span> <span class="n">ARTNMethod</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">progargs</span><span class="o">.</span><span class="n">profileCode</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">Profiling</span>
+        
+        <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">initialState</span><span class="p">,)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">stats</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">Profiling</span><span class="o">.</span><span class="n">profileMethod</span><span class="p">(</span><span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">printStats</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">statsFile</span><span class="o">=</span><span class="n">progargs</span><span class="o">.</span><span class="n">statsFile</span><span class="p">)</span>
+        
+        <span class="n">saddle</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">barrier</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">initialState</span><span class="p">)</span>
+        
+        <span class="n">saddle</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">barrier</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">saddle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;SUCCESS: BARRIER: </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">barrier</span>
+    
+    <span class="k">if</span> <span class="n">saddle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">progargs</span><span class="o">.</span><span class="n">saddleFile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">saddle</span><span class="o">.</span><span class="n">writeLattice</span><span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">saddleFile</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

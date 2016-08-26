@@ -1,0 +1,7 @@
+LKMC.tests.base module
+======================
+
+.. automodule:: LKMC.tests.base
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,442 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Plot &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Plot</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for plotting.</span>
+
+<span class="sd">Copyright Chris Scott 2012</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">plotImported</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">matplotlib</span>
+
+    <span class="c1">#matplotlib.use(&#39;PDF&#39;)</span>
+    <span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;Agg&#39;</span><span class="p">)</span>
+
+    <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">rc</span>
+<span class="c1">#    if not os.uname()[1][:5] == &quot;hydra&quot;:</span>
+<span class="c1">#        rc(&#39;text&#39;, usetex=True)</span>
+    <span class="n">rc</span><span class="p">(</span><span class="s1">&#39;font&#39;</span><span class="p">,</span><span class="o">**</span><span class="p">{</span><span class="s1">&#39;family&#39;</span><span class="p">:</span><span class="s1">&#39;sans-serif&#39;</span><span class="p">,</span><span class="s1">&#39;sans-serif&#39;</span><span class="p">:[</span><span class="s1">&#39;Helvetica&#39;</span><span class="p">]})</span>
+    <span class="kn">import</span> <span class="nn">pylab</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="nb">print</span> <span class="s2">&quot;WARNING: could not import matplotlib: turning plotting off&quot;</span>
+    <span class="n">plotImported</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">scipy</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="nb">print</span> <span class="s2">&quot;WARNING: could not import scipy: turning plotting off&quot;</span>
+    <span class="n">plotImported</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="nb">print</span> <span class="s2">&quot;WARNING: could not import numpy: turning plotting off&quot;</span>
+    <span class="n">plotImported</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+
+
+<span class="c1">################################################################################</span>
+<span class="c1"># histogram</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="histogram"><a class="viewcode-back" href="../../LKMC/LKMC.Plot.html#LKMC.Plot.histogram">[docs]</a><span class="k">def</span> <span class="nf">histogram</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">xlabel</span><span class="p">,</span> <span class="n">ylabel</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">textsize</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">binWidth</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot distribution of barriers.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">plotImported</span><span class="p">:</span>
+        <span class="k">return</span>
+    
+    <span class="n">pars</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">SubplotParams</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.14</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span><span class="n">subplotpars</span><span class="o">=</span><span class="n">pars</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    
+    <span class="n">NDatas</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    
+    <span class="n">maxData</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">minData</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    
+    <span class="n">xmin</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">if</span> <span class="n">xmax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">xmax</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">while</span> <span class="n">xmax</span> <span class="o">&lt;</span> <span class="n">maxData</span><span class="p">:</span>
+            <span class="n">xmax</span> <span class="o">+=</span> <span class="n">binWidth</span>
+    
+    <span class="c1"># number of bins</span>
+    <span class="n">NBins</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">xmax</span> <span class="o">-</span> <span class="n">xmin</span><span class="p">)</span> <span class="o">/</span> <span class="n">binWidth</span><span class="p">)</span>
+    
+    <span class="c1"># histogram</span>
+    <span class="n">n</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">patches</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">NBins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">))</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">grid</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    
+    <span class="k">if</span> <span class="n">ymax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ymax</span><span class="o">=</span><span class="n">ymax</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">get_major_ticks</span><span class="p">():</span>
+        <span class="n">tick</span><span class="o">.</span><span class="n">label1</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">textsize</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">get_major_ticks</span><span class="p">():</span>
+        <span class="n">tick</span><span class="o">.</span><span class="n">label1</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">textsize</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1"># Stacked bar chart</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="stackedBarChart"><a class="viewcode-back" href="../../LKMC/LKMC.Plot.html#LKMC.Plot.stackedBarChart">[docs]</a><span class="k">def</span> <span class="nf">stackedBarChart</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">xvals</span><span class="p">,</span> <span class="n">y1avals</span><span class="p">,</span> <span class="n">y1bvals</span><span class="p">,</span> <span class="n">y2vals</span><span class="p">,</span> <span class="n">y1label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">y2label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">y1aleg</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">y1bleg</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">y2leg</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">textsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;edge&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.35</span><span class="p">):</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">plotImported</span><span class="p">:</span>
+        <span class="k">return</span>
+    
+    <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xvals</span><span class="p">))</span>
+    
+    <span class="n">pars</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">SubplotParams</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.14</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span><span class="n">subplotpars</span><span class="o">=</span><span class="n">pars</span><span class="p">)</span>
+    <span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    
+    <span class="n">p1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">y1avals</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">p2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">y1bvals</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="n">y1avals</span><span class="p">)</span>
+    
+    <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
+    
+    <span class="n">p3</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">ind</span><span class="o">+</span><span class="n">width</span><span class="p">,</span> <span class="n">y2vals</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">ind</span><span class="o">+</span><span class="n">width</span><span class="p">,</span> <span class="n">xvals</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span> <span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p3</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">(</span><span class="n">y1aleg</span><span class="p">,</span> <span class="n">y1bleg</span><span class="p">,</span> <span class="n">y2leg</span><span class="p">),</span> <span class="n">shadow</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+    
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">y1label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">y2label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">grid</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1"># Bar plot</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="barPlot"><a class="viewcode-back" href="../../LKMC/LKMC.Plot.html#LKMC.Plot.barPlot">[docs]</a><span class="k">def</span> <span class="nf">barPlot</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">xvals</span><span class="p">,</span> <span class="n">xlabel</span><span class="p">,</span> <span class="n">yvals</span><span class="p">,</span> <span class="n">ylabel</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">textsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;edge&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Bar chart</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">plotImported</span><span class="p">:</span>
+        <span class="k">return</span>
+    
+    <span class="n">pars</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">SubplotParams</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.14</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span><span class="n">subplotpars</span><span class="o">=</span><span class="n">pars</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    <span class="n">yp</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">if</span> <span class="n">align</span> <span class="o">!=</span> <span class="s2">&quot;edge&quot;</span> <span class="ow">and</span> <span class="n">align</span> <span class="o">!=</span> <span class="s2">&quot;center&quot;</span><span class="p">:</span>
+        <span class="n">align</span> <span class="o">=</span> <span class="s2">&quot;edge&quot;</span>
+    
+    
+    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">xvals</span><span class="p">,</span> <span class="n">yvals</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="n">align</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">grid</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    
+    <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">get_major_ticks</span><span class="p">():</span>
+        <span class="n">tick</span><span class="o">.</span><span class="n">label1</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">textsize</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">get_major_ticks</span><span class="p">():</span>
+        <span class="n">tick</span><span class="o">.</span><span class="n">label1</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">textsize</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1"># Line plot using stineman interpolation</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="linePlot"><a class="viewcode-back" href="../../LKMC/LKMC.Plot.html#LKMC.Plot.linePlot">[docs]</a><span class="k">def</span> <span class="nf">linePlot</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">xvals</span><span class="p">,</span> <span class="n">xlabel</span><span class="p">,</span> <span class="n">yvals</span><span class="p">,</span> <span class="n">ylabel</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">textsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">useInterp</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">yerror</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">xlimmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlimmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylimmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylimmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Do a line plot of data using stineman interpolation.</span>
+<span class="sd">    &#39;ymax&#39; should be specified as the index in the arrays of the maximum</span>
+<span class="sd">                (so that interpolation doesn&#39;t change it).</span>
+<span class="sd">    &#39;label&#39; goes in the legend if you specify it.</span>
+<span class="sd">    Saves graph in &#39;filename&#39;.pdf.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">plotImported</span><span class="p">:</span>
+        <span class="k">return</span>
+    
+    <span class="n">pars</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">SubplotParams</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.14</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span><span class="n">subplotpars</span><span class="o">=</span><span class="n">pars</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    <span class="n">yp</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">if</span> <span class="n">ymax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># make sure the max value is the max after interpolation</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xvals</span><span class="p">)</span>
+        
+        <span class="c1"># interpolate and plot up to max</span>
+        <span class="k">if</span> <span class="n">useInterp</span><span class="p">:</span>
+            <span class="n">xi</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span> <span class="n">xvals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xvals</span><span class="p">[</span><span class="n">ymax</span><span class="p">],</span> <span class="mi">100</span> <span class="p">)</span>
+            <span class="n">yi</span> <span class="o">=</span> <span class="n">pylab</span><span class="o">.</span><span class="n">stineman_interp</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">xvals</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">ymax</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">yvals</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">ymax</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">yp</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+        
+            <span class="c1"># interpolate and plot from max</span>
+            <span class="n">xi</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xvals</span><span class="p">[</span><span class="n">ymax</span><span class="p">],</span> <span class="n">xvals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">100</span><span class="p">)</span>
+            <span class="n">yi</span> <span class="o">=</span> <span class="n">pylab</span><span class="o">.</span><span class="n">stineman_interp</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">xvals</span><span class="p">[</span><span class="n">ymax</span><span class="p">:</span><span class="n">length</span><span class="p">],</span> <span class="n">yvals</span><span class="p">[</span><span class="n">ymax</span><span class="p">:</span><span class="n">length</span><span class="p">],</span> <span class="n">yp</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># plot points</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">xvals</span><span class="p">,</span> <span class="n">yvals</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">yerror</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">ecolor</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># interpolate and plot</span>
+        <span class="k">if</span> <span class="n">useInterp</span><span class="p">:</span>
+            <span class="n">xi</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span> <span class="n">xvals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xvals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">100</span> <span class="p">)</span>
+            <span class="n">yi</span> <span class="o">=</span> <span class="n">pylab</span><span class="o">.</span><span class="n">stineman_interp</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">xvals</span><span class="p">,</span> <span class="n">yvals</span><span class="p">,</span> <span class="n">yp</span><span class="p">)</span>
+        
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Stineman&quot;</span><span class="p">)</span>
+            
+        <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">xvals</span><span class="p">,</span> <span class="n">yvals</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">yerror</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">ecolor</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">get_major_ticks</span><span class="p">():</span>
+        <span class="n">tick</span><span class="o">.</span><span class="n">label1</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">textsize</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">get_major_ticks</span><span class="p">():</span>
+        <span class="n">tick</span><span class="o">.</span><span class="n">label1</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">textsize</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">leg</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">get_texts</span><span class="p">():</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">textsize</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">xlimmin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="n">xlimmin</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">xlimmax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xmax</span><span class="o">=</span><span class="n">xlimmax</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">ylimmin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ymin</span><span class="o">=</span><span class="n">ylimmin</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">ylimmax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ymax</span><span class="o">=</span><span class="n">ylimmax</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">grid</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    
+    <span class="k">if</span> <span class="n">tight</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+    
+
+<span class="c1">################################################################################</span>
+<span class="c1"># Line plot using stineman interpolation</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="multiLinePlot"><a class="viewcode-back" href="../../LKMC/LKMC.Plot.html#LKMC.Plot.multiLinePlot">[docs]</a><span class="k">def</span> <span class="nf">multiLinePlot</span><span class="p">(</span> <span class="n">filename</span><span class="p">,</span> <span class="n">xvalsList</span><span class="p">,</span> <span class="n">xlabel</span><span class="p">,</span> <span class="n">yvalsList</span><span class="p">,</span> <span class="n">ylabel</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ymin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">textsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">colours</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">useInterp</span><span class="o">=</span><span class="mi">1</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Do a line plot of multiple sets of data.</span>
+<span class="sd">    Data is interpolated using Stineman interpolation</span>
+<span class="sd">    &#39;xvalsList&#39;: list of arrays containing xvals for each set of data</span>
+<span class="sd">    &#39;yvalsList&#39;: corresponding list of arrays containing y values</span>
+<span class="sd">    &#39;labels&#39;: list containing a label for each set of data</span>
+<span class="sd">    &#39;ymax&#39;: boolean, if true will interpolate up to and down</span>
+<span class="sd">        from the max value</span>
+<span class="sd">    &#39;ymin&#39;: boolean, equivalent to ymax</span>
+<span class="sd">    Saves graph in &#39;filename&#39;.pdf.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">plotImported</span><span class="p">:</span>
+        <span class="k">return</span>
+    
+    <span class="n">pars</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">SubplotParams</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.14</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span><span class="n">subplotpars</span><span class="o">=</span><span class="n">pars</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    <span class="n">yp</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">if</span> <span class="n">colours</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">colours</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;yellow&quot;</span><span class="p">,</span> <span class="s2">&quot;orange&quot;</span><span class="p">,</span> <span class="s2">&quot;black&quot;</span><span class="p">]</span>
+    
+    <span class="k">for</span> <span class="n">plotcount</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xvalsList</span><span class="p">)):</span>
+        <span class="n">xvals</span> <span class="o">=</span> <span class="n">xvalsList</span><span class="p">[</span><span class="n">plotcount</span><span class="p">]</span>
+        <span class="n">yvals</span> <span class="o">=</span> <span class="n">yvalsList</span><span class="p">[</span><span class="n">plotcount</span><span class="p">]</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">plotcount</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">ymax</span> <span class="ow">or</span> <span class="n">ymin</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ymax</span><span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">yvals</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ymin</span><span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">yvals</span><span class="p">)</span>
+            
+            <span class="c1"># make sure the max value is the max after interpolation</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xvals</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">useInterp</span><span class="p">:</span>
+                <span class="c1"># interpolate and plot up to max</span>
+                <span class="n">xi</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span> <span class="n">xvals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xvals</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="mi">100</span> <span class="p">)</span>
+                <span class="n">yi</span> <span class="o">=</span> <span class="n">pylab</span><span class="o">.</span><span class="n">stineman_interp</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">xvals</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">ymax</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">yvals</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">index</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">yp</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colours</span><span class="p">[</span><span class="n">plotcount</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">colours</span><span class="p">)])</span>
+                
+                <span class="c1"># interpolate and plot from max</span>
+                <span class="n">xi</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xvals</span><span class="p">[</span><span class="n">ymax</span><span class="p">],</span> <span class="n">xvals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">100</span><span class="p">)</span>
+                <span class="n">yi</span> <span class="o">=</span> <span class="n">pylab</span><span class="o">.</span><span class="n">stineman_interp</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">xvals</span><span class="p">[</span><span class="n">index</span><span class="p">:</span><span class="n">length</span><span class="p">],</span> <span class="n">yvals</span><span class="p">[</span><span class="n">index</span><span class="p">:</span><span class="n">length</span><span class="p">],</span> <span class="n">yp</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colours</span><span class="p">[</span><span class="n">plotcount</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">colours</span><span class="p">)])</span>
+            
+            <span class="c1"># plot points</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xvals</span><span class="p">,</span> <span class="n">yvals</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colours</span><span class="p">[</span><span class="n">plotcount</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">colours</span><span class="p">)],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">useInterp</span><span class="p">:</span>
+                <span class="c1"># interpolate and plot</span>
+                <span class="n">xi</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span> <span class="n">xvals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xvals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">100</span> <span class="p">)</span>
+                <span class="n">yi</span> <span class="o">=</span> <span class="n">pylab</span><span class="o">.</span><span class="n">stineman_interp</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">xvals</span><span class="p">,</span> <span class="n">yvals</span><span class="p">,</span> <span class="n">yp</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">yi</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colours</span><span class="p">[</span><span class="n">plotcount</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">colours</span><span class="p">)])</span>
+            
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xvals</span><span class="p">,</span> <span class="n">yvals</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colours</span><span class="p">[</span><span class="n">plotcount</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">colours</span><span class="p">)],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">get_major_ticks</span><span class="p">():</span>
+        <span class="n">tick</span><span class="o">.</span><span class="n">label1</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">textsize</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">get_major_ticks</span><span class="p">():</span>
+        <span class="n">tick</span><span class="o">.</span><span class="n">label1</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">textsize</span><span class="p">)</span>
+    
+    <span class="n">leg</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">get_texts</span><span class="p">():</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">textsize</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">grid</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s2">&quot;.png&quot;</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

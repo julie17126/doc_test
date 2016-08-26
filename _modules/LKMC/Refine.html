@@ -1,0 +1,833 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Refine &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Refine</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Transition refining module.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Algebra</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">ClientServerInterface</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Dimer</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Graphs</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Lanczos</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Minimise</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">MinModeFollower</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">NEB</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Prefactor</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Rates</span>
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">.hooks</span> <span class="k">import</span> <span class="n">hook_utils</span>
+<span class="kn">from</span> <span class="nn">.Dummy</span> <span class="k">import</span> <span class="n">DummyLattice</span><span class="p">,</span> <span class="n">DummyLatticeMinimal</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Vectors</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">String</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">TransitionCalculatorBase</span>
+
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="TransitionRefiner"><a class="viewcode-back" href="../../LKMC/LKMC.Refine.html#LKMC.Refine.TransitionRefiner">[docs]</a><span class="k">class</span> <span class="nc">TransitionRefiner</span><span class="p">(</span><span class="n">TransitionCalculatorBase</span><span class="o">.</span><span class="n">TransitionFinder</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transition refiner object.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TransitionRefiner</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupCompleted</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reuseWorkVolId</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">currentVolIndex</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refState</span> <span class="o">=</span> <span class="n">ref</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratesListLock</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratesListProxy</span> <span class="o">=</span> <span class="kc">None</span>
+        
+<div class="viewcode-block" id="TransitionRefiner.setup"><a class="viewcode-back" href="../../LKMC/LKMC.Refine.html#LKMC.Refine.TransitionRefiner.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialState</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup the transition refiner.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># minimiser</span>
+        <span class="n">minParams</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">minParams</span><span class="o">.</span><span class="n">LBFGSTolerance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">refineFinalMinTol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimiser</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">getMinimiser</span><span class="p">(</span><span class="n">minParams</span><span class="p">)</span>
+        
+        <span class="c1"># inclusive minimiser</span>
+        <span class="n">inclMinParams</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">inclMinParams</span><span class="o">.</span><span class="n">minimizationExclusion</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">inclMinParams</span><span class="o">.</span><span class="n">LBFGSTolerance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">refineFinalInclMinTol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimiserIncl</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">getMinimiser</span><span class="p">(</span><span class="n">inclMinParams</span><span class="p">)</span>
+        
+        <span class="c1"># exclusive minimiser</span>
+        <span class="n">exclMinParams</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">exclMinParams</span><span class="o">.</span><span class="n">minimizationExclusion</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">exclMinParams</span><span class="o">.</span><span class="n">LBFGSTolerance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">refineFinalExclMinTol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimiserExcl</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">getMinimiser</span><span class="p">(</span><span class="n">exclMinParams</span><span class="p">)</span>
+        
+        <span class="c1"># NEB refiner</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrierCalculator</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">refineBarrierEstimator</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">refineBarrierEstimator</span> <span class="o">==</span> <span class="s2">&quot;NEB&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">barrierCalculator</span> <span class="o">=</span> <span class="n">NEB</span><span class="o">.</span><span class="n">NEB</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+            
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">refineBarrierEstimator</span> <span class="o">==</span> <span class="s2">&quot;String&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">barrierCalculator</span> <span class="o">=</span> <span class="n">String</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Warning: unrecognised barrier estimator (refinement): &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">refineBarrierEstimator</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># Lanczos refiners</span>
+        <span class="n">LanczosParams</span> <span class="o">=</span> <span class="n">Lanczos</span><span class="o">.</span><span class="n">initialiseLanczosMinParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">LanczosExclParams</span> <span class="o">=</span> <span class="n">Lanczos</span><span class="o">.</span><span class="n">initialiseLanczosMinParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">subLatticeMd</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                
+        <span class="bp">self</span><span class="o">.</span><span class="n">LanczosRefiner</span> <span class="o">=</span> <span class="n">Lanczos</span><span class="o">.</span><span class="n">LanczosLBFGSMinimiser</span><span class="p">(</span><span class="n">LanczosParams</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LanczosExclRefiner</span> <span class="o">=</span> <span class="n">Lanczos</span><span class="o">.</span><span class="n">LanczosLBFGSMinimiser</span><span class="p">(</span><span class="n">LanczosExclParams</span><span class="p">)</span>
+
+        <span class="c1"># Dimer rotation minimiser</span>
+        <span class="n">dimeRotMinParams</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">dimeRotMinParams</span><span class="o">.</span><span class="n">dimerTolR</span> <span class="o">=</span> <span class="n">dimeRotMinParams</span><span class="o">.</span><span class="n">refineDimerMinTolR</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerRotMinimiser</span> <span class="o">=</span> <span class="n">Dimer</span><span class="o">.</span><span class="n">Dimer</span><span class="p">(</span><span class="n">dimeRotMinParams</span><span class="p">)</span>
+        
+        <span class="c1"># Saddle finder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saddleFinder</span> <span class="o">=</span> <span class="n">Lanczos</span><span class="o">.</span><span class="n">LanczosLBFGSSaddleFinder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        
+        <span class="c1"># initial state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span> <span class="o">=</span> <span class="n">initialState</span>
+        
+        <span class="c1"># create list of hooks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">postTransitionHookList</span> <span class="o">=</span> <span class="n">hook_utils</span><span class="o">.</span><span class="n">makeHookList</span><span class="p">(</span><span class="s2">&quot;postFoundTransitionHooks&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupCompleted</span> <span class="o">=</span> <span class="kc">True</span></div>
+    
+<div class="viewcode-block" id="TransitionRefiner.setRank"><a class="viewcode-back" href="../../LKMC/LKMC.Refine.html#LKMC.Refine.TransitionRefiner.setRank">[docs]</a>    <span class="k">def</span> <span class="nf">setRank</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rank</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set rank.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">=</span> <span class="n">rank</span></div>
+    
+<div class="viewcode-block" id="TransitionRefiner.setRatesList"><a class="viewcode-back" href="../../LKMC/LKMC.Refine.html#LKMC.Refine.TransitionRefiner.setRatesList">[docs]</a>    <span class="k">def</span> <span class="nf">setRatesList</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ratesListLock</span><span class="p">,</span> <span class="n">ratesListProxy</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rates list etc.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratesListLock</span> <span class="o">=</span> <span class="n">ratesListLock</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratesListProxy</span> <span class="o">=</span> <span class="n">ratesListProxy</span></div>
+    
+<div class="viewcode-block" id="TransitionRefiner.setJobID"><a class="viewcode-back" href="../../LKMC/LKMC.Refine.html#LKMC.Refine.TransitionRefiner.setJobID">[docs]</a>    <span class="k">def</span> <span class="nf">setJobID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jobID</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set job ID.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="o">=</span> <span class="n">jobID</span></div>
+    
+<div class="viewcode-block" id="TransitionRefiner.setInitialState"><a class="viewcode-back" href="../../LKMC/LKMC.Refine.html#LKMC.Refine.TransitionRefiner.setInitialState">[docs]</a>    <span class="k">def</span> <span class="nf">setInitialState</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialState</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the initial state.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">initialState</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TransitionRefiner.setInitialData"><a class="viewcode-back" href="../../LKMC/LKMC.Refine.html#LKMC.Refine.TransitionRefiner.setInitialData">[docs]</a>    <span class="k">def</span> <span class="nf">setInitialData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataDict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initial data.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">initialState</span> <span class="o">=</span> <span class="n">dataDict</span><span class="p">[</span><span class="s2">&quot;initialState&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setInitialState</span><span class="p">(</span><span class="n">initialState</span><span class="p">)</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+                        
+        <span class="k">return</span> <span class="n">status</span></div>
+    
+<div class="viewcode-block" id="TransitionRefiner.refineFinalState"><a class="viewcode-back" href="../../LKMC/LKMC.Refine.html#LKMC.Refine.TransitionRefiner.refineFinalState">[docs]</a>    <span class="k">def</span> <span class="nf">refineFinalState</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transIniPos</span><span class="p">,</span> <span class="n">transSpecie</span><span class="p">,</span> <span class="n">volumeAtoms</span><span class="p">,</span> <span class="n">reuseWorkVolId</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volumeTransitionObject</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">NAtomsVolume</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">volumeAtoms</span><span class="p">)</span>
+<span class="c1">#        self.volumeAtoms = volumeAtoms</span>
+        
+        <span class="c1"># CALCULATE TRANSFORMATION MATRIX</span>
+        <span class="c1"># dummy initial state</span>
+        <span class="n">transLattice</span> <span class="o">=</span> <span class="n">DummyLattice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">transSpecie</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">cellDims</span><span class="p">,</span> <span class="n">transSpecie</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">specieList</span><span class="p">,</span> <span class="n">transIniPos</span><span class="p">)</span>
+
+        <span class="c1"># calculate transformation matrix</span>
+        <span class="n">trnsfMatrix</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">atomsList1</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> <span class="n">atomsList2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cntr1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cntr2</span> <span class="o">=</span> <span class="n">Graphs</span><span class="o">.</span><span class="n">prepareTheMatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NAtomsVolume</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> 
+                                                                                                                  <span class="n">transLattice</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">volumeAtoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">trnsfMatrix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Refinement failed due to Dreadnaut Error!&quot;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">startTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFailResult</span><span class="p">(</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">storeTimings</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">result</span>
+        
+<span class="c1">#        print &quot;VOL ATOMS&quot;, volumeAtoms</span>
+<span class="c1">#        print &quot;ATOM LIST 1&quot;, atomsList1</span>
+<span class="c1">#        print &quot;ATOM LIST 2&quot;, atomsList2</span>
+        
+        <span class="c1"># store stuff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span> <span class="o">=</span> <span class="n">lattice2</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">transfMatrix</span> <span class="o">=</span> <span class="n">trnsfMatrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atomList1</span> <span class="o">=</span> <span class="n">atomsList1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atomList2</span> <span class="o">=</span> <span class="n">atomsList2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transSpecie</span> <span class="o">=</span> <span class="n">transSpecie</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">iniPrev</span> <span class="o">=</span> <span class="n">DummyLattice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">transSpecie</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">cellDims</span><span class="p">,</span> <span class="n">transSpecie</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">specieList</span><span class="p">,</span> <span class="n">lattice1</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+        
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">initial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span>
+        <span class="n">initialPrevious</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iniPrev</span>
+        <span class="n">atomsList1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomList1</span>
+        <span class="n">atomsList2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomList2</span>
+        <span class="n">transfMatrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfMatrix</span>
+        
+        <span class="c1"># Statistics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodRunList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodTimeList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodSuccList</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="n">finalPrevious</span> <span class="o">=</span> <span class="n">DummyLatticeMinimal</span><span class="p">(</span><span class="n">initial</span><span class="o">.</span><span class="n">cellDims</span><span class="p">,</span> <span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">finalPos</span><span class="p">)</span>
+            
+        <span class="n">currentGraphVolume</span> <span class="o">=</span> <span class="n">initial</span><span class="o">.</span><span class="n">currentDefectVolume</span><span class="o">.</span><span class="n">graphVol</span>
+        
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">currentGraphVolume</span><span class="p">)</span>
+            
+        <span class="n">finalPrevious</span> <span class="o">=</span> <span class="n">Graphs</span><span class="o">.</span><span class="n">prepareLatticeToBeTransf</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">finalPrevious</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="kc">True</span><span class="p">,</span> <span class="n">cntrOrig</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cntr1</span><span class="p">)</span>
+            
+        <span class="c1"># get final position</span>
+        <span class="n">final</span> <span class="o">=</span> <span class="n">Graphs</span><span class="o">.</span><span class="n">doTheTransformation</span><span class="p">(</span><span class="n">initialPrevious</span><span class="p">,</span> <span class="n">finalPrevious</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">atomsList1</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> 
+                                           <span class="n">currentGraphVolume</span><span class="p">,</span> <span class="n">atomsList2</span><span class="p">,</span> <span class="n">transfMatrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cntr1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cntr2</span><span class="p">)</span>
+        
+        <span class="c1"># minimise the final</span>
+        <span class="n">final</span><span class="o">.</span><span class="n">wrapAtoms</span><span class="p">()</span>
+        
+        <span class="n">finalExcl</span> <span class="o">=</span> <span class="kc">None</span>
+                
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">refineFinalUseInclMin</span><span class="p">:</span>    
+            <span class="n">posBackup</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">final</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+            
+            <span class="n">backup</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">volumeAtoms</span><span class="p">)</span>
+            <span class="n">final</span><span class="o">.</span><span class="n">defectSubSystem</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">volumeAtoms</span><span class="p">)</span>
+    
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimiserIncl</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">final</span><span class="p">)</span>
+            
+            <span class="n">final</span><span class="o">.</span><span class="n">defectSubSystem</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">backup</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">final</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">posBackup</span><span class="p">)</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Inclusive minimiser failed. Continue...&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                                
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">refineFinalUseExclMin</span><span class="p">:</span>
+                
+            <span class="n">defectSubSystemBackup</span> <span class="o">=</span> <span class="n">final</span><span class="o">.</span><span class="n">defectSubSystem</span>
+                    
+            <span class="n">final</span><span class="o">.</span><span class="n">defectSubSystem</span> <span class="o">=</span> <span class="n">final</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">final</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">,</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">saddleConvergeRadius</span><span class="p">)</span>
+                
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimiserExcl</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">final</span><span class="p">)</span>
+                
+            <span class="n">final</span><span class="o">.</span><span class="n">defectSubSystem</span> <span class="o">=</span> <span class="n">defectSubSystemBackup</span>
+                
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFailResult</span><span class="p">(</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">storeTimings</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                        
+                <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">result</span>
+            
+            <span class="n">finalExcl</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">final</span><span class="p">)</span>
+
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimiser</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">final</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">useBasin</span><span class="p">:</span>
+            <span class="n">final</span><span class="o">.</span><span class="n">findDefects</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refState</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">refineFinalUseExclMin</span> <span class="ow">and</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">final</span> <span class="o">=</span> <span class="n">finalExcl</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;This might be a problem... After excl minimisation, full system minimisation fails...&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="c1">#print &quot;TIME MINIMISER(FINAL) = %f s.&quot; % (time.time() - timeStart)</span>
+                    
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+<span class="c1">#            result = ClientServerInterface.Result(self.rank, &quot;BARRIERREFINE&quot;, </span>
+<span class="c1">#                &quot;FAILED&quot;, linkedTransIndex=volumeTransitionObject.index)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFailResult</span><span class="p">(</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">storeTimings</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">result</span>
+            
+        <span class="k">return</span> <span class="n">final</span><span class="p">,</span> <span class="kc">None</span></div>
+        
+<div class="viewcode-block" id="TransitionRefiner.run"><a class="viewcode-back" href="../../LKMC/LKMC.Refine.html#LKMC.Refine.TransitionRefiner.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volumeIndex</span><span class="p">,</span> <span class="n">transIniPos</span><span class="p">,</span> <span class="n">transSpecie</span><span class="p">,</span> <span class="n">volumeAtoms</span><span class="p">,</span> <span class="n">reuseWorkVolId</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volumeTransitionObject</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Refine the transition.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">setupCompleted</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;ERROR: must run setup before run&quot;</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        
+        <span class="k">if</span> <span class="n">volumeTransitionObject</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;ERROR: REFINEMENT WITHOUT volumeTransitionObject&quot;</span>
+            
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createEmptyResult</span><span class="p">()</span>
+            
+            <span class="k">return</span> <span class="n">result</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Running refinement on volume </span><span class="si">%d</span><span class="s2"> (</span><span class="si">%r</span><span class="s2">); transition </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">volumeIndex</span><span class="p">,</span> <span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">hashKey</span><span class="p">,</span> <span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># set jobID</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">minimiser</span><span class="o">.</span><span class="n">setJobID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LanczosRefiner</span><span class="o">.</span><span class="n">setJobID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LanczosExclRefiner</span><span class="o">.</span><span class="n">setJobID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">saddleFinder</span><span class="o">.</span><span class="n">setJobID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+        
+        <span class="c1"># current volume</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">currentVolIndex</span> <span class="o">=</span> <span class="n">volumeIndex</span>
+        
+        <span class="c1"># current defect volume (not sure if need this section)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">currentDefectVolume</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">defectVolumes</span><span class="p">[</span><span class="n">volumeIndex</span><span class="p">]</span>
+        <span class="n">dv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">currentDefectVolume</span>
+        
+        <span class="n">searchIniVol</span> <span class="o">=</span> <span class="n">dv</span><span class="o">.</span><span class="n">searchInitialVol</span>
+        <span class="n">graphVolume</span> <span class="o">=</span> <span class="n">dv</span><span class="o">.</span><span class="n">graphVol</span>
+    
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">defectList</span> <span class="o">=</span> <span class="n">searchIniVol</span>
+<span class="c1">#         self.initialState.currentSearchInitialVolume = searchIniVol</span>
+<span class="c1">#         self.initialState.currentSearchMoveVolume = self.initialState.searchMoveVols[volumeIndex]</span>
+<span class="c1">#         self.initialState.currentGraphVolume = graphVolume</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">currentVolumeIndex</span> <span class="o">=</span> <span class="n">volumeIndex</span>
+        
+<span class="c1">#        self.initialState.currentDefectVolume = graphVolume</span>
+<span class="c1">#        self.initialState.currentGraphKey = self.initialState.defectVolumesKeys[volumeIndex]</span>
+        
+        <span class="c1"># setup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NAtomsVolume</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">volumeAtoms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">volumeAtoms</span> <span class="o">=</span> <span class="n">volumeAtoms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reuseWorkVolId</span> <span class="o">=</span> <span class="n">reuseWorkVolId</span>
+        
+        <span class="c1"># CALCULATE TRANSFORMATION MATRIX            </span>
+        <span class="c1"># dummy initial state        </span>
+        <span class="n">transLattice</span> <span class="o">=</span> <span class="n">DummyLattice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">transSpecie</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">cellDims</span><span class="p">,</span> <span class="n">transSpecie</span><span class="p">,</span> 
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">specieList</span><span class="p">,</span> <span class="n">transIniPos</span><span class="p">)</span>
+
+        <span class="c1"># calculate transformation matrix</span>
+        <span class="n">trnsfMatrix</span><span class="p">,</span> <span class="n">lattice1</span><span class="p">,</span> <span class="n">atomsList1</span><span class="p">,</span> <span class="n">lattice2</span><span class="p">,</span> <span class="n">atomsList2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cntr1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cntr2</span> <span class="o">=</span> <span class="n">Graphs</span><span class="o">.</span><span class="n">prepareTheMatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> 
+                                                                                                                  <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NAtomsVolume</span><span class="p">,</span> 
+                                                                                                                            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> 
+                                                                                                                  <span class="n">transLattice</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">volumeAtoms</span><span class="p">,</span> 
+                                                                                                                  <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> 
+        
+        <span class="k">if</span> <span class="n">trnsfMatrix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Refinement failed due to Dreadnaut Error!&quot;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFailResult</span><span class="p">(</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">storeTimings</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+        
+        <span class="c1"># store stuff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span> <span class="o">=</span> <span class="n">lattice2</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">transfMatrix</span> <span class="o">=</span> <span class="n">trnsfMatrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atomList1</span> <span class="o">=</span> <span class="n">atomsList1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atomList2</span> <span class="o">=</span> <span class="n">atomsList2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transSpecie</span> <span class="o">=</span> <span class="n">transSpecie</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">iniPrev</span> <span class="o">=</span> <span class="n">DummyLattice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">transSpecie</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">cellDims</span><span class="p">,</span> <span class="n">transSpecie</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">specieList</span><span class="p">,</span> <span class="n">lattice1</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+        
+        <span class="c1"># local references</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">initial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span>
+        <span class="n">initialPrevious</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iniPrev</span>
+        <span class="n">atomsList1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomList1</span>
+        <span class="n">atomsList2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomList2</span>
+        <span class="n">transfMatrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfMatrix</span>
+        
+        <span class="c1"># Creating lists for eigenvalue calculations</span>
+        <span class="n">prefactorMainIdx</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">prefactorIclIdx</span> <span class="o">=</span> <span class="kc">None</span>
+         
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">fixedPrefactor</span><span class="p">:</span>
+            <span class="n">prefactorMainIdx</span> <span class="o">=</span> <span class="n">initial</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">initial</span><span class="o">.</span><span class="n">currentDefectVolume</span><span class="o">.</span><span class="n">searchInitialVol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">prefactorRadius</span><span class="p">)</span>
+            <span class="n">prefactorIclIdx</span> <span class="o">=</span> <span class="n">initial</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">prefactorMainIdx</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span><span class="p">)</span>
+        
+        <span class="c1"># Statistics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodRunList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodTimeList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodSuccList</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1"># initial variable values</span>
+        <span class="n">refinedBarrier</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">reverseBarrier</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">final</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="c1"># prepare for transformation for final</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">refineFinal</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">barrierCalculator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">final</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">refineFinalState</span><span class="p">(</span><span class="n">transIniPos</span><span class="p">,</span> <span class="n">transSpecie</span><span class="p">,</span> <span class="n">graphVolume</span><span class="p">,</span> <span class="n">volumeTransitionObject</span><span class="o">=</span><span class="n">volumeTransitionObject</span><span class="p">)</span> 
+            
+            <span class="k">if</span> <span class="n">final</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">result</span>
+            
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s2">&quot;refine.debug&quot;</span><span class="p">):</span>
+                <span class="n">final</span><span class="o">.</span><span class="n">writeLattice</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;refine.debug&quot;</span><span class="p">,</span> <span class="s2">&quot;refined_final.dat&quot;</span><span class="p">))</span>
+            
+            <span class="c1"># check separated from initial</span>
+            <span class="n">sep</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">separation</span><span class="p">(</span><span class="n">final</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">initial</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">initial</span><span class="o">.</span><span class="n">cellDims</span><span class="p">)</span>
+
+            <span class="c1">#TODO: probably should create new parameter for this</span>
+            <span class="k">if</span> <span class="n">sep</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">barrUniqueMinSep</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFailResult</span><span class="p">(</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">storeTimings</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">result</span>
+        
+            <span class="c1"># check for duplicate</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">barrCompareSaddles</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalListSet</span><span class="p">:</span>
+                    <span class="n">unique</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkTransitionUnique</span><span class="p">(</span><span class="n">final</span><span class="p">)</span>
+                    
+                    <span class="k">if</span> <span class="n">unique</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">None</span>
+                    
+                    <span class="k">elif</span> <span class="n">unique</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createDuplicateResult</span><span class="p">(</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">storeTimings</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="n">result</span>
+        
+        <span class="c1"># prepare for transformation for saddle</span>
+        <span class="n">saddlePrevious</span> <span class="o">=</span> <span class="n">DummyLatticeMinimal</span><span class="p">(</span><span class="n">initial</span><span class="o">.</span><span class="n">cellDims</span><span class="p">,</span> <span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">saddlePos</span><span class="p">)</span>
+        
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">graphVolume</span><span class="p">)</span>
+        <span class="n">saddlePrevious</span> <span class="o">=</span> <span class="n">Graphs</span><span class="o">.</span><span class="n">prepareLatticeToBeTransf</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">saddlePrevious</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="kc">True</span><span class="p">,</span> <span class="n">cntrOrig</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cntr1</span><span class="p">)</span>
+                
+        <span class="c1"># get saddle position</span>
+        <span class="n">saddle</span> <span class="o">=</span> <span class="n">Graphs</span><span class="o">.</span><span class="n">doTheTransformation</span><span class="p">(</span><span class="n">initialPrevious</span><span class="p">,</span> <span class="n">saddlePrevious</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+                                            <span class="n">atomsList1</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">graphVolume</span><span class="p">,</span> <span class="n">atomsList2</span><span class="p">,</span> <span class="n">transfMatrix</span><span class="p">,</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">cntr1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cntr2</span><span class="p">)</span>
+        
+        <span class="c1"># wrap atoms</span>
+        <span class="n">initial</span><span class="o">.</span><span class="n">wrapAtoms</span><span class="p">()</span>
+        <span class="n">saddle</span><span class="o">.</span><span class="n">wrapAtoms</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s2">&quot;refine.debug&quot;</span><span class="p">):</span>
+            <span class="n">saddle</span><span class="o">.</span><span class="n">writeLattice</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;refine.debug&quot;</span><span class="p">,</span> <span class="s2">&quot;transformed_saddle.dat&quot;</span><span class="p">))</span>
+
+        <span class="c1"># run refiner</span>
+        <span class="n">lanczosSaddle</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">saddle</span><span class="p">)</span>
+        
+        <span class="c1"># we check if a calculator has been specified...</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">barrierCalculator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">initial</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">correctTE</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Initial state force call failed...&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># run calculator</span>
+            <span class="n">saddle</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># DEBUGGING/TEMPORARY</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">barrierCalculator</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">final</span><span class="p">,</span> <span class="n">saddleState</span><span class="o">=</span><span class="n">saddle</span><span class="p">,</span> <span class="n">initialEnergy</span><span class="o">=</span><span class="n">initial</span><span class="o">.</span><span class="n">totalEnergy</span><span class="p">,</span>
+                                                <span class="n">initialPos</span><span class="o">=</span><span class="n">initial</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFailResult</span><span class="p">(</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">result</span>
+            
+            <span class="c1"># barrier</span>
+            <span class="n">refinedBarrier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">barrierCalculator</span><span class="o">.</span><span class="n">barrier</span>
+            
+            <span class="c1"># reverse barrier</span>
+            <span class="n">saddle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">barrierCalculator</span><span class="o">.</span><span class="n">getMaxEnergyImage</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">saddle</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">correctTE</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Saddle state force call failed (refinement)...&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">final</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">correctTE</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Final state force call failed (refinement)...&quot;</span><span class="p">)</span>
+            <span class="n">reverseBarrier</span> <span class="o">=</span> <span class="n">saddle</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">-</span> <span class="n">final</span><span class="o">.</span><span class="n">totalEnergy</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s2">&quot;refine.debug&quot;</span><span class="p">):</span>
+                <span class="n">saddle</span><span class="o">.</span><span class="n">writeLattice</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;refine.debug&quot;</span><span class="p">,</span> <span class="s2">&quot;refined_saddle.dat&quot;</span><span class="p">))</span>
+            
+            <span class="c1"># saddle eigenvalues (TODO: calculate if required?)</span>
+            <span class="n">saddleSumLogEVs</span> <span class="o">=</span> <span class="kc">None</span>
+            
+            <span class="c1">#TODO: check saddle duplicate here!?</span>
+            
+            
+            <span class="c1"># result</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createSuccessResult</span><span class="p">(</span><span class="n">refinedBarrier</span><span class="p">,</span> <span class="n">final</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">barrierCalculator</span><span class="p">,</span> <span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                              <span class="n">reverseBarrier</span><span class="o">=</span><span class="n">reverseBarrier</span><span class="p">,</span> <span class="n">saddle</span><span class="o">=</span><span class="n">saddle</span><span class="p">,</span> <span class="n">reuseHashKey</span><span class="o">=</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">hashKey</span><span class="p">,</span>
+                                              <span class="n">reuseWorkVolId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reuseWorkVolId</span><span class="p">,</span> <span class="n">linkedBarrier</span><span class="o">=</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">barrier</span><span class="p">,</span>
+                                              <span class="n">saddleSumLogEVs</span><span class="o">=</span><span class="n">saddleSumLogEVs</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LanczosStatus</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">LanczosAttempt</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">refineUseSubLattLanczos</span><span class="p">:</span>
+                <span class="n">LanczosAttempt</span> <span class="o">=</span> <span class="mi">1</span>
+                
+                <span class="n">lanczosSaddle</span><span class="o">.</span><span class="n">defectSubSystem</span> <span class="o">=</span> <span class="n">lanczosSaddle</span><span class="o">.</span><span class="n">currentDefectVolume</span><span class="o">.</span><span class="n">searchMoveVol</span>
+                
+                <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">saddleConvergeRadius</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                    <span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">lanczosSaddle</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">lanczosSaddle</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">saddleConvergeRadius</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">lanczosSaddle</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">)</span>
+                        
+                <span class="n">includeAtoms</span> <span class="o">=</span> <span class="n">lanczosSaddle</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span><span class="p">)</span>
+    
+                <span class="n">rVector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimerRotMinimiser</span><span class="o">.</span><span class="n">runRotation</span><span class="p">(</span><span class="n">lanczosSaddle</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">initialPos</span><span class="o">=</span><span class="n">initial</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+                                       
+                <span class="n">lanczosSaddle</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">rVector</span><span class="p">)</span>
+                <span class="n">lanczosSaddle</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">)</span>
+                <span class="n">lanczosSaddle</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">includeAtoms</span><span class="p">)</span>
+                
+                <span class="n">lanczosSaddleCopy</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">lanczosSaddle</span><span class="p">)</span>
+                
+                <span class="n">LanczosStatus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saddleFinder</span><span class="o">.</span><span class="n">converge</span><span class="p">(</span><span class="n">lanczosSaddle</span><span class="p">,</span> <span class="n">searchMd</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">LanczosStatus</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                     <span class="n">lanczosSaddle</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">lanczosSaddleCopy</span><span class="p">)</span>
+                     
+                     <span class="n">LanczosStatus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saddleFinder</span><span class="o">.</span><span class="n">converge</span><span class="p">(</span><span class="n">lanczosSaddle</span><span class="p">,</span> <span class="n">searchMd</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                                                <span class="n">looseIterMax</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">refineLBFGSLanczosLooseMaxIter</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+                     
+                <span class="c1"># if rate is not default: check the rank of the saddle point and run min mode follower if it is rank 2</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">fixedPrefactor</span><span class="p">:</span>
+                    <span class="n">LanczosStatus</span><span class="p">,</span> <span class="n">lanczosSaddle</span> <span class="o">=</span> <span class="n">MinModeFollower</span><span class="o">.</span><span class="n">checkSaddleRank</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">lanczosSaddle</span><span class="p">,</span>
+                                                                                   <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">refineConv2Rank1Saddle</span><span class="p">)</span>
+                
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">refineUseWholeLattLanczos</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">LanczosStatus</span><span class="p">:</span>
+                <span class="n">lanczosSaddle</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">separationVectorSubSystem</span><span class="p">(</span><span class="n">initial</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">lanczosSaddle</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
+                                                                          <span class="n">lanczosSaddle</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">,</span>
+                                                                          <span class="n">initial</span><span class="o">.</span><span class="n">cellDims</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                
+                <span class="n">LanczosAttempt</span> <span class="o">=</span> <span class="mi">1</span>
+                            
+                <span class="n">LanczosStatus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LanczosRefiner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">lanczosSaddle</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">LanczosStatus</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">LanczosAttempt</span><span class="p">:</span>
+                
+                <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">refineFailedUseNEB</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">refineFinal</span><span class="p">:</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEBRefiner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">final</span><span class="p">,</span> <span class="n">saddle</span><span class="p">)</span> 
+                    
+                    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFailResult</span><span class="p">(</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="n">result</span>
+        
+                    <span class="n">refinedBarrier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEBRefiner</span><span class="o">.</span><span class="n">barrier</span>
+                    <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEBRefiner</span>
+                    <span class="n">saddle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEBRefiner</span><span class="o">.</span><span class="n">getMaxEnergyImage</span><span class="p">()</span>
+                    
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFailResult</span><span class="p">(</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">result</span>
+                
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">initial</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">correctTE</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">lanczosSaddle</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">correctTE</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    
+                <span class="n">refinedBarrier</span> <span class="o">=</span> <span class="n">lanczosSaddle</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">-</span> <span class="n">initial</span><span class="o">.</span><span class="n">totalEnergy</span>
+                            
+                <span class="k">if</span> <span class="n">refinedBarrier</span> <span class="o">&lt;=</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="n">refinedBarrier</span> <span class="o">&gt;</span> <span class="n">params</span><span class="o">.</span><span class="n">refineMaxBarrier</span><span class="p">:</span>
+                    <span class="n">LanczosStatus</span> <span class="o">=</span> <span class="mi">1</span>
+                    
+                <span class="k">if</span> <span class="n">LanczosStatus</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">refineFailedUseNEB</span> <span class="ow">and</span> <span class="n">params</span><span class="o">.</span><span class="n">refineFinal</span><span class="p">:</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEBRefiner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="n">final</span><span class="p">,</span> <span class="n">saddle</span><span class="p">)</span> 
+                    
+                    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFailResult</span><span class="p">(</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="n">result</span>
+                    
+                    <span class="n">refinedBarrier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEBRefiner</span><span class="o">.</span><span class="n">barrier</span>
+                    <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEBRefiner</span>
+                    <span class="n">saddle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEBRefiner</span><span class="o">.</span><span class="n">getMaxEnergyImage</span><span class="p">()</span>
+    
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">saddle</span> <span class="o">=</span> <span class="n">lanczosSaddle</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="n">LanczosStatus</span>
+            
+            <span class="c1">#status = self.NEBRefiner.run(initial, final, saddle)</span>
+            
+    <span class="c1">#        print &quot;REFINE: PREVIOUS SEP: %f, NEW SEP %f&quot; % (Vectors.separation(finalPrevious.pos, initialPrevious.pos, saddle.cellDims), </span>
+    <span class="c1">#                                                        Vectors.separation(final.pos, initial.pos, final.cellDims))</span>
+    <span class="c1">#         print &quot;REFINE: PREVIOUS SEP: %f, NEW SEP %f&quot; % (Vectors.separation(initialPrevious.pos, saddlePrevious.pos, saddle.cellDims), </span>
+    <span class="c1">#                                                         Vectors.separation(initial.pos, saddle.pos, initial.cellDims))</span>
+            
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">refineFinal</span><span class="p">:</span>
+                <span class="c1">#calculate reverse barrier</span>
+                <span class="n">final</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">correctTE</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">saddle</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">correctTE</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">reverseBarrier</span> <span class="o">=</span> <span class="n">saddle</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">-</span> <span class="n">final</span><span class="o">.</span><span class="n">totalEnergy</span>
+            
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFailResult</span><span class="p">(</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">result</span>
+        
+            <span class="c1"># check saddle is unique</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">barrCompareSaddles</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalListSet</span><span class="p">:</span>
+                    <span class="n">unique</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkTransitionUnique</span><span class="p">(</span><span class="n">saddle</span><span class="p">,</span> <span class="n">refinedBarrier</span><span class="p">)</span>
+                    
+                    <span class="k">if</span> <span class="n">unique</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">None</span>
+                    
+                    <span class="k">elif</span> <span class="n">unique</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createDuplicateResult</span><span class="p">(</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="n">result</span>
+            
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">fixedPrefactor</span><span class="p">:</span>
+                <span class="n">status</span><span class="p">,</span> <span class="n">saddleEigenValues</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Algebra</span><span class="o">.</span><span class="n">getSystemsImplicitEigenvalues</span><span class="p">(</span><span class="n">saddle</span><span class="p">,</span> <span class="n">prefactorMainIdx</span><span class="p">,</span>
+                        <span class="n">prefactorIclIdx</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">noEigenVects</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">includeMasses</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFailResult</span><span class="p">(</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">result</span>
+                
+                <span class="c1"># There should be one and only one negative eigenvalue</span>
+                <span class="k">if</span> <span class="n">Prefactor</span><span class="o">.</span><span class="n">countNegativeValues</span><span class="p">(</span><span class="n">saddleEigenValues</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFailResult</span><span class="p">(</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">result</span>
+                
+                <span class="n">saddleSumLogEVs</span> <span class="o">=</span> <span class="n">Prefactor</span><span class="o">.</span><span class="n">eigenvalues2Frequencies</span><span class="p">(</span><span class="n">saddleEigenValues</span><span class="p">,</span> <span class="n">ignoreFirst</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">saddleSumLogEVs</span> <span class="o">=</span> <span class="kc">None</span>
+                        
+            
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createSuccessResult</span><span class="p">(</span><span class="n">refinedBarrier</span><span class="p">,</span> <span class="n">final</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">reverseBarrier</span><span class="o">=</span><span class="n">reverseBarrier</span><span class="p">,</span> <span class="n">saddle</span><span class="o">=</span><span class="n">saddle</span><span class="p">,</span> 
+                <span class="n">reuseHashKey</span><span class="o">=</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">hashKey</span><span class="p">,</span> <span class="n">reuseWorkVolId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reuseWorkVolId</span><span class="p">,</span>
+                <span class="n">linkedBarrier</span><span class="o">=</span><span class="n">volumeTransitionObject</span><span class="o">.</span><span class="n">barrier</span><span class="p">,</span> <span class="n">saddleSumLogEVs</span><span class="o">=</span><span class="n">saddleSumLogEVs</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">result</span></div>
+    
+<div class="viewcode-block" id="TransitionRefiner.checkCalcPrefactor"><a class="viewcode-back" href="../../LKMC/LKMC.Refine.html#LKMC.Refine.TransitionRefiner.checkCalcPrefactor">[docs]</a>    <span class="k">def</span> <span class="nf">checkCalcPrefactor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">barrier</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if we need to calculate the prefactor for this transition.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ratesListLock</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        
+        <span class="n">checkTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="c1"># get lock on rates list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratesListLock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        
+        <span class="n">ratio</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># get the current total rate</span>
+            <span class="n">currentTotalRate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ratesListProxy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="nb">print</span> <span class="s2">&quot;DEBUGPREFACTOR: CURRENT TOTAL RATE = </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">currentTotalRate</span>
+            
+            <span class="c1"># now estimate the rate of this process using standard prefactor</span>
+            <span class="n">estimatedEventRate</span> <span class="o">=</span> <span class="n">Rates</span><span class="o">.</span><span class="n">calculateRate</span><span class="p">(</span><span class="n">barrier</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> 
+                <span class="n">calcPrefactor</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+            
+            <span class="nb">print</span> <span class="s2">&quot;DEBUGPREFACTOR: estimated event rate = </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">estimatedEventRate</span>
+            
+            <span class="c1"># calculate ratio of estimated to total</span>
+            <span class="k">if</span> <span class="n">currentTotalRate</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">ratio</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ratio</span> <span class="o">=</span> <span class="n">estimatedEventRate</span> <span class="o">/</span> <span class="n">currentTotalRate</span>
+            <span class="nb">print</span> <span class="s2">&quot;DEBUGPREFACTOR: ratio = </span><span class="si">%g</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ratio</span>
+        
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ratesListLock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        
+        <span class="n">checkTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">checkTime</span>
+        
+        <span class="nb">print</span> <span class="s2">&quot;DEBUGPREFACTOR: time taken to check: </span><span class="si">%f</span><span class="s2"> s&quot;</span> <span class="o">%</span> <span class="n">checkTime</span>
+        
+        <span class="k">return</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">checkTime</span></div>
+    
+<div class="viewcode-block" id="TransitionRefiner.createEmptyResult"><a class="viewcode-back" href="../../LKMC/LKMC.Refine.html#LKMC.Refine.TransitionRefiner.createEmptyResult">[docs]</a>    <span class="k">def</span> <span class="nf">createEmptyResult</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create empty job result.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>      
+        
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">Result</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">,</span> <span class="s2">&quot;BARRIERREFINE&quot;</span><span class="p">,</span> <span class="s2">&quot;EMPTYJOB&quot;</span><span class="p">)</span>
+                
+        <span class="k">return</span> <span class="n">result</span></div>
+    
+<div class="viewcode-block" id="TransitionRefiner.createFailResult"><a class="viewcode-back" href="../../LKMC/LKMC.Refine.html#LKMC.Refine.TransitionRefiner.createFailResult">[docs]</a>    <span class="k">def</span> <span class="nf">createFailResult</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linkedIdx</span><span class="p">,</span> <span class="n">storeTimings</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create fail result.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">refineElapsedTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">startTime</span>
+        
+        <span class="k">if</span> <span class="n">storeTimings</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">methodRunList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;REFINEMENT&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">methodTimeList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">refineElapsedTime</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">methodSuccList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            
+            <span class="n">timeLog</span> <span class="o">=</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">TimeLog</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methodRunList</span><span class="p">,</span> 
+                                                    <span class="bp">self</span><span class="o">.</span><span class="n">methodTimeList</span><span class="p">,</span> 
+                                                    <span class="bp">self</span><span class="o">.</span><span class="n">methodSuccList</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">timeLog</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">Result</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">,</span> <span class="s2">&quot;BARRIERREFINE&quot;</span><span class="p">,</span> <span class="s2">&quot;FAILED&quot;</span><span class="p">,</span> 
+                                              <span class="n">timing</span><span class="o">=</span><span class="n">timeLog</span><span class="p">,</span> <span class="n">linkedTransIndex</span><span class="o">=</span><span class="n">linkedIdx</span><span class="p">,</span>
+                                              <span class="n">currentVolIndex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">currentVolIndex</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+                
+        <span class="k">return</span> <span class="n">result</span></div>
+    
+<div class="viewcode-block" id="TransitionRefiner.createDuplicateResult"><a class="viewcode-back" href="../../LKMC/LKMC.Refine.html#LKMC.Refine.TransitionRefiner.createDuplicateResult">[docs]</a>    <span class="k">def</span> <span class="nf">createDuplicateResult</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linkedIdx</span><span class="p">,</span> <span class="n">storeTimings</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create duplicate result.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">refineElapsedTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">startTime</span>
+        
+        <span class="k">if</span> <span class="n">storeTimings</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">methodRunList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;REFINEMENT&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">methodTimeList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">refineElapsedTime</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">methodSuccList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            
+            <span class="n">timeLog</span> <span class="o">=</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">TimeLog</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methodRunList</span><span class="p">,</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">methodTimeList</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">methodSuccList</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">timeLog</span> <span class="o">=</span> <span class="kc">None</span>
+                
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">Result</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">,</span> <span class="s2">&quot;BARRIERREFINE&quot;</span><span class="p">,</span> <span class="s2">&quot;DUPLICATE&quot;</span><span class="p">,</span> 
+                                              <span class="n">timing</span><span class="o">=</span><span class="n">timeLog</span><span class="p">,</span> <span class="n">linkedTransIndex</span><span class="o">=</span><span class="n">linkedIdx</span><span class="p">,</span>
+                                              <span class="n">currentVolIndex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">currentVolIndex</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">result</span></div>
+    
+<div class="viewcode-block" id="TransitionRefiner.createSuccessResult"><a class="viewcode-back" href="../../LKMC/LKMC.Refine.html#LKMC.Refine.TransitionRefiner.createSuccessResult">[docs]</a>    <span class="k">def</span> <span class="nf">createSuccessResult</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refinedBarrier</span><span class="p">,</span> <span class="n">final</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">linkedIdx</span><span class="p">,</span> <span class="n">reverseBarrier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">saddle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reuseHashKey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                            <span class="n">reuseWorkVolId</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">linkedBarrier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">calcPrefactor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">saddleSumLogEVs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        
+        <span class="c1"># TLA REMOVE calcPrefactor, rate</span>
+        
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create success result.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># first run any hooks</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">()</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;initial&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="p">,</span> <span class="s2">&quot;saddle&quot;</span><span class="p">:</span> <span class="n">saddle</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">:</span> <span class="n">final</span><span class="p">,</span> <span class="s2">&quot;barrier&quot;</span><span class="p">:</span> <span class="n">refinedBarrier</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span>
+                  <span class="s2">&quot;linkedBarrier&quot;</span><span class="p">:</span> <span class="n">linkedBarrier</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">hook</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">postTransitionHookList</span><span class="p">:</span>
+            <span class="n">hookres</span> <span class="o">=</span> <span class="n">hook</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">hookres</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="s2">&quot;DEBUGGING: throwing away transition (hook </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFailResult</span><span class="p">(</span><span class="n">linkedIdx</span><span class="p">,</span> <span class="n">storeTimings</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+        <span class="n">refineElapsedTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">startTime</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodRunList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;REFINEMENT&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodTimeList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">refineElapsedTime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methodSuccList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">timeLog</span> <span class="o">=</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">TimeLog</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">methodRunList</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">methodTimeList</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">methodSuccList</span><span class="p">)</span>
+        
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">Result</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">,</span> <span class="s2">&quot;BARRIERREFINE&quot;</span><span class="p">,</span> <span class="s2">&quot;SUCCESS&quot;</span><span class="p">,</span> <span class="n">timing</span><span class="o">=</span><span class="n">timeLog</span><span class="p">,</span> <span class="n">barrier</span><span class="o">=</span><span class="n">refinedBarrier</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="n">final</span><span class="p">,</span> 
+            <span class="n">images</span><span class="o">=</span><span class="n">images</span><span class="p">,</span> <span class="n">saddle</span><span class="o">=</span><span class="n">saddle</span><span class="p">,</span> <span class="n">linkedTransIndex</span><span class="o">=</span><span class="n">linkedIdx</span><span class="p">,</span> <span class="n">reuseHashKey</span><span class="o">=</span><span class="n">reuseHashKey</span><span class="p">,</span> 
+            <span class="n">reuseWorkVolId</span><span class="o">=</span><span class="n">reuseWorkVolId</span><span class="p">,</span> <span class="n">linkedBarrier</span><span class="o">=</span><span class="n">linkedBarrier</span><span class="p">,</span> <span class="n">currentVolIndex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">currentVolIndex</span><span class="p">,</span>
+            <span class="n">jobID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">,</span> <span class="n">calcPrefactor</span><span class="o">=</span><span class="n">calcPrefactor</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="n">rate</span><span class="p">,</span> <span class="n">reverseBarrier</span><span class="o">=</span><span class="n">reverseBarrier</span><span class="p">,</span> <span class="n">saddleSumLogEVs</span><span class="o">=</span><span class="n">saddleSumLogEVs</span><span class="p">)</span>
+                
+        <span class="k">return</span> <span class="n">result</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

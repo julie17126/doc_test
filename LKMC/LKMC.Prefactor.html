@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Prefactor module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Profiling module" href="LKMC.Profiling.html" />
+    <link rel="prev" title="LKMC.Plot module" href="LKMC.Plot.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Profiling.html" title="LKMC.Profiling module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Plot.html" title="LKMC.Plot module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Prefactor">
+<span id="lkmc-prefactor-module"></span><h1>LKMC.Prefactor module<a class="headerlink" href="#module-LKMC.Prefactor" title="Permalink to this headline">¶</a></h1>
+<p>A collection of prefactor calculation procedures</p>
+<ol class="loweralpha simple" start="3">
+<li>Tomas Lazauskas, 2013</li>
+</ol>
+<dl class="class">
+<dt id="LKMC.Prefactor.PrefactorCalculator">
+<em class="property">class </em><code class="descclassname">LKMC.Prefactor.</code><code class="descname">PrefactorCalculator</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Prefactor.html#PrefactorCalculator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Prefactor.PrefactorCalculator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Prefactor.PrefactorCalculator.calculate">
+<code class="descname">calculate</code><span class="sig-paren">(</span><em>currentVolIndex</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Prefactor.html#PrefactorCalculator.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Prefactor.PrefactorCalculator.calculate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses implicit eigenvalues calculation method to find the initial eigenvalues.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Prefactor.PrefactorCalculator.createFailResult">
+<code class="descname">createFailResult</code><span class="sig-paren">(</span><em>currentVolIndex=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Prefactor.html#PrefactorCalculator.createFailResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Prefactor.PrefactorCalculator.createFailResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create fail result.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Prefactor.PrefactorCalculator.createSuccessResult">
+<code class="descname">createSuccessResult</code><span class="sig-paren">(</span><em>currentVolIndex=None</em>, <em>initialSumLogEVs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Prefactor.html#PrefactorCalculator.createSuccessResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Prefactor.PrefactorCalculator.createSuccessResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create success result.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Prefactor.PrefactorCalculator.setInitialData">
+<code class="descname">setInitialData</code><span class="sig-paren">(</span><em>dataDict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Prefactor.html#PrefactorCalculator.setInitialData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Prefactor.PrefactorCalculator.setInitialData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Prefactor.PrefactorCalculator.setInitialState">
+<code class="descname">setInitialState</code><span class="sig-paren">(</span><em>initialState</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Prefactor.html#PrefactorCalculator.setInitialState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Prefactor.PrefactorCalculator.setInitialState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the initial state.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Prefactor.PrefactorCalculator.setJobID">
+<code class="descname">setJobID</code><span class="sig-paren">(</span><em>jobID</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Prefactor.html#PrefactorCalculator.setJobID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Prefactor.PrefactorCalculator.setJobID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set job ID.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Prefactor.PrefactorCalculator.setRank">
+<code class="descname">setRank</code><span class="sig-paren">(</span><em>rank</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Prefactor.html#PrefactorCalculator.setRank"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Prefactor.PrefactorCalculator.setRank" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set rank of running process.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Prefactor.checkForRank2Saddle">
+<code class="descclassname">LKMC.Prefactor.</code><code class="descname">checkForRank2Saddle</code><span class="sig-paren">(</span><em>saddleLattice</em>, <em>params</em>, <em>initialLattice=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Prefactor.html#checkForRank2Saddle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Prefactor.checkForRank2Saddle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if saddleLattice is at the rank-2 saddle. 
+If yes, uses minimum mode following algorithm to converge to a rank-1 saddle.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Prefactor.countNegativeValues">
+<code class="descclassname">LKMC.Prefactor.</code><code class="descname">countNegativeValues</code><span class="sig-paren">(</span><em>array</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Prefactor.html#countNegativeValues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Prefactor.countNegativeValues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Counts the number of negative values in the array. Assumes that values are in ascending order</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Prefactor.eigenvalues2Frequencies">
+<code class="descclassname">LKMC.Prefactor.</code><code class="descname">eigenvalues2Frequencies</code><span class="sig-paren">(</span><em>eigenValues</em>, <em>ignoreFirst=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Prefactor.html#eigenvalues2Frequencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Prefactor.eigenvalues2Frequencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts array of eigenvalues to a sum of log((ev[i])/twopi)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Prefactor.estimatePrefactor">
+<code class="descclassname">LKMC.Prefactor.</code><code class="descname">estimatePrefactor</code><span class="sig-paren">(</span><em>initialSumLogEVs</em>, <em>saddleSumLogEVs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Prefactor.html#estimatePrefactor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Prefactor.estimatePrefactor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates prefactor by using pre-calculated eigenvalues from the initial and saddle states.</p>
+<dl class="docutils">
+<dt>Eigenvalues are expressed as such:  initialSumLogEVs = log(ev1) + log(ev2) + .. log(evN)</dt>
+<dd>saddleSumLogEVs = log(ev2) + log(ev3) + .. log(evN)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Prefactor.estimatePrefactorOld">
+<code class="descclassname">LKMC.Prefactor.</code><code class="descname">estimatePrefactorOld</code><span class="sig-paren">(</span><em>initialEigenVals</em>, <em>saddleEigenVals</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Prefactor.html#estimatePrefactorOld"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Prefactor.estimatePrefactorOld" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates prefactor by using pre-calculated eigenvalues from the initial and saddle states.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Prefactor.getEigenValues">
+<code class="descclassname">LKMC.Prefactor.</code><code class="descname">getEigenValues</code><span class="sig-paren">(</span><em>system</em>, <em>mainIndexes</em>, <em>includeAtoms</em>, <em>params</em>, <em>algorithm=0</em>, <em>displacement=0.001</em>, <em>displVector=None</em>, <em>eigenvNo=0</em>, <em>leastNegMd=0</em>, <em>noOfWorkers=1</em>, <em>jobID=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Prefactor.html#getEigenValues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Prefactor.getEigenValues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates required eigenvalue and eigenvector.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Plot.html"
+                        title="previous chapter">LKMC.Plot module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Profiling.html"
+                        title="next chapter">LKMC.Profiling module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Prefactor.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Profiling.html" title="LKMC.Profiling module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Plot.html" title="LKMC.Plot module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

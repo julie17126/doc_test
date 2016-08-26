@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Rates module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Refine module" href="LKMC.Refine.html" />
+    <link rel="prev" title="LKMC.RAT module" href="LKMC.RAT.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Refine.html" title="LKMC.Refine module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.RAT.html" title="LKMC.RAT module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Rates">
+<span id="lkmc-rates-module"></span><h1>LKMC.Rates module<a class="headerlink" href="#module-LKMC.Rates" title="Permalink to this headline">¶</a></h1>
+<p>Module for the rate calculation.
+I guess it&#8217;s probably better separate so that
+we can add an optional prefactor calculation 
+here if we want to</p>
+<dl class="class">
+<dt id="LKMC.Rates.UnfinishedRateCalculations">
+<em class="property">class </em><code class="descclassname">LKMC.Rates.</code><code class="descname">UnfinishedRateCalculations</code><span class="sig-paren">(</span><em>volIndex</em>, <em>barrier</em>, <em>saddleSumLogEVs</em>, <em>resultIndex</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rates.html#UnfinishedRateCalculations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rates.UnfinishedRateCalculations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Rates.calculateBarrier">
+<code class="descclassname">LKMC.Rates.</code><code class="descname">calculateBarrier</code><span class="sig-paren">(</span><em>rate</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rates.html#calculateBarrier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rates.calculateBarrier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the &#8216;barrier&#8217; wrt deposition rate
+to give a better understanding.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Rates.calculateRate">
+<code class="descclassname">LKMC.Rates.</code><code class="descname">calculateRate</code><span class="sig-paren">(</span><em>barrier</em>, <em>initial</em>, <em>saddle</em>, <em>params</em>, <em>calcPrefactor=True</em>, <em>initialSumLogEVs=None</em>, <em>prefactorMainIdx=None</em>, <em>prefactorIclIdx=None</em>, <em>jobID=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rates.html#calculateRate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rates.calculateRate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the rate of a transition with the
+given energy barrier.</p>
+<p>Saddle state is required for Vineyard method.</p>
+<p>If you set calcPrefactor to False you can pass
+None for saddle.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Rates.calculateRateWithEigenValues">
+<code class="descclassname">LKMC.Rates.</code><code class="descname">calculateRateWithEigenValues</code><span class="sig-paren">(</span><em>barrier</em>, <em>params</em>, <em>initialEVLogs</em>, <em>saddleEVLogs</em>, <em>calcPrefactor=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rates.html#calculateRateWithEigenValues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rates.calculateRateWithEigenValues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the rate of a transition with the given energy barrier.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Rates.rateCalculation">
+<code class="descclassname">LKMC.Rates.</code><code class="descname">rateCalculation</code><span class="sig-paren">(</span><em>barrier</em>, <em>prefactor</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rates.html#rateCalculation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rates.rateCalculation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rate calculation</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.RAT.html"
+                        title="previous chapter">LKMC.RAT module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Refine.html"
+                        title="next chapter">LKMC.Refine module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Rates.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Refine.html" title="LKMC.Refine module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.RAT.html" title="LKMC.RAT module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

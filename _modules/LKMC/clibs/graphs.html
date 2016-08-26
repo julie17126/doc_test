@@ -1,0 +1,270 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.clibs.graphs &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.clibs.graphs</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Wrapper to graphs.c</span>
+
+<span class="sd">Copyright 2013 Chris Scott</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">ctypes</span> <span class="k">import</span> <span class="n">CDLL</span><span class="p">,</span> <span class="n">c_double</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_char_p</span>
+
+<span class="kn">from</span> <span class="nn">.numpy_utils</span> <span class="k">import</span> <span class="n">CPtrToDouble</span><span class="p">,</span> <span class="n">CPtrToInt</span>
+
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># load lib</span>
+<span class="n">_lib</span> <span class="o">=</span> <span class="n">CDLL</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s2">&quot;_graphs.so&quot;</span><span class="p">))</span>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># applyTransformMatrix prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">applyTransformMatrix</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">applyTransformMatrix</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span>
+                                      <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># applyTransformMatrix force</span>
+<div class="viewcode-block" id="applyTransformMatrix"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.graphs.html#LKMC.clibs.graphs.applyTransformMatrix">[docs]</a><span class="k">def</span> <span class="nf">applyTransformMatrix</span><span class="p">(</span><span class="n">listLen</span><span class="p">,</span> <span class="n">dVolAtoms</span><span class="p">,</span> <span class="n">atomList</span><span class="p">,</span> <span class="n">atomList2</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">nOfCoords</span><span class="p">,</span> <span class="n">matrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    applyTransformMatrix</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">applyTransformMatrix</span><span class="p">(</span><span class="n">listLen</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomList</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">atomList</span><span class="p">),</span> 
+                                     <span class="nb">len</span><span class="p">(</span><span class="n">atomList2</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">atomList2</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">nOfCoords</span><span class="p">,</span> 
+                                     <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">matrix</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># checkSepOnDefectVolumeAtoms prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">checkSepOnDefectVolumeAtoms</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">checkSepOnDefectVolumeAtoms</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_double</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># checkSepOnDefectVolumeAtoms force</span>
+<div class="viewcode-block" id="checkSepOnDefectVolumeAtoms"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.graphs.html#LKMC.clibs.graphs.checkSepOnDefectVolumeAtoms">[docs]</a><span class="k">def</span> <span class="nf">checkSepOnDefectVolumeAtoms</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">nOfCoords</span><span class="p">,</span> <span class="n">checkAtoms</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    checkSepOnDefectVolumeAtoms</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">checkSepOnDefectVolumeAtoms</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">),</span> <span class="n">radius</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> 
+                                            <span class="n">nOfCoords</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">checkAtoms</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">checkAtoms</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># getCenterOfMassOfAlist prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">getCenterOfMassOfAlist</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">getCenterOfMassOfAlist</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># getCenterOfMassOfAlist force</span>
+<div class="viewcode-block" id="getCenterOfMassOfAlist"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.graphs.html#LKMC.clibs.graphs.getCenterOfMassOfAlist">[docs]</a><span class="k">def</span> <span class="nf">getCenterOfMassOfAlist</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">nOfCoords</span><span class="p">,</span> <span class="n">centre</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    getCenterOfMassOfAlist</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">getCenterOfMassOfAlist</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> 
+                                       <span class="n">nOfCoords</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">centre</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">centre</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># getCenterOfMassOfAlistExt prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">getCenterOfMassOfAlistExt</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">getCenterOfMassOfAlistExt</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> 
+                                           <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># getCenterOfMassOfAlistExt force</span>
+<div class="viewcode-block" id="getCenterOfMassOfAlistExt"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.graphs.html#LKMC.clibs.graphs.getCenterOfMassOfAlistExt">[docs]</a><span class="k">def</span> <span class="nf">getCenterOfMassOfAlistExt</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">nOfCoords</span><span class="p">,</span> <span class="n">checkAtoms</span><span class="p">,</span> <span class="n">centre</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    getCenterOfMassOfAlistExt</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">getCenterOfMassOfAlistExt</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> 
+                                          <span class="n">nOfCoords</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">checkAtoms</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">checkAtoms</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">centre</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">centre</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># getDiffMatrix2StatesVolume prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">getDiffMatrix2StatesVolume</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">getDiffMatrix2StatesVolume</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> 
+                                            <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># getDiffMatrix2StatesVolume force</span>
+<div class="viewcode-block" id="getDiffMatrix2StatesVolume"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.graphs.html#LKMC.clibs.graphs.getDiffMatrix2StatesVolume">[docs]</a><span class="k">def</span> <span class="nf">getDiffMatrix2StatesVolume</span><span class="p">(</span><span class="n">listLen</span><span class="p">,</span> <span class="n">dVolAtoms</span><span class="p">,</span> <span class="n">atomList</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">nOfCoords</span><span class="p">,</span> <span class="n">matrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    getDiffMatrix2StatesVolume</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">getDiffMatrix2StatesVolume</span><span class="p">(</span><span class="n">listLen</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomList</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">atomList</span><span class="p">),</span> 
+                                           <span class="nb">len</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos2</span><span class="p">),</span> 
+                                           <span class="n">nOfCoords</span><span class="p">,</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">matrix</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># makeMatrixForLLS prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">makeMatrixForLLS</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">makeMatrixForLLS</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> 
+                                  <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># makeMatrixForLLS force</span>
+<div class="viewcode-block" id="makeMatrixForLLS"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.graphs.html#LKMC.clibs.graphs.makeMatrixForLLS">[docs]</a><span class="k">def</span> <span class="nf">makeMatrixForLLS</span><span class="p">(</span><span class="n">listLen</span><span class="p">,</span> <span class="n">atomList</span><span class="p">,</span> <span class="n">dVolAtoms</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">nOfCoords</span><span class="p">,</span> <span class="n">matrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    makeMatrixForLLS</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">makeMatrixForLLS</span><span class="p">(</span><span class="n">listLen</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomList</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">atomList</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">),</span> 
+                                 <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">centre</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">centre</span><span class="p">),</span> 
+                                 <span class="n">nOfCoords</span><span class="p">,</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">matrix</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># makeVectorForLLS prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">makeVectorForLLS</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">makeVectorForLLS</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> 
+                                  <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># makeVectorForLLS force</span>
+<div class="viewcode-block" id="makeVectorForLLS"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.graphs.html#LKMC.clibs.graphs.makeVectorForLLS">[docs]</a><span class="k">def</span> <span class="nf">makeVectorForLLS</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">listLen</span><span class="p">,</span> <span class="n">atomList</span><span class="p">,</span> <span class="n">dVolAtoms</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">nOfCoords</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    makeVectorForLLS</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">makeVectorForLLS</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">listLen</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">atomList</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">atomList</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">),</span> 
+                                 <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">centre</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">centre</span><span class="p">),</span> 
+                                 <span class="n">nOfCoords</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">vector</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">vector</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># modifyVolumeAtoms prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">modifyVolumeAtoms</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">modifyVolumeAtoms</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> 
+                                   <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># makeVectorForLLS force</span>
+<div class="viewcode-block" id="modifyVolumeAtoms"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.graphs.html#LKMC.clibs.graphs.modifyVolumeAtoms">[docs]</a><span class="k">def</span> <span class="nf">modifyVolumeAtoms</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">nOfCoords</span><span class="p">,</span> <span class="n">checkAtoms</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    modifyVolumeAtoms</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">modifyVolumeAtoms</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">dVolAtoms</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">nOfCoords</span><span class="p">,</span> 
+                                  <span class="nb">len</span><span class="p">(</span><span class="n">checkAtoms</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">checkAtoms</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">centre</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">centre</span><span class="p">),</span> 
+                                  <span class="nb">len</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># makeGraphFileFromLattice prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">makeGraphFileFromLattice</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">makeGraphFileFromLattice</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_double</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> 
+                                          <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_char_p</span><span class="p">]</span>
+
+<span class="c1"># makeGraphFileFromLattice force</span>
+<div class="viewcode-block" id="makeGraphFileFromLattice"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.graphs.html#LKMC.clibs.graphs.makeGraphFileFromLattice">[docs]</a><span class="k">def</span> <span class="nf">makeGraphFileFromLattice</span><span class="p">(</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">NSpecies</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">neighbourRadius</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">PBC</span><span class="p">,</span> <span class="n">minPos</span><span class="p">,</span> <span class="n">maxPos</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    makeGraphFileFromLattice</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">makeGraphFileFromLattice</span><span class="p">(</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">NSpecies</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">specie</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">specie</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">neighbourRadius</span><span class="p">,</span>
+                                         <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">PBC</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">minPos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">maxPos</span><span class="p">),</span> <span class="n">filename</span><span class="p">)</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># makeDefectVolumePosAndSpecie prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">makeDefectVolumePosAndSpecie</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">makeDefectVolumePosAndSpecie</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># makeDefectVolumePosAndSpecie</span>
+<div class="viewcode-block" id="makeDefectVolumePosAndSpecie"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.graphs.html#LKMC.clibs.graphs.makeDefectVolumePosAndSpecie">[docs]</a><span class="k">def</span> <span class="nf">makeDefectVolumePosAndSpecie</span><span class="p">(</span><span class="n">volumeAtoms</span><span class="p">,</span> <span class="n">volumePos</span><span class="p">,</span> <span class="n">volumeSpecie</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">specie</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    makeDefectVolumePosAndSpecie</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">makeDefectVolumePosAndSpecie</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">volumeAtoms</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">volumeAtoms</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">volumePos</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">volumeSpecie</span><span class="p">),</span> 
+                                             <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">specie</span><span class="p">))</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

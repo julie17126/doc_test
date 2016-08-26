@@ -1,0 +1,1297 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Lattice module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Lbomd module" href="LKMC.Lbomd.html" />
+    <link rel="prev" title="LKMC.Lanczos module" href="LKMC.Lanczos.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Lbomd.html" title="LKMC.Lbomd module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Lanczos.html" title="LKMC.Lanczos module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Lattice">
+<span id="lkmc-lattice-module"></span><h1>LKMC.Lattice module<a class="headerlink" href="#module-LKMC.Lattice" title="Permalink to this headline">¶</a></h1>
+<p>This module contains the Lattice class and associated methods.</p>
+<dl class="class">
+<dt id="LKMC.Lattice.Lattice">
+<em class="property">class </em><code class="descclassname">LKMC.Lattice.</code><code class="descname">Lattice</code><span class="sig-paren">(</span><em>NAtoms</em>, <em>storeEnergies=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>The <cite>Lattice</cite> class holds information about the state of a system.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>NAtoms</strong> : integer</p>
+<blockquote>
+<div><p>The number of atoms to initialise the system with (note this 
+can be set to 0 if you want to add atoms one at a time (eg. 
+using the <cite>Lattice.addAtom</cite> method).</p>
+</div></blockquote>
+<p><strong>storeEnergies</strong> : bool, optional</p>
+<blockquote class="last">
+<div><p>Set this to &#8216;True&#8217; if you want to store potential (<code class="docutils literal"><span class="pre">Lattice.PE</span></code>)
+and kinetic (<code class="docutils literal"><span class="pre">Lattice.KE</span></code>) energies for each atom. If set
+to &#8216;False&#8217; this will only store the total energy of the <cite>Lattice</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="6%" />
+<col width="94%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>NAtoms</td>
+<td>(integer) The number of atoms in the system.</td>
+</tr>
+<tr class="row-even"><td>cellDims</td>
+<td>(ndarray) Dimensions of the simulations cell.</td>
+</tr>
+<tr class="row-odd"><td>specieList</td>
+<td>(ndarray) Array containing two character species symbols found in the the <cite>Lattice</cite>.</td>
+</tr>
+<tr class="row-even"><td>specieCount</td>
+<td>(ndarray) List of counters indicating the number of atoms of each species (from the <cite>Lattice.specieList</cite>).</td>
+</tr>
+<tr class="row-odd"><td>specie</td>
+<td>(ndarray) Array of integers, indicating the species of each atom in the <cite>Lattice</cite> (i.e. the index of their symbol in the <cite>Lattice.specieList</cite>).</td>
+</tr>
+<tr class="row-even"><td>pos</td>
+<td>(ndarray) The positions of the atoms in the <cite>Lattice</cite>. Positions are stored like this [xpos_0, ypos_0, zpos_0, xpos_1, ypos_1, ...]. The length of the array is <code class="docutils literal"><span class="pre">3</span> <span class="pre">x</span> <span class="pre">NAtoms</span></code>.</td>
+</tr>
+<tr class="row-odd"><td>charge</td>
+<td>(ndarray) The charges of the atoms.</td>
+</tr>
+<tr class="row-even"><td>force</td>
+<td>(ndarray) The forces acting on the atoms. The structure is the same as the <cite>Lattice.pos</cite> array.</td>
+</tr>
+<tr class="row-odd"><td>totalEnergy</td>
+<td>(float) The total energy of the system.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.addAtom">
+<code class="descname">addAtom</code><span class="sig-paren">(</span><em>sym</em>, <em>pos</em>, <em>charge</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.addAtom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.addAtom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an atom to the <cite>Lattice</cite>.</p>
+<p>This method updates the <cite>Lattice.specieList</cite> and
+<cite>Lattice.specieCount</cite> arrays and is the safest way to add
+additional atoms to the <cite>Lattice</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sym</strong> : str[2]</p>
+<blockquote>
+<div><p>The species of the new atom, eg. &#8216;Au&#8217;.</p>
+</div></blockquote>
+<p><strong>pos</strong> : array_like[3]</p>
+<blockquote>
+<div><p>The position of new atom.</p>
+</div></blockquote>
+<p><strong>charge</strong> : float</p>
+<blockquote class="last">
+<div><p>The charge of the new atom.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.addSpecie">
+<code class="descname">addSpecie</code><span class="sig-paren">(</span><em>sym</em>, <em>count=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.addSpecie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.addSpecie" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new species to <cite>Lattice.specieList</cite>.</p>
+<p>If <cite>sym</cite> already exists in <cite>Lattice.specieList</cite> and <cite>count</cite> is
+specified, then the count for the given species is updated.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sym</strong> : str[2]</p>
+<blockquote>
+<div><p>The symbol of the species to add.</p>
+</div></blockquote>
+<p><strong>count</strong> : int, optional</p>
+<blockquote class="last">
+<div><p>The initial count to place into <em>Lattice.specieCount</em>.
+Defaults to 0.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.atomPos">
+<code class="descname">atomPos</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.atomPos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.atomPos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the position of the given atom.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>index</strong> : integer</p>
+<blockquote>
+<div><p>The index of the atom whose position you require.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>atomPos</strong> : ndarray</p>
+<blockquote>
+<div><p>The position of the selected atom.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>IndexError</strong></p>
+<blockquote class="last">
+<div><p>If the specified index is too large.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The returned array is a pointer to the atoms position in the 
+<cite>Lattice.pos</cite> array. Modifying the position in the returned
+array will modify the atoms position in the <cite>Lattice</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.atomSeparation">
+<code class="descname">atomSeparation</code><span class="sig-paren">(</span><em>index1</em>, <em>index2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.atomSeparation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.atomSeparation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the separation between two atoms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>index1, index2</strong> : integer</p>
+<blockquote>
+<div><p>Indexes of the atoms you want to calculate the separation
+between.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>atomSeparation</strong> : float</p>
+<blockquote>
+<div><p>The separation between the two atoms. This function will
+return &#8216;None&#8217; if the indexes are out of range.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>IndexError</strong></p>
+<blockquote class="last">
+<div><p>If the specified indexes are too large.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.atomSym">
+<code class="descname">atomSym</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.atomSym"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.atomSym" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the symbol of the given atom.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>index</strong> : integer</p>
+<blockquote>
+<div><p>The index of the atom.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>atomSym</strong> : str[2]</p>
+<blockquote>
+<div><p>The two character symbol representing the species of the atom.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>IndexError</strong></p>
+<blockquote class="last">
+<div><p>If the specified index is too large.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.buildSubLattice">
+<code class="descname">buildSubLattice</code><span class="sig-paren">(</span><em>mainAtoms</em>, <em>includeRadius</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.buildSubLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.buildSubLattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a sub-lattice of atoms around the main atoms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>mainAtoms</strong> : ndarray</p>
+<blockquote>
+<div><p>A NumPy array containing the indexes of the atoms around which
+we will build the sub-lattice.</p>
+</div></blockquote>
+<p><strong>includeRadius</strong></p>
+<blockquote>
+<div><p>The radius (or skin) to place around the <cite>mainAtoms</cite>. All 
+atoms within this distance of an atom in the <cite>mainAtoms</cite> list 
+will be included in the sub-system.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>subsystem</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>A NumPy array containing the indexes of the atoms in the sub-system.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.calcForce">
+<code class="descname">calcForce</code><span class="sig-paren">(</span><em>MDPath=None</em>, <em>defectFlag=0</em>, <em>correctTE=False</em>, <em>includeAtoms=array([]</em>, <em>dtype=int32)</em>, <em>mainIndexes=array([]</em>, <em>dtype=int32)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.calcForce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.calcForce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate forces acting on the <cite>Lattice</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>correctTE</strong> : bool, optional</p>
+<blockquote>
+<div><p>Compute the correct total energy, i.e. ignore <cite>defectFlag</cite>.</p>
+</div></blockquote>
+<p><strong>defectFlag</strong> : {0, 1, 2}, optional</p>
+<blockquote>
+<div><p>Calculate forces on defect sub-system.</p>
+<ul class="simple">
+<li>Set to 0 to do a normal force calculation (default)</li>
+<li>Set to 1 to zero the forces on atoms within the sub-system</li>
+<li>Set to 2 to zero the forces on atoms outside the sub-system</li>
+</ul>
+</div></blockquote>
+<p><strong>mainIndexes</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>Specify the main atoms to use in the <cite>defectFlag</cite> calculation.  
+These atoms make up the defect sub-system. If not specified it defaults 
+to <cite>Lattice.defectSubSystem</cite>.</p>
+</div></blockquote>
+<p><strong>includeAtoms</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>Specify the atoms to include in the force calculation to make 
+sure the energies and forces on the main atoms are correct. If not 
+specified then these atoms are determined by building a sub-lattice (see 
+<cite>Lattice.buildSubLattice</cite>) around the main atoms using the parameter: 
+<em>subLatticeIncludeRadius</em>.</p>
+</div></blockquote>
+<p><strong>MDPath</strong> : str</p>
+<blockquote>
+<div><p>Deprecated! This setting will likely be removed in a future release!</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>status</strong> : integer</p>
+<blockquote class="last">
+<div><p>0 means success, anything else is a failure.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.calcTemperature">
+<code class="descname">calcTemperature</code><span class="sig-paren">(</span><em>NMoving=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.calcTemperature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.calcTemperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the temperature of the <cite>Lattice</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>NMoving</strong> : int, optional</p>
+<blockquote>
+<div><p>The number of moving atoms in the <cite>Lattice</cite> (defaults to all atoms).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>temperature</strong> : float</p>
+<blockquote class="last">
+<div><p>The temperature of the <cite>Lattice</cite> in K.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This assumes that all the atoms in the system are &#8216;moving&#8217;. If you have
+fixed atoms then this will give a different result to the MD code.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.changeAtomSpecie">
+<code class="descname">changeAtomSpecie</code><span class="sig-paren">(</span><em>index</em>, <em>sym</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.changeAtomSpecie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.changeAtomSpecie" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the species of the given atom. This method updates the
+species list and species counter arrays.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>index</strong> : integer</p>
+<blockquote>
+<div><p>The index of the atom whose species you want to change.</p>
+</div></blockquote>
+<p><strong>sym</strong> : str[2]</p>
+<blockquote>
+<div><p>Two character symbol representing the species to change
+the given atom to.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>IndexError</strong></p>
+<blockquote class="last">
+<div><p>If the specified indexes are too large.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.countNumIndividualVolumes">
+<code class="descname">countNumIndividualVolumes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.countNumIndividualVolumes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.countNumIndividualVolumes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Count the number of individual defect volumes (i.e. excluding 
+combined volumes).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>count</strong> : integer</p>
+<blockquote class="last">
+<div><p>The number of individual defect volumes in the <cite>Lattice</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.findDefects">
+<code class="descname">findDefects</code><span class="sig-paren">(</span><em>ref</em>, <em>parameters</em>, <em>overlayMode=False</em>, <em>writer=None</em>, <em>outdir='.'</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.findDefects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.findDefects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find defects in the lattice.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ref</strong> : <cite>Lattice</cite></p>
+<blockquote>
+<div><p>The reference <cite>Lattice</cite> object.</p>
+</div></blockquote>
+<p><strong>parameters</strong> : <cite>Input.InputParams</cite></p>
+<blockquote>
+<div><p>The <cite>Input.InputParams</cite> instance containing the desired parameters.</p>
+</div></blockquote>
+<p><strong>overlayMode</strong> : bool, optional</p>
+<blockquote>
+<div><p>Not sure if this does anything (CDJS 07/10/14)</p>
+</div></blockquote>
+<p><strong>writer</strong> : <cite>Writer.LKMCWriter</cite>, optional</p>
+<blockquote>
+<div><p>Instance of <cite>Writer.LKMCWriter</cite>. Not sure what this does...</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">defectsObject</p>
+<blockquote class="last">
+<div><p>Instance of <cite>Rendering.DefectsObject</cite> containing information about the 
+defects.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This method calls <cite>Defects.findDefectVolumes</cite>. This method modifies the 
+<cite>Lattice.defectVolumes</cite>, etc. attributes with the new defect information.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.findMovedAtoms">
+<code class="descname">findMovedAtoms</code><span class="sig-paren">(</span><em>compareLattice</em>, <em>threshold=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.findMovedAtoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.findMovedAtoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find atoms that have moved between this <cite>Lattice</cite> and 
+<cite>compareLattice</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>compareLattice</strong> : <cite>Lattice</cite></p>
+<blockquote>
+<div><p>Input <cite>Lattice</cite> to check against for movement.</p>
+</div></blockquote>
+<p><strong>threshold</strong> : float, optional</p>
+<blockquote>
+<div><p>Only classify an atom as &#8216;moved&#8217; if it as moved at least this
+distance.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>movedIndexes</strong> : ndarray</p>
+<blockquote>
+<div><p>Array containing the indexes of the atoms that have moved.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>RuntimeError</strong></p>
+<blockquote class="last">
+<div><p>If the numbers of atoms in <cite>Lattice</cite> and <cite>compareLattice</cite> do
+not match.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.findNeighbours">
+<code class="descname">findNeighbours</code><span class="sig-paren">(</span><em>atomIndex</em>, <em>maxSeparation</em>, <em>sort=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.findNeighbours"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.findNeighbours" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the neighbours of an atom.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>atomIndex</strong> : int</p>
+<blockquote>
+<div><p>The index of the atom whose neighbours you want to find</p>
+</div></blockquote>
+<p><strong>maxSeparation</strong> : float</p>
+<blockquote>
+<div><p>Atoms within this distance of the selected atom are classed as
+neighbours</p>
+</div></blockquote>
+<p><strong>sort</strong> : boolean, optional</p>
+<blockquote>
+<div><p>Sort the neighbours by separation, default is to return them
+unsorted</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>neighbours</strong> : ndarray</p>
+<blockquote>
+<div><p>Array containing the indexes of the atoms neighbours</p>
+</div></blockquote>
+<p><strong>neighbourSeparations</strong> : ndarray</p>
+<blockquote>
+<div><p>Array containing the separations to the atoms neighbours</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>IndexError</strong></p>
+<blockquote class="last">
+<div><p>If the selected atom index is out of range</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.getForceParallel">
+<code class="descname">getForceParallel</code><span class="sig-paren">(</span><em>N</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.getForceParallel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.getForceParallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the parallel component of <cite>Lattice.force</cite> with respect to
+the vector <cite>N</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>N</strong> : ndarray</p>
+<blockquote>
+<div><p>Input vector; assumed to be of the same length as 
+<cite>Lattice.force</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>paraForce</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Returns array containing the parallel component of 
+<cite>Lattice.force</cite> with respect to vector <cite>N</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.getForcePerpendicular">
+<code class="descname">getForcePerpendicular</code><span class="sig-paren">(</span><em>N</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.getForcePerpendicular"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.getForcePerpendicular" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the perpendicular component of <cite>Lattice.force</cite> with 
+respect to the vector <cite>N</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>N</strong> : ndarray</p>
+<blockquote>
+<div><p>Input vector; assumed to be of the same length as 
+<cite>Lattice.force</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>perpForce</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Returns array containing the perpendicular component of 
+<cite>Lattice.force</cite> with respect to vector <cite>N</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.getHashKey">
+<code class="descname">getHashKey</code><span class="sig-paren">(</span><em>filename=None</em>, <em>nebRad=3.5</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.getHashKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.getHashKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Nauty hash key of the <cite>Lattice</cite>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Deprecated.
+Untested and likely to be removed in the future</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str, optional</p>
+<blockquote>
+<div><p>File to write the connectivity information to. If not 
+specified then a temporary file is created.</p>
+</div></blockquote>
+<p><strong>nebRad</strong> : float</p>
+<blockquote class="last">
+<div><p>Neighbour radius to use when building connectivity between
+atoms.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.getIndicesFromPositions">
+<code class="descname">getIndicesFromPositions</code><span class="sig-paren">(</span><em>inputPos</em>, <em>maxSep=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.getIndicesFromPositions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.getIndicesFromPositions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the atoms within the Lattice that correspond to the input positions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>inputPos</strong> : np.ndarray</p>
+<blockquote>
+<div><p>The positions that you want to associate with atoms in the <cite>Lattice</cite>.</p>
+</div></blockquote>
+<p><strong>maxSep</strong> : float, optional</p>
+<blockquote>
+<div><p>The maximum separation allowed for a site to be associated with one of the
+input positions. Defaults to 0.1.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>indices</strong> : np.ndarray</p>
+<blockquote>
+<div><p>The indices of the atoms that correspond to the <cite>inputPos</cite> positions. Note,
+if no atom was found to correspond to a position then we return -1 in its
+place. It is up to the user what they do with this information.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>If <cite>maxSep</cite> is zero or negative.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.getMinSepList">
+<code class="descname">getMinSepList</code><span class="sig-paren">(</span><em>inputPos</em>, <em>atomList</em>, <em>maxSpacing=10.0</em>, <em>atomListSize=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.getMinSepList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.getMinSepList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns minimum separation between <cite>inputPos</cite> and an atom from <cite>atomList</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>inputPos</strong> : np.ndarray[3]</p>
+<blockquote>
+<div><p>The position you want to check.</p>
+</div></blockquote>
+<p><strong>atomList</strong> : np.ndarray</p>
+<blockquote>
+<div><p>The indices of the atoms from the <cite>Lattice</cite> you want to check against.</p>
+</div></blockquote>
+<p><strong>maxSpacing</strong> : float</p>
+<blockquote>
+<div><p>The maximum spacing between atoms in the lattice. This is used for domain
+decomposition; if set too small could result in there being no points near
+<cite>inputPos</cite>. You can check if this has happened since <cite>minSep</cite> will be larger
+than <cite>maxSpacing</cite>.</p>
+</div></blockquote>
+<p><strong>atomListSize</strong> : int, optional</p>
+<blockquote>
+<div><p>The size of <cite>atomList</cite>. If this parameter is not set then we use the full
+array (i.e. this parameter can be used if wish to only consider the first
+<cite>atomListSize</cite> elements ofe the <cite>atomList</cite> array).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>minSep</strong> : float or None</p>
+<blockquote>
+<div><p>The minimum separation found between <cite>inputPos</cite> and an atom from <cite>atomList</cite>.
+If no atom was found within <cite>maxSpacing</cite> of the <cite>inputPos</cite> then retun None.</p>
+</div></blockquote>
+<p><strong>minSepIndex</strong> : int or None</p>
+<blockquote>
+<div><p>The index of the site within <cite>atomList</cite> that was closest to <cite>inputPos</cite> or
+None if no atom was found within <cite>maxSpacing</cite>. Note this is not the index
+within the Lattice but is the index within <cite>atomList</cite>, i.e.
+<cite>0 &lt;= index &lt; len(atomList)</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>If atomListSize is specified and it is out of range (bigger than
+<cite>len(atomList)</cite> or negative).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.getSpecieIndex">
+<code class="descname">getSpecieIndex</code><span class="sig-paren">(</span><em>check</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.getSpecieIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.getSpecieIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the index of the given symbol in <cite>Lattice.specieList</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>check</strong> : str[2]</p>
+<blockquote>
+<div><p>The input symbol.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">index</p>
+<blockquote>
+<div><p>The index of the given symbol in <cite>Lattice.specieList</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>If the symbol does not exist in <cite>Lattice.specieList</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.getSpecieIndices">
+<code class="descname">getSpecieIndices</code><span class="sig-paren">(</span><em>sym</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.getSpecieIndices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.getSpecieIndices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of indices of all atoms with the given symbol.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sym</strong> : str</p>
+<blockquote>
+<div><p>Two character symbol representing species.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>atoms</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>NumPy array containing indices of atoms with the given
+symbol. This will be empty if the given symbol was not 
+in <cite>Lattice.specieList</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.initiateAtomsDisplacement">
+<code class="descname">initiateAtomsDisplacement</code><span class="sig-paren">(</span><em>atomList</em>, <em>displ</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.initiateAtomsDisplacement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.initiateAtomsDisplacement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initiate atom displacement...</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.initiateDefectDisplacement">
+<code class="descname">initiateDefectDisplacement</code><span class="sig-paren">(</span><em>step</em>, <em>parameters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.initiateDefectDisplacement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.initiateDefectDisplacement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initiate displacement around a defect atom.</p>
+<p>Randomly pick a defect atom and move surrounding atoms by a
+random amount (determined by <cite>step</cite>). A list of atoms in the 
+surrounding area is stored in the <cite>Lattice.defectSubSystem</cite> array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>step</strong> : float</p>
+<blockquote>
+<div><p>The step size to move the selected atoms by.</p>
+</div></blockquote>
+<p><strong>parameters</strong> : <cite>Input.InputParams</cite></p>
+<blockquote class="last">
+<div><p>Parameters instance.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.removeAtom">
+<code class="descname">removeAtom</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.removeAtom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.removeAtom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Safely remove an atom from the <cite>Lattice</cite>.</p>
+<p>This method updates the <cite>Lattice.specieList</cite> and 
+<cite>Lattice.specieCount</cite> arrays and is the safest way to remove 
+atoms from the <cite>Lattice</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>index</strong> : integer</p>
+<blockquote class="last">
+<div><p>The index of the atom you want to remove</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.removeOutBoundary">
+<code class="descname">removeOutBoundary</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.removeOutBoundary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.removeOutBoundary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check and remove atoms that out of boundaries.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.removeSpecie">
+<code class="descname">removeSpecie</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.removeSpecie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.removeSpecie" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a species from the species list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>index</strong> : integer</p>
+<blockquote>
+<div><p>The index of the species to remove.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>IndexError</strong></p>
+<blockquote class="last">
+<div><p>If <cite>index</cite> is out of range.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.removeSputter">
+<code class="descname">removeSputter</code><span class="sig-paren">(</span><em>refState</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.removeSputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.removeSputter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove sputtered atoms from the <cite>Lattice</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>refState</strong> : <cite>Lattice</cite></p>
+<blockquote>
+<div><p>The reference lattice object.</p>
+</div></blockquote>
+<p><strong>params</strong> : <cite>Input.InputParams</cite></p>
+<blockquote class="last">
+<div><p>Parameters instance.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Sputtered atoms are detected by finding defect volumes with 
+2nd_radius=cutoff and to see if there&#8217;re other atoms in this 
+distance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.setCellDims">
+<code class="descname">setCellDims</code><span class="sig-paren">(</span><em>dimsArray</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.setCellDims"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.setCellDims" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the <cite>Lattice</cite> cell dimensions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dimsArray</strong> : array_like[9]</p>
+<blockquote class="last">
+<div><p>Array-like object of length 9, containing the dimensions
+you want to set. Does nothing if this array is the 
+wrong length.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.specieIndex">
+<code class="descname">specieIndex</code><span class="sig-paren">(</span><em>check</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.specieIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.specieIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the index of the given symbol in <cite>Lattice.specieList</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>check</strong> : str[2]</p>
+<blockquote>
+<div><p>The input symbol.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">index</p>
+<blockquote>
+<div><p>The index of the given symbol in <cite>Lattice.specieList</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>If the symbol does not exist in <cite>Lattice.specieList</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.totalCharge">
+<code class="descname">totalCharge</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.totalCharge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.totalCharge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the net charge of the system.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>totalCharge</strong> : float</p>
+<blockquote class="last">
+<div><p>The net charge of the system.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.volume">
+<code class="descname">volume</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.volume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the volume of the <cite>Lattice</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>volume</strong> : float</p>
+<blockquote class="last">
+<div><p>The volume of the <cite>Lattice</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.wrapAtoms">
+<code class="descname">wrapAtoms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.wrapAtoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.wrapAtoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrap atoms that have left the box (if using periodic boundaries).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.wrapLattice">
+<code class="descname">wrapLattice</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.wrapLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.wrapLattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrap atoms that have left the box (if using periodic boundaries).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.writeLattice">
+<code class="descname">writeLattice</code><span class="sig-paren">(</span><em>filename</em>, <em>append=False</em>, <em>zipfile=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.writeLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.writeLattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the <cite>Lattice</cite> to a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str</p>
+<blockquote>
+<div><p>The name of the file to write the <cite>Lattice</cite> to.</p>
+</div></blockquote>
+<p><strong>append</strong> : bool, optional</p>
+<blockquote>
+<div><p>Append the lattice onto the end of the given file. This
+creates a &#8216;combined lattice file&#8217;.</p>
+</div></blockquote>
+<p><strong>zipfile</strong> : bool, optional</p>
+<blockquote class="last">
+<div><p>Use gzip to compress the file after writing it.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lattice.Lattice.writeObject">
+<code class="descname">writeObject</code><span class="sig-paren">(</span><em>filename</em>, <em>append=False</em>, <em>zipfile=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#Lattice.writeObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.Lattice.writeObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the <cite>Lattice</cite> to a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str</p>
+<blockquote>
+<div><p>The name of the file to write the <cite>Lattice</cite> to.</p>
+</div></blockquote>
+<p><strong>append</strong> : bool, optional</p>
+<blockquote>
+<div><p>Append the lattice onto the end of the given file. This
+creates a &#8216;combined lattice file&#8217;.</p>
+</div></blockquote>
+<p><strong>zipfile</strong> : bool, optional</p>
+<blockquote class="last">
+<div><p>Use gzip to compress the file after writing it.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lattice.checkLAMMPSLatticeFileIntegrity">
+<code class="descclassname">LKMC.Lattice.</code><code class="descname">checkLAMMPSLatticeFileIntegrity</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#checkLAMMPSLatticeFileIntegrity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.checkLAMMPSLatticeFileIntegrity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check integrity of lattice file.
+Currently just does line count and check
+it matches number of atoms.
+Returns 1 if file ok, 0 otherwise.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lattice.checkLatticeFileIntegrity">
+<code class="descclassname">LKMC.Lattice.</code><code class="descname">checkLatticeFileIntegrity</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#checkLatticeFileIntegrity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.checkLatticeFileIntegrity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check the integrity of a lattice file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str</p>
+<blockquote>
+<div><p>The name of the file to check.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fileOK</strong> : {0, 1}</p>
+<blockquote class="last">
+<div><p>1 means the file is OK, 0 means it is not.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Currently this just checks the line count of the file against the number of atoms.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lattice.pushSystem">
+<code class="descclassname">LKMC.Lattice.</code><code class="descname">pushSystem</code><span class="sig-paren">(</span><em>initial</em>, <em>saddle</em>, <em>params</em>, <em>direction</em>, <em>stepBackPos=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#pushSystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.pushSystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Push a system (typically a saddle point) in the given direction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>initial</strong> : <cite>Lattice</cite></p>
+<blockquote>
+<div><p>The initial state (from the saddle search).</p>
+</div></blockquote>
+<p><strong>saddle</strong> : <cite>Lattice</cite></p>
+<blockquote>
+<div><p>The saddle point (the <cite>Lattice</cite> that will be &#8216;pushed&#8217;).</p>
+</div></blockquote>
+<p><strong>params</strong> : <cite>Input.InputParams</cite></p>
+<blockquote>
+<div><p>The parameters object.</p>
+</div></blockquote>
+<p><strong>direction</strong> : {0, 1}</p>
+<blockquote>
+<div><p>If 1 we push forwards (away from the initial). If 0 we push back towards
+the initial.</p>
+</div></blockquote>
+<p><strong>stepBackPos</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>If specified this is the position array that will be copied onto the 
+<cite>Lattice</cite> object.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>pushedSaddle</strong> : <cite>Lattice</cite></p>
+<blockquote class="last">
+<div><p>The pushed saddle.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lattice.readCombinedLatticeFile">
+<code class="descclassname">LKMC.Lattice.</code><code class="descname">readCombinedLatticeFile</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#readCombinedLatticeFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.readCombinedLatticeFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read combined Lattice file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str</p>
+<blockquote>
+<div><p>The name of the file containing the combined lattice.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>latticeList</strong> : list</p>
+<blockquote class="last">
+<div><p>A list of <cite>Lattice</cite> objects that were read in from the file.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lattice.readLattice">
+<code class="descclassname">LKMC.Lattice.</code><code class="descname">readLattice</code><span class="sig-paren">(</span><em>filename</em>, <em>storeEnergies=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#readLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.readLattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a file into a <cite>Lattice</cite> object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str</p>
+<blockquote>
+<div><p>The name of the file to read in.</p>
+</div></blockquote>
+<p><strong>storeEnergies</strong> : bool, optional</p>
+<blockquote>
+<div><p>Set to True to create arrays for storing kinetic and
+potential energies. False by default. See the <cite>storeEnergies</cite> option
+on the <cite>Lattice</cite> object.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>lattice</strong> : <cite>Lattice</cite></p>
+<blockquote class="last">
+<div><p>The <cite>Lattice</cite> object read in from the file.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lattice.readLatticeLAMMPS">
+<code class="descclassname">LKMC.Lattice.</code><code class="descname">readLatticeLAMMPS</code><span class="sig-paren">(</span><em>filename</em>, <em>storeEnergies</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#readLatticeLAMMPS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.readLatticeLAMMPS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a LAMMPS dump file into a <cite>Lattice</cite> object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str</p>
+<blockquote>
+<div><p>The name of the file to read in.</p>
+</div></blockquote>
+<p><strong>storeEnergies</strong> : bool</p>
+<blockquote>
+<div><p>Set to True to create arrays for storing kinetic and
+potential energies. See the <cite>storeEnergies</cite> option
+on the <cite>Lattice</cite> object.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>lattice</strong> : <cite>Lattice</cite></p>
+<blockquote class="last">
+<div><p>The <cite>Lattice</cite> object read in from the file.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lattice.readLatticeLBOMD">
+<code class="descclassname">LKMC.Lattice.</code><code class="descname">readLatticeLBOMD</code><span class="sig-paren">(</span><em>filename</em>, <em>storeEnergies</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lattice.html#readLatticeLBOMD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lattice.readLatticeLBOMD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a LBOMD &#8216;lattice&#8217; format file into a <cite>Lattice</cite> object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str</p>
+<blockquote>
+<div><p>The name of the file to read in.</p>
+</div></blockquote>
+<p><strong>storeEnergies</strong> : bool</p>
+<blockquote>
+<div><p>Set to True to create arrays for storing kinetic and
+potential energies. See the <cite>storeEnergies</cite> option
+on the <cite>Lattice</cite> object.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>lattice</strong> : <cite>Lattice</cite></p>
+<blockquote class="last">
+<div><p>The <cite>Lattice</cite> object read in from the file.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Lanczos.html"
+                        title="previous chapter">LKMC.Lanczos module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Lbomd.html"
+                        title="next chapter">LKMC.Lbomd module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Lattice.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Lbomd.html" title="LKMC.Lbomd module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Lanczos.html" title="LKMC.Lanczos module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

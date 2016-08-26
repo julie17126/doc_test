@@ -1,0 +1,7 @@
+LKMC.Refine module
+==================
+
+.. automodule:: LKMC.Refine
+    :members:
+    :undoc-members:
+    :show-inheritance:

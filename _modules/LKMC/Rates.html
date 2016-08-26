@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Rates &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Rates</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for the rate calculation.</span>
+<span class="sd">I guess it&#39;s probably better separate so that</span>
+<span class="sd">we can add an optional prefactor calculation </span>
+<span class="sd">here if we want to</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Algebra</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Constants</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Prefactor</span>
+
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+
+<div class="viewcode-block" id="UnfinishedRateCalculations"><a class="viewcode-back" href="../../LKMC/LKMC.Rates.html#LKMC.Rates.UnfinishedRateCalculations">[docs]</a><span class="k">class</span> <span class="nc">UnfinishedRateCalculations</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volIndex</span><span class="p">,</span> <span class="n">barrier</span><span class="p">,</span> <span class="n">saddleSumLogEVs</span><span class="p">,</span> <span class="n">resultIndex</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">volIndex</span> <span class="o">=</span> <span class="n">volIndex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="n">barrier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saddleSumLogEVs</span> <span class="o">=</span> <span class="n">saddleSumLogEVs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resultIndex</span> <span class="o">=</span> <span class="n">resultIndex</span></div>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="calculateRateWithEigenValues"><a class="viewcode-back" href="../../LKMC/LKMC.Rates.html#LKMC.Rates.calculateRateWithEigenValues">[docs]</a><span class="k">def</span> <span class="nf">calculateRateWithEigenValues</span><span class="p">(</span><span class="n">barrier</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">initialEVLogs</span><span class="p">,</span> <span class="n">saddleEVLogs</span><span class="p">,</span> <span class="n">calcPrefactor</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the rate of a transition with the given energy barrier.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">fixedPrefactor</span> <span class="ow">or</span> <span class="n">calcPrefactor</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">prefactor</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">fixedPrefactorVal</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">prefactor</span> <span class="o">=</span> <span class="n">Prefactor</span><span class="o">.</span><span class="n">estimatePrefactor</span><span class="p">(</span><span class="n">initialEVLogs</span><span class="p">,</span> <span class="n">saddleEVLogs</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">prefactor</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Warning: Something went wrong during the prefactor calculation&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">prefactor</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">fixedPrefactorVal</span>
+            
+    <span class="n">rate</span> <span class="o">=</span> <span class="n">rateCalculation</span><span class="p">(</span><span class="n">barrier</span><span class="p">,</span> <span class="n">prefactor</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">rate</span><span class="p">,</span> <span class="n">prefactor</span></div>
+    
+<div class="viewcode-block" id="calculateRate"><a class="viewcode-back" href="../../LKMC/LKMC.Rates.html#LKMC.Rates.calculateRate">[docs]</a><span class="k">def</span> <span class="nf">calculateRate</span><span class="p">(</span><span class="n">barrier</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">saddle</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">calcPrefactor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">initialSumLogEVs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+        <span class="n">prefactorMainIdx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefactorIclIdx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the rate of a transition with the</span>
+<span class="sd">    given energy barrier.</span>
+<span class="sd">    </span>
+<span class="sd">    Saddle state is required for Vineyard method.</span>
+<span class="sd">    </span>
+<span class="sd">    If you set calcPrefactor to False you can pass</span>
+<span class="sd">    None for saddle.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># prefactor</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">fixedPrefactor</span> <span class="ow">or</span> <span class="n">calcPrefactor</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">prefactor</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">fixedPrefactorVal</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">initialSumLogEVs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">initialSumLogEVs</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)):</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Warning: Eigenvalues at the initial state are not evaluated. Using default prefactor instead&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">prefactor</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">fixedPrefactorVal</span>
+        
+        <span class="k">elif</span> <span class="p">((</span><span class="n">prefactorMainIdx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">prefactorIclIdx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span>
+              <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">prefactorMainIdx</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">prefactorIclIdx</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)):</span>
+            
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Warning: Something wrong with prefactor atom lists. Using default prefactor instead&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">prefactor</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">fixedPrefactorVal</span>
+        <span class="k">else</span><span class="p">:</span>
+    
+            <span class="n">status</span><span class="p">,</span> <span class="n">saddleEigenValues</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Algebra</span><span class="o">.</span><span class="n">getSystemsImplicitEigenvalues</span><span class="p">(</span><span class="n">saddle</span><span class="p">,</span> <span class="n">prefactorMainIdx</span><span class="p">,</span> 
+                <span class="n">prefactorIclIdx</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">noEigenVects</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">includeMasses</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="n">jobID</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">saddleSumLogEVs</span> <span class="o">=</span> <span class="n">Prefactor</span><span class="o">.</span><span class="n">eigenvalues2Frequencies</span><span class="p">(</span><span class="n">saddleEigenValues</span><span class="p">,</span> <span class="n">ignoreFirst</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                
+                <span class="n">prefactor</span> <span class="o">=</span> <span class="n">Prefactor</span><span class="o">.</span><span class="n">estimatePrefactor</span><span class="p">(</span><span class="n">initialSumLogEVs</span><span class="p">,</span> <span class="n">saddleSumLogEVs</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">prefactor</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Warning: invalid prefactor value. Using default prefactor instead&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">prefactor</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">fixedPrefactorVal</span>
+                    
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;DEBUG: calculated prefactor: </span><span class="si">%e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefactor</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Warning: cannot estimate eigenvalues at the saddle. Using default prefactor instead&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">prefactor</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">fixedPrefactorVal</span>
+            
+    <span class="n">rate</span> <span class="o">=</span> <span class="n">rateCalculation</span><span class="p">(</span><span class="n">barrier</span><span class="p">,</span> <span class="n">prefactor</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">rate</span></div>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="calculateBarrier"><a class="viewcode-back" href="../../LKMC/LKMC.Rates.html#LKMC.Rates.calculateBarrier">[docs]</a><span class="k">def</span> <span class="nf">calculateBarrier</span><span class="p">(</span><span class="n">rate</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the &#39;barrier&#39; wrt deposition rate</span>
+<span class="sd">    to give a better understanding.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># prefactor</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">fixedPrefactor</span><span class="p">:</span>
+        <span class="n">prefactor</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">fixedPrefactorVal</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># I guess one day we might want the option to calculate prefactor on the fly?</span>
+        <span class="c1"># for now just use the fixed value</span>
+        <span class="n">prefactor</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">fixedPrefactorVal</span>
+    
+    <span class="c1"># barrier calculation</span>
+    <span class="n">barrier</span> <span class="o">=</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">rate</span> <span class="o">/</span> <span class="n">prefactor</span><span class="p">)</span> <span class="o">*</span> <span class="n">Constants</span><span class="o">.</span><span class="n">boltzmann</span> <span class="o">*</span> <span class="n">Globals</span><span class="o">.</span><span class="n">systemTemperature</span>
+    
+    <span class="k">return</span> <span class="n">barrier</span></div>
+
+
+<div class="viewcode-block" id="rateCalculation"><a class="viewcode-back" href="../../LKMC/LKMC.Rates.html#LKMC.Rates.rateCalculation">[docs]</a><span class="k">def</span> <span class="nf">rateCalculation</span><span class="p">(</span><span class="n">barrier</span><span class="p">,</span> <span class="n">prefactor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rate calculation</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rate</span> <span class="o">=</span> <span class="n">prefactor</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span> <span class="n">barrier</span> <span class="o">/</span> <span class="p">(</span><span class="n">Constants</span><span class="o">.</span><span class="n">boltzmann</span> <span class="o">*</span> <span class="n">Globals</span><span class="o">.</span><span class="n">systemTemperature</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">rate</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

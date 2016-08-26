@@ -1,0 +1,7 @@
+LKMC.RAT module
+===============
+
+.. automodule:: LKMC.RAT
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,24 @@
+LKMC.tests package
+==================
+
+Submodules
+----------
+
+.. toctree::
+
+   LKMC.tests.base
+   LKMC.tests.test_Defects
+   LKMC.tests.test_Forces
+   LKMC.tests.test_Graphs
+   LKMC.tests.test_Lattice
+   LKMC.tests.test_Utilities
+   LKMC.tests.test_Vectors
+   LKMC.tests.test_multiprocessing
+
+Module contents
+---------------
+
+.. automodule:: LKMC.tests
+    :members:
+    :undoc-members:
+    :show-inheritance:

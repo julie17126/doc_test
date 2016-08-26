@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Lammps module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Lanczos module" href="LKMC.Lanczos.html" />
+    <link rel="prev" title="LKMC.KMC module" href="LKMC.KMC.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Lanczos.html" title="LKMC.Lanczos module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.KMC.html" title="LKMC.KMC module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Lammps">
+<span id="lkmc-lammps-module"></span><h1>LKMC.Lammps module<a class="headerlink" href="#module-LKMC.Lammps" title="Permalink to this headline">¶</a></h1>
+<p>Interface to LAMMPS.</p>
+<p>&#64;author: Chris Scott</p>
+<dl class="class">
+<dt id="LKMC.Lammps.LammpsInterface">
+<em class="property">class </em><code class="descclassname">LKMC.Lammps.</code><code class="descname">LammpsInterface</code><span class="sig-paren">(</span><em>params</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lammps.html#LammpsInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lammps.LammpsInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>LAMMPS interface object.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Lammps.LammpsInterface.calcForce">
+<code class="descname">calcForce</code><span class="sig-paren">(</span><em>obj</em>, <em>image=None</em>, <em>includeAtoms=None</em>, <em>mainIndexes=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lammps.html#LammpsInterface.calcForce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lammps.LammpsInterface.calcForce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate forces on the system.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lammps.LammpsInterface.extractData">
+<code class="descname">extractData</code><span class="sig-paren">(</span><em>lattice</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lammps.html#LammpsInterface.extractData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lammps.LammpsInterface.extractData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get data back from LAMMPS and store it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lattice</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote class="last">
+<div><p>The <cite>Lattice</cite> object that the LAMMPS data will be stored in.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>We assume that <cite>lattice</cite> is the <cite>Lattice</cite> that was used to run LAMMPS. If the number of atoms in LAMMPS differs
+to the number in <cite>lattice</cite> we remove extra atoms in <cite>lattice</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lammps.LammpsInterface.minimise">
+<code class="descname">minimise</code><span class="sig-paren">(</span><em>lattice</em>, <em>initialise=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lammps.html#LammpsInterface.minimise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lammps.LammpsInterface.minimise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a minimisation using LAMMPS.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lattice</strong> : <cite>Lattice.Lattice</cite></p>
+<blockquote>
+<div><p>The lattice object to be minimised.</p>
+</div></blockquote>
+<p><strong>initialise</strong> : <cite>True</cite> or <cite>False</cite>, optional</p>
+<blockquote class="last">
+<div><p>If <cite>True</cite> (default) then initialise LAMMPS before running the minimisation. If the lattice has not been
+modified since the last time LAMMPS was called then you do not need to initialise.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lammps.LammpsInterface.runMD">
+<code class="descname">runMD</code><span class="sig-paren">(</span><em>lattice</em>, <em>velocity</em>, <em>runTime</em>, <em>thermostat</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lammps.html#LammpsInterface.runMD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lammps.LammpsInterface.runMD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a molecular dynamics simulation.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lammps.LammpsInterface.thermalise">
+<code class="descname">thermalise</code><span class="sig-paren">(</span><em>lattice</em>, <em>fullTime</em>, <em>layerTime</em>, <em>temperature</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lammps.html#LammpsInterface.thermalise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lammps.LammpsInterface.thermalise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Thermalise the given lattice.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="LKMC.Lammps.LammpsNotInstalled">
+<em class="property">exception </em><code class="descclassname">LKMC.Lammps.</code><code class="descname">LammpsNotInstalled</code><a class="reference internal" href="../_modules/LKMC/Lammps.html#LammpsNotInstalled"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lammps.LammpsNotInstalled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/exceptions.html#exceptions.BaseException" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">exceptions.BaseException</span></code></a></p>
+<p>LAMMPS is not installed on the system.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="LKMC.Lammps.LammpsUnitsNotSupported">
+<em class="property">exception </em><code class="descclassname">LKMC.Lammps.</code><code class="descname">LammpsUnitsNotSupported</code><a class="reference internal" href="../_modules/LKMC/Lammps.html#LammpsUnitsNotSupported"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lammps.LammpsUnitsNotSupported" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/exceptions.html#exceptions.BaseException" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">exceptions.BaseException</span></code></a></p>
+<p>LAMMPS units value is not supported.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.KMC.html"
+                        title="previous chapter">LKMC.KMC module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Lanczos.html"
+                        title="next chapter">LKMC.Lanczos module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Lammps.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Lanczos.html" title="LKMC.Lanczos module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.KMC.html" title="LKMC.KMC module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

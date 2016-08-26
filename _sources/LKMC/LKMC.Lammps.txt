@@ -1,0 +1,7 @@
+LKMC.Lammps module
+==================
+
+.. automodule:: LKMC.Lammps
+    :members:
+    :undoc-members:
+    :show-inheritance:

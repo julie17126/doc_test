@@ -1,0 +1,52 @@
+
+Parameters
+**********
+
+The documentation for the parameters in the input file.
+
+Units
+#####
+
+Unless otherwise mentioned all units are as follows:
+
+* Time -> fs (femtosecond)
+* Distance -> Å (Angstroms)
+* Energy -> eV (electronvolt)
+* Force -> eV/Å (electronvolt per Angstrom)
+* Temperature -> K (Kelvin)
+
+To be more precise; the default time, distance, energy and force units are those of the MD library
+you are using. When using `LBOMD <http://magrid-server-5.lut.ac.uk/master/LBOMD/wikis/home>`_ the
+default units will be as above. If you are using
+`LAMMPS <http://lammps.sandia.gov/doc/Section_python.html>`_ with metal units then they will be the
+same too. 
+
+Sections
+########
+
+.. toctree::
+   :maxdepth: 1
+   
+   main
+   barrierSearch
+   filtering
+   rates
+   output
+   server
+   minimisation
+   lbfgs
+   neb
+   string
+   defects
+   volumes
+   refine
+   art
+   rat
+   dimer
+   lanczos
+   llminmode
+   minmode
+   deposition
+   basin
+   hooks
+   lammps

@@ -1,0 +1,508 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.NEB &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.NEB</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Nudged elastic band (NEB) module.</span>
+
+<span class="sd">Implements the NEB method: http://theory.cm.utexas.edu/henkelman/research/saddle/neb/</span>
+<span class="sd">Including: climbing image: http://dx.doi.org/10.1063/1.1329672</span>
+<span class="sd">           improved tangent estimate: http://dx.doi.org/10.1063/1.1323224</span>
+
+<span class="sd">Copyright Chris Scott 2012</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Utilities</span>
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Input</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Images</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">.clibs</span> <span class="k">import</span> <span class="n">neb</span> <span class="k">as</span> <span class="n">c_neb</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Minimise</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Timer</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Vectors</span>
+
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="NEB"><a class="viewcode-back" href="../../LKMC/LKMC.NEB.html#LKMC.NEB.NEB">[docs]</a><span class="k">class</span> <span class="nc">NEB</span><span class="p">(</span><span class="n">Images</span><span class="o">.</span><span class="n">Images</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Nudged Elastic Band object.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">NEB</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxForceAtomNo</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="NEB.prepareNEBMinimiseParams"><a class="viewcode-back" href="../../LKMC/LKMC.NEB.html#LKMC.NEB.NEB.prepareNEBMinimiseParams">[docs]</a>    <span class="k">def</span> <span class="nf">prepareNEBMinimiseParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maxBarrier</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare parameters object for sending to minimise module.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="o">.</span><span class="n">minimizationType</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBMinimisationType</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="o">.</span><span class="n">minimizationCriteria</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBMinimisationCriteria</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="o">.</span><span class="n">minimizationTolerance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBMinimisationTolerance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="o">.</span><span class="n">minimizationExclusion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBMinimizationExclusion</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="o">.</span><span class="n">minimizationExclusionReverseEveryFEval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBMinimizationExclusionReverseEveryFEval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="o">.</span><span class="n">minimizationLineSearch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBMinimisationLineSearch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="o">.</span><span class="n">minimisationMaxIterations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBMinimisationMaxIterations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="o">.</span><span class="n">minimisationMaxRunTime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBMaxRunTime</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="o">.</span><span class="n">LBFGSTolerance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">LBFGSNEBTolerance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="o">.</span><span class="n">LBFGSMemory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">LBFGSNEBMemory</span>
+
+        <span class="c1"># second tolerance criteria</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="o">.</span><span class="n">minimizationCriteria2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBMinimisationCriteria2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="o">.</span><span class="n">minimizationTolerance2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBMinimisationTolerance2</span>
+
+        <span class="c1"># adding barrier criteria</span>
+        <span class="k">if</span> <span class="n">maxBarrier</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">maxBarrier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBmaxBarrier</span>
+
+        <span class="k">if</span> <span class="n">maxBarrier</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">maxBarrier</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">cnt</span><span class="p">,</span> <span class="n">iterList</span><span class="p">,</span> <span class="n">barrList</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">makeBarrierCriteria</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBBarrierCriteria</span><span class="p">,</span> <span class="n">maxBarrier</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">cnt</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="o">.</span><span class="n">NEBUseBarrierCriteria</span> <span class="o">=</span> <span class="mi">1</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="o">.</span><span class="n">NEBBarrCritCnt</span> <span class="o">=</span> <span class="n">cnt</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="o">.</span><span class="n">NEBBarrIterList</span> <span class="o">=</span> <span class="n">iterList</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="o">.</span><span class="n">NEBBarrList</span> <span class="o">=</span> <span class="n">barrList</span></div>
+
+<div class="viewcode-block" id="NEB.postCalcForceUpdate"><a class="viewcode-back" href="../../LKMC/LKMC.NEB.html#LKMC.NEB.NEB.postCalcForceUpdate">[docs]</a>    <span class="k">def</span> <span class="nf">postCalcForceUpdate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update forces for NEB method.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;updating forces for NEB&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">climbing</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NImages</span><span class="p">):</span>
+            <span class="c1"># this images index in arrays containing initial and final states (NEB always has fixed end points!)</span>
+            <span class="n">ii</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="c1"># estimate the tangent vector, tau, at this image (see paper referenced at top)</span>
+            <span class="n">tau</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculateTangentVector</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span>
+
+            <span class="c1"># now modify the forces acting on this image</span>
+            <span class="c1"># first check if we are using the climbing image NEB</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">useClimbingImage</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">NMinimisationSteps</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">climbingThreshold</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxEnergyImage</span> <span class="o">==</span> <span class="n">ii</span><span class="p">:</span>
+                <span class="c1"># climbing image, call C library (subtract 2 * parallel component of true force, no spring force)</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;image </span><span class="si">%d</span><span class="s2"> climbing&quot;</span> <span class="o">%</span> <span class="n">ii</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">c_neb</span><span class="o">.</span><span class="n">updateForceClimbingImageNEB</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">tau</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">climbing</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># normal NEB update</span>
+                <span class="c1"># first we calculate the spring force factor (equation 12, http://dx.doi.org/10.1063/1.1323224)</span>
+                <span class="n">springFactor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">springConstant</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imageSeparation</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">ii</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageSeparation</span><span class="p">(</span><span class="n">ii</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ii</span><span class="p">))</span>
+
+                <span class="c1"># now call C library to do the rest</span>
+                <span class="n">c_neb</span><span class="o">.</span><span class="n">updateForceNEB</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">springFactor</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NEB.run"><a class="viewcode-back" href="../../LKMC/LKMC.NEB.html#LKMC.NEB.NEB.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialState</span><span class="p">,</span> <span class="n">finalState</span><span class="p">,</span> <span class="n">saddleState</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">NProcs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">maxBarrier</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">initialPos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initialEnergy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run NEB method.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">timeNEB</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runWithTiming</span><span class="p">(</span><span class="n">initialState</span><span class="p">,</span> <span class="n">finalState</span><span class="p">,</span> <span class="n">saddleState</span><span class="p">,</span> <span class="n">NProcs</span><span class="p">,</span> <span class="n">maxBarrier</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runWithoutTiming</span><span class="p">(</span><span class="n">initialState</span><span class="p">,</span> <span class="n">finalState</span><span class="p">,</span> <span class="n">saddleState</span><span class="p">,</span> <span class="n">NProcs</span><span class="p">,</span> <span class="n">maxBarrier</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">status</span></div>
+
+    <span class="k">def</span> <span class="nf">_runWithoutTiming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialState</span><span class="p">,</span> <span class="n">finalState</span><span class="p">,</span> <span class="n">saddleState</span><span class="p">,</span> <span class="n">NProcs</span><span class="p">,</span> <span class="n">maxBarrier</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run without timing.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runMain</span><span class="p">(</span><span class="n">initialState</span><span class="p">,</span> <span class="n">finalState</span><span class="p">,</span> <span class="n">saddleState</span><span class="p">,</span> <span class="n">NProcs</span><span class="p">,</span> <span class="n">maxBarrier</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">status</span>
+
+    <span class="nd">@Timer</span><span class="o">.</span><span class="n">timerProfile</span>
+    <span class="k">def</span> <span class="nf">_runWithTiming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialState</span><span class="p">,</span> <span class="n">finalState</span><span class="p">,</span> <span class="n">saddleState</span><span class="p">,</span> <span class="n">NProcs</span><span class="p">,</span> <span class="n">maxBarrier</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run with timing.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runMain</span><span class="p">(</span><span class="n">initialState</span><span class="p">,</span> <span class="n">finalState</span><span class="p">,</span> <span class="n">saddleState</span><span class="p">,</span> <span class="n">NProcs</span><span class="p">,</span> <span class="n">maxBarrier</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">status</span>
+
+    <span class="k">def</span> <span class="nf">_runMain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialState</span><span class="p">,</span> <span class="n">finalState</span><span class="p">,</span> <span class="n">saddleState</span><span class="p">,</span> <span class="n">NProcs</span><span class="p">,</span> <span class="n">maxBarrier</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Main run function (not called directly).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">startTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Running NEB&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># set required variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">springConstant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBSpringConstant</span> <span class="c1">#* 1.36054 * 0.5291772108</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">useClimbingImage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBClimbingImage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">climbingThreshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBClimbingThreshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calcForceNProcs</span> <span class="o">=</span> <span class="n">NProcs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NForceCalls</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># create minimisation parameters object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepareNEBMinimiseParams</span><span class="p">(</span><span class="n">maxBarrier</span><span class="p">)</span>
+
+        <span class="c1"># setup the band</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolateImages</span><span class="p">(</span><span class="n">initialState</span><span class="p">,</span> <span class="n">finalState</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBNNodes</span><span class="p">,</span> <span class="n">saddleState</span><span class="o">=</span><span class="n">saddleState</span><span class="p">,</span>
+                                        <span class="n">fixedEndPoints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBInterpolationMethod</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;NEB INTERPOLATION FAILED...&quot;</span><span class="p">,</span> <span class="n">status</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="n">status</span>
+        <span class="c1"># minimise band</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Minimising band&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">minimiser</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">getMinimiser</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minParams</span><span class="p">)</span>
+            <span class="n">minimiser</span><span class="o">.</span><span class="n">setJobID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">minimiser</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">timeNEB</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">barrierEstTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">startTime</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">barrierEstTime</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+
+            <span class="nb">print</span> <span class="s2">&quot;NEB MIN FAILED...&quot;</span><span class="p">,</span> <span class="n">status</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">else</span><span class="p">:</span>
+<span class="c1">#             # do a full a second NEB calculation with tighter tolerance</span>
+<span class="c1">#             if self.minParams.NEBMinimizationExclusion != 0:</span>
+<span class="c1">#                 minParamsTighter = copy.deepcopy(self.minParams)</span>
+<span class="c1">#                 minParamsTighter.minimizationExclusion = 0</span>
+<span class="c1">#                 minParamsTighter.minimizationTolerance /= 2</span>
+<span class="c1">#                 minimiser = Minimise.getMinimiser(minParamsTighter)</span>
+<span class="c1">#                 minimiser.setJobID(self.jobID)</span>
+<span class="c1">#                 status = minimiser.run(self)</span>
+<span class="c1">#                 if status:</span>
+<span class="c1">#                     print &quot;NEB MIN FAILED...&quot;, status</span>
+<span class="c1">#                     self.barrier = None</span>
+<span class="c1">#</span>
+<span class="c1">#             # calculate force on full system</span>
+<span class="c1">#             if self.minParams.minimizationExclusion != 0:</span>
+<span class="c1">#                 tmpe = self.totalEnergy</span>
+<span class="c1">#                 self.calcForce(defectFlag=0)</span>
+<span class="c1">#                 log(__name__, &quot;Calculated energy on full system: %f (old %f)&quot; % (self.totalEnergy, tmpe), 2)</span>
+<span class="c1">#</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBarrier</span><span class="p">()</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Finished. Barrier is </span><span class="si">%lf</span><span class="s2"> eV&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">barrier</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">timeNEB</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">barrierEstTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">startTime</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">barrierEstTime</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+
+        <span class="k">return</span> <span class="n">status</span>
+
+    <span class="k">def</span> <span class="nf">_interpolateImagesIDPP</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1">#</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Interpolating images (IDPP)&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># setup params to interpolate images linearly</span>
+        <span class="n">idppParams</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">idppParams</span><span class="o">.</span><span class="n">NEBInterpolationMethod</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span>
+        <span class="n">idppParams</span><span class="o">.</span><span class="n">NEBmaxBarrier</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">idppParams</span><span class="o">.</span><span class="n">NEBMinimisationTolerance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBMinimisationToleranceIDPP</span>
+        <span class="n">idppParams</span><span class="o">.</span><span class="n">NEBMinimisationMaxIterations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBMinimisationMaxIterationsIDPP</span>
+
+        <span class="c1"># run IDPP Interpolator</span>
+        <span class="n">nebinterp</span> <span class="o">=</span> <span class="n">IDPPInterpolator</span><span class="p">(</span><span class="n">idppParams</span><span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">nebinterp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalState</span><span class="p">)</span>
+        <span class="c1">#nebinterp.writeBarrierSeparation(&quot;final_neb&quot;)</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBUseLinearInterpWhenIDPPFails</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="s2">&quot;IDPP INTERPOLATION FAILED!&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="s2">&quot;IDPP INTERPOLATION FAILED! Trying linear interpolation instead&quot;</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolateImages</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalState</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBNNodes</span><span class="p">,</span>
+                                                <span class="n">saddleState</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fixedEndPoints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># copy final positions from NEBInterp to initial position for us</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">nebinterp</span><span class="o">.</span><span class="n">pos</span><span class="p">[:]</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;New length of subsystem for NEB: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">nebinterp</span><span class="o">.</span><span class="n">pos</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+
+            <span class="c1">#nebinterp.visualisePathwayLattice()</span>
+            <span class="c1">#os.system(&quot;mkdir IDPPImages&quot;)</span>
+            <span class="c1">#os.system(&quot;mv image* IDPPImages/&quot;)</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Finished interpolating images (IDPP)&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">status</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1"># IDPP Interpolator</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="IDPPInterpolator"><a class="viewcode-back" href="../../LKMC/LKMC.NEB.html#LKMC.NEB.IDPPInterpolator">[docs]</a><span class="k">class</span> <span class="nc">IDPPInterpolator</span><span class="p">(</span><span class="n">NEB</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    NEB runner for performing the initial interpolation.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="IDPPInterpolator.calcForce"><a class="viewcode-back" href="../../LKMC/LKMC.NEB.html#LKMC.NEB.IDPPInterpolator.calcForce">[docs]</a>    <span class="k">def</span> <span class="nf">calcForce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">NProcs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">defectFlag</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Override the calcForce method to use the potential from the paper...</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;calculating forces on moving images&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="c1"># we calculate forces separately for each image</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxEnergy</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxEnergyImage</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxForce</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">energySum</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">skinThickness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">NEBSkinThicknessIDPP</span>
+
+        <span class="c1">#Find subsystems to run IDPP interpolator on</span>
+        <span class="n">subSysINC</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">currentDefectVolume</span><span class="o">.</span><span class="n">searchInitialVol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">graphRadius</span><span class="p">)</span>
+        <span class="n">subSysEXC</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">currentDefectVolume</span><span class="o">.</span><span class="n">searchInitialVol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">graphRadius</span><span class="o">+</span><span class="n">skinThickness</span><span class="p">)</span>
+        <span class="n">nSubSysINC</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">subSysINC</span><span class="p">)</span>
+        <span class="n">nSubSysEXC</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">subSysEXC</span><span class="p">)</span>
+        <span class="c1">#print &quot;INC: %d, EXC: %d&quot; % (nSubSysINC,nSubSysEXC)</span>
+
+        <span class="c1"># C potential called from here</span>
+        <span class="n">c_neb</span><span class="o">.</span><span class="n">initialPathIDPPNEB</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NImages</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalState</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageEnergy</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">imageMaxForce</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cellDims</span><span class="p">,</span> <span class="n">subSysINC</span><span class="p">,</span>
+                                 <span class="n">nSubSysINC</span><span class="p">,</span> <span class="n">subSysEXC</span><span class="p">,</span> <span class="n">nSubSysEXC</span><span class="p">)</span>
+
+        <span class="c1"># do the extra stuff from Images.calcForce here</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NImages</span><span class="p">):</span>
+            <span class="c1"># store useful data</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixedEndPoints</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">imageEnergyAll</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageEnergy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">imageEnergyAll</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageEnergy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">energySum</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageEnergy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+         <span class="c1">#   self.imageMaxForce[i] = self.maxForce</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">=</span> <span class="n">energySum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxForce</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imageMaxForce</span><span class="p">)</span>
+
+        <span class="c1"># find maximum energy image and max force</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxEnergy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageEnergyAll</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxEnergyImage</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NImagesTotal</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageEnergyAll</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxEnergy</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">maxEnergy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageEnergyAll</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">maxEnergyImage</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxForce</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imageMaxForce</span><span class="p">)</span>
+
+        <span class="c1">#DEBUG output</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;max force is </span><span class="si">%lf</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxForce</span><span class="p">),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;max image energy is </span><span class="si">%lf</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxEnergy</span><span class="p">),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;total energy is </span><span class="si">%lf</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">totalEnergy</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">postCalcForceUpdate</span><span class="p">()</span></div></div>
+
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="commandLineArgs"><a class="viewcode-back" href="../../LKMC/LKMC.NEB.html#LKMC.NEB.commandLineArgs">[docs]</a><span class="k">def</span> <span class="nf">commandLineArgs</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse command line arguments</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">argparse</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Run the NEB method.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;initialFile&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The initial state lattice file.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;finalFile&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The final state lattice file.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-r&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;refFile&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The reference lattice file&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;saddleFile&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The saddle state lattice file&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;paramFile&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;lkmcInput.IN&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;LKMC input file (default=lkmcInput.IN)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;NProcs&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of processors to use for force calculation (default=1)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-P&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;profileCode&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Profile the code using the hotshot module (not for production) (default=False)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;statsFile&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;File for dumping profiling stats to (default=None)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-m&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;minimiseInputs&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Minimise the initial and final states first (default=False)&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
+
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../LKMC/LKMC.NEB.html#LKMC.NEB.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># program arguments</span>
+    <span class="n">progargs</span> <span class="o">=</span> <span class="n">commandLineArgs</span><span class="p">()</span>
+
+    <span class="c1"># read input parameters</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">Input</span><span class="o">.</span><span class="n">getLKMCParams</span><span class="p">(</span><span class="n">inputFile</span><span class="o">=</span><span class="n">progargs</span><span class="o">.</span><span class="n">paramFile</span><span class="p">)</span>
+    <span class="n">Input</span><span class="o">.</span><span class="n">readGlobals</span><span class="p">(</span><span class="n">inputParams</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="c1"># read initial and final states</span>
+    <span class="n">ini</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">initialFile</span><span class="p">)</span>
+    <span class="n">fin</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">finalFile</span><span class="p">)</span>
+
+    <span class="c1"># minimise input lattices if required</span>
+    <span class="k">if</span> <span class="n">progargs</span><span class="o">.</span><span class="n">minimiseInputs</span><span class="p">:</span>
+        <span class="c1"># minimiser</span>
+        <span class="n">minimiser</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">getMinimiser</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="c1"># minimise initial</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">minimiser</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">ini</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;MIN INI FAILED&quot;</span><span class="p">)</span>
+
+        <span class="c1"># minimise final</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">minimiser</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">fin</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;MIN FIN FAILED&quot;</span><span class="p">)</span>
+
+    <span class="c1"># read reference and find defects, if provided</span>
+    <span class="k">if</span> <span class="n">progargs</span><span class="o">.</span><span class="n">refFile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ref</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">refFile</span><span class="p">)</span>
+        <span class="n">ini</span><span class="o">.</span><span class="n">findDefects</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="n">fin</span><span class="o">.</span><span class="n">findDefects</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+    <span class="c1"># always read in ref file for IDPP</span>
+    <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">NEBInterpolationMethod</span> <span class="o">==</span> <span class="s2">&quot;IDPP&quot;</span><span class="p">:</span>
+        <span class="n">ref</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="s2">&quot;ref.dat&quot;</span><span class="p">)</span>
+        <span class="n">ini</span><span class="o">.</span><span class="n">findDefects</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="c1">#fin.findDefects(ref, params)</span>
+        <span class="c1">#find max move atom and corresponding defect volume</span>
+        <span class="n">MMIndex</span><span class="p">,</span> <span class="n">maxMove</span><span class="p">,</span> <span class="n">avgMove</span><span class="p">,</span> <span class="n">separation</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">maxMovement</span><span class="p">(</span><span class="n">ini</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span><span class="n">fin</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span><span class="n">ini</span><span class="o">.</span><span class="n">cellDims</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">ini</span><span class="o">.</span><span class="n">defectVolumes</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">MMIndex</span> <span class="ow">in</span> <span class="n">ini</span><span class="o">.</span><span class="n">defectVolumes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">searchInitialVol</span><span class="p">:</span>
+                <span class="n">ini</span><span class="o">.</span><span class="n">currentDefectVolume</span> <span class="o">=</span> <span class="n">ini</span><span class="o">.</span><span class="n">defectVolumes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">break</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Current defect volume: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1">#TO DO: add error if defect volume doesn&#39;t exist</span>
+
+    <span class="c1"># read saddle file if provided</span>
+    <span class="n">sad</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">saddleFile</span><span class="p">)</span> <span class="k">if</span> <span class="n">progargs</span><span class="o">.</span><span class="n">saddleFile</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="c1"># run NEB</span>
+    <span class="k">if</span> <span class="n">progargs</span><span class="o">.</span><span class="n">profileCode</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Profiling</span>
+
+        <span class="n">band</span> <span class="o">=</span> <span class="n">NEB</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">ini</span><span class="p">,</span> <span class="n">fin</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;saddleState&quot;</span><span class="p">:</span> <span class="n">sad</span><span class="p">,</span> <span class="s2">&quot;NProcs&quot;</span><span class="p">:</span> <span class="n">progargs</span><span class="o">.</span><span class="n">NProcs</span><span class="p">}</span>
+        <span class="n">stats</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">Profiling</span><span class="o">.</span><span class="n">profileMethod</span><span class="p">(</span><span class="n">band</span><span class="o">.</span><span class="n">run</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">printStats</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">statsFile</span><span class="o">=</span><span class="n">progargs</span><span class="o">.</span><span class="n">statsFile</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">band</span> <span class="o">=</span> <span class="n">NEB</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">band</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">ini</span><span class="p">,</span> <span class="n">fin</span><span class="p">,</span> <span class="n">NProcs</span><span class="o">=</span><span class="n">progargs</span><span class="o">.</span><span class="n">NProcs</span><span class="p">)</span>
+
+    <span class="c1"># output here</span>
+    <span class="c1"># plot barrier if required</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">NEBPlotPathway</span><span class="p">:</span>
+        <span class="n">band</span><span class="o">.</span><span class="n">writeBarrierSeparation</span><span class="p">(</span><span class="s2">&quot;final_neb&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">band</span><span class="o">.</span><span class="n">climbing</span><span class="p">:</span>
+            <span class="n">band</span><span class="o">.</span><span class="n">plotBarrierSeparation</span><span class="p">(</span><span class="s2">&quot;final_neb2&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;NEB&quot;</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="n">band</span><span class="o">.</span><span class="n">maxEnergyImage</span><span class="p">)</span>
+            <span class="n">band</span><span class="o">.</span><span class="n">plotBarrierImage</span><span class="p">(</span><span class="s2">&quot;final_neb&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;NEB&quot;</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="n">band</span><span class="o">.</span><span class="n">maxEnergyImage</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">band</span><span class="o">.</span><span class="n">plotBarrierSeparation</span><span class="p">(</span><span class="s2">&quot;final_neb2&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;NEB&quot;</span><span class="p">)</span>
+            <span class="n">band</span><span class="o">.</span><span class="n">plotBarrierImage</span><span class="p">(</span><span class="s2">&quot;final_neb&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;NEB&quot;</span><span class="p">)</span>
+
+    <span class="c1"># visualise if required</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">NEBVisualisePathway</span><span class="p">:</span>
+        <span class="n">band</span><span class="o">.</span><span class="n">visualisePathwayLattice</span><span class="p">()</span>
+
+    <span class="c1"># print timing data</span>
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">timeNEB</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">Timer</span><span class="o">.</span><span class="n">printProfData</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

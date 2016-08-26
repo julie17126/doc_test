@@ -1,0 +1,7 @@
+LKMC.Constants module
+=====================
+
+.. automodule:: LKMC.Constants
+    :members:
+    :undoc-members:
+    :show-inheritance:

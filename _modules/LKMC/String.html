@@ -1,0 +1,632 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.String &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.String</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Script to run string method.</span>
+
+<span class="sd">(C) Tomas Lazauskas (2012)</span>
+<span class="sd">(C) Chris Scott (2015)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Input</span>
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Images</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Vectors</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Timer</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Images</span>
+<span class="kn">from</span> <span class="nn">.clibs</span> <span class="k">import</span> <span class="n">neb</span> <span class="k">as</span> <span class="n">c_neb</span>
+
+
+<span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="StringFailed"><a class="viewcode-back" href="../../LKMC/LKMC.String.html#LKMC.String.StringFailed">[docs]</a><span class="k">class</span> <span class="nc">StringFailed</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+<span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="String"><a class="viewcode-back" href="../../LKMC/LKMC.String.html#LKMC.String.String">[docs]</a><span class="k">class</span> <span class="nc">String</span><span class="p">(</span><span class="n">Images</span><span class="o">.</span><span class="n">Images</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The String method</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">numProcs</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">numProcs</span><span class="o">=</span><span class="n">numProcs</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="String.run"><a class="viewcode-back" href="../../LKMC/LKMC.String.html#LKMC.String.String.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialState</span><span class="p">,</span> <span class="n">finalState</span><span class="p">,</span> <span class="n">saddleState</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">NProcs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">initialEnergy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initialPos</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run String method.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">timeString</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runWithTiming</span><span class="p">(</span><span class="n">initialState</span><span class="p">,</span> <span class="n">finalState</span><span class="p">,</span> <span class="n">saddleState</span><span class="o">=</span><span class="n">saddleState</span><span class="p">,</span> <span class="n">NProcs</span><span class="o">=</span><span class="n">NProcs</span><span class="p">,</span> 
+                                       <span class="n">initialEnergy</span><span class="o">=</span><span class="n">initialEnergy</span><span class="p">,</span> <span class="n">initialPos</span><span class="o">=</span><span class="n">initialPos</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runWithoutTiming</span><span class="p">(</span><span class="n">initialState</span><span class="p">,</span> <span class="n">finalState</span><span class="p">,</span> <span class="n">saddleState</span><span class="o">=</span><span class="n">saddleState</span><span class="p">,</span> <span class="n">NProcs</span><span class="o">=</span><span class="n">NProcs</span><span class="p">,</span>
+                                          <span class="n">initialEnergy</span><span class="o">=</span><span class="n">initialEnergy</span><span class="p">,</span> <span class="n">initialPos</span><span class="o">=</span><span class="n">initialPos</span><span class="p">)</span></div>
+    
+    <span class="k">def</span> <span class="nf">_runWithoutTiming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run without timing.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runMain</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    
+    <span class="nd">@Timer</span><span class="o">.</span><span class="n">timerProfile</span>
+    <span class="k">def</span> <span class="nf">_runWithTiming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run with timing.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runMain</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">_runMain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialState</span><span class="p">,</span> <span class="n">finalState</span><span class="p">,</span> <span class="n">saddleState</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">NProcs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">initialEnergy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initialPos</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Main run function (not called directly).</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NForceCalls</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1">#TODO: check this is not None for StringMoving case!</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialEnergy</span> <span class="o">=</span> <span class="n">initialEnergy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialPos</span> <span class="o">=</span> <span class="n">initialPos</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">stringFixInitialAndFinal</span> <span class="ow">and</span> <span class="n">initialEnergy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;**** WARNING: string end points are moving and you have not provided initial energy...&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Running String method&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">startTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">failedReason</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug_ymax</span> <span class="o">=</span> <span class="kc">None</span>
+            
+            <span class="c1"># interpolate images</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">stringFixInitialAndFinal</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">stringInterpolateStep</span><span class="p">:</span>
+                <span class="n">interpStep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">stringInterpolateStep</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">interpStep</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interpolateImages</span><span class="p">(</span><span class="n">initialState</span><span class="p">,</span> <span class="n">finalState</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">stringNImages</span><span class="p">,</span> <span class="n">saddleState</span><span class="o">=</span><span class="n">saddleState</span><span class="p">,</span>
+                                   <span class="n">fixedEndPoints</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">stringFixInitialAndFinal</span><span class="p">,</span> <span class="n">stepSize</span><span class="o">=</span><span class="n">interpStep</span><span class="p">)</span>
+            
+            <span class="c1"># minimise path</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">minimisePath</span><span class="p">()</span>
+            
+            <span class="k">except</span> <span class="n">StringFailed</span><span class="p">:</span>
+                <span class="c1"># handle failure</span>
+                <span class="nb">print</span> <span class="s2">&quot;FAILED...&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">failedReason</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failure: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">failedReason</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">return</span> <span class="mi">1</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># print barrier</span>
+                <span class="n">barrier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getBarrier</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="n">barrier</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Barrier is </span><span class="si">%f</span><span class="s2"> eV&quot;</span> <span class="o">%</span> <span class="n">barrier</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                
+                <span class="c1"># output result</span>
+<span class="c1">#                 if self.params.stringPlotPathway:</span>
+<span class="c1">#                     self.plotBarrierSeparation(&quot;string_final&quot;, label=&quot;String&quot;, useInterp=1)</span>
+<span class="c1">#                 if self.params.stringVisualisePathway:</span>
+<span class="c1">#                     self.visualisePathwayLattice()</span>
+                
+                <span class="c1"># check saddle point (force mag, etc...)</span>
+                
+                
+                <span class="k">return</span> <span class="mi">0</span>
+        
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initialEnergy</span> <span class="o">=</span> <span class="kc">None</span>
+    
+<div class="viewcode-block" id="String.minimisePath"><a class="viewcode-back" href="../../LKMC/LKMC.String.html#LKMC.String.String.minimisePath">[docs]</a>    <span class="k">def</span> <span class="nf">minimisePath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Minimise the String to the MEP</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">startTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="c1"># calculate force</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calcForce</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">failedReason</span> <span class="o">=</span> <span class="s2">&quot;String: initial force calculation failed&quot;</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Error: String initial force calculation failed (</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">status</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">StringFailed</span><span class="p">(</span><span class="s2">&quot;Initial force calculation failed&quot;</span><span class="p">)</span>
+        <span class="n">forceMagnitude</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">magnitude</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Step </span><span class="si">%d</span><span class="s2">: Total energy: </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalEnergy</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># normalise the force</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normaliseForce</span><span class="p">()</span>
+        
+        <span class="c1"># main loop</span>
+        <span class="n">stepCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">elapsedTime</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">energyDiff</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">stringEnergTol</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">debugCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># debugging output</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s2">&quot;string.output&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">writeBarrierSeparation</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;string.output&quot;</span><span class="p">,</span> <span class="s2">&quot;string</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">debugCount</span><span class="p">))</span>
+                <span class="n">debugCount</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="c1"># check stop conditions</span>
+            <span class="k">if</span> <span class="n">stepCount</span> <span class="o">&gt;=</span> <span class="n">params</span><span class="o">.</span><span class="n">stringMaxSteps</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failedReason</span> <span class="o">=</span> <span class="s2">&quot;String: max steps exceeded&quot;</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failure: max steps exceeded (</span><span class="si">%d</span><span class="s2"> &gt;= </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">stepCount</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">stringMaxSteps</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">StringFailed</span><span class="p">(</span><span class="s2">&quot;Max steps exceeded&quot;</span><span class="p">)</span>
+            
+            <span class="k">elif</span> <span class="n">elapsedTime</span> <span class="o">&gt;=</span> <span class="n">params</span><span class="o">.</span><span class="n">stringMaxRunTimeSecs</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failedReason</span> <span class="o">=</span> <span class="s2">&quot;String: max time exceeded&quot;</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failure: max time exceeded (</span><span class="si">%f</span><span class="s2"> &gt;= </span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">timeElapsed</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">stringMaxRunTimeSecs</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">StringFailed</span><span class="p">(</span><span class="s2">&quot;Max time exceeded&quot;</span><span class="p">)</span>
+            
+            <span class="k">elif</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">energyDiff</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">params</span><span class="o">.</span><span class="n">stringEnergTol</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Success: energy tolerance satisfied&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">break</span>
+            
+<span class="c1">#            elif forceMagnitude &lt;= 0.1:</span>
+<span class="c1">#                log(__name__, &quot;Success: force tolerance satisfied&quot;, 1, 1)</span>
+<span class="c1">#                break</span>
+            
+            <span class="c1"># increment step count</span>
+            <span class="n">stepCount</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="c1"># store previous energy</span>
+            <span class="n">previousEnergy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalEnergy</span>
+            
+            <span class="c1"># checking if we can do the climbing image</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">climb</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">stringClimbCriteria</span> <span class="o">==</span> <span class="s2">&quot;iterations&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">stepCount</span> <span class="o">&gt;=</span> <span class="n">params</span><span class="o">.</span><span class="n">stringClimbImageValue</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">climb</span> <span class="o">=</span> <span class="kc">True</span>
+            
+            <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">stringClimbCriteria</span> <span class="o">==</span> <span class="s2">&quot;energydifference&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">energyDiff</span> <span class="o">&lt;=</span> <span class="n">params</span><span class="o">.</span><span class="n">stringClimbImageValue</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">climb</span> <span class="o">=</span> <span class="kc">True</span>
+            
+            <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">stringClimbCriteria</span> <span class="o">==</span> <span class="s2">&quot;forcemagnitude&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">forceMagnitude</span> <span class="o">&lt;=</span> <span class="n">params</span><span class="o">.</span><span class="n">stringClimbImageValue</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">climb</span> <span class="o">=</span> <span class="kc">True</span>
+            
+            <span class="c1"># move images according to norm&#39;d force multiplied by step size</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Step </span><span class="si">%d</span><span class="s2">: Moving images&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moveImages</span><span class="p">()</span>
+            
+<span class="c1">#             if os.path.isdir(&quot;string.output&quot;):</span>
+<span class="c1">#                 if self.calcForce():</span>
+<span class="c1">#                     raise StringFailed(&quot;Debug force call failed&quot;)</span>
+<span class="c1">#                 self.writeBarrierSeparation(os.path.join(&quot;string.output&quot;, &quot;string%d&quot; % debugCount))</span>
+<span class="c1">#                 debugCount += 1</span>
+            
+            <span class="c1"># reinterpolate the images</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Step </span><span class="si">%d</span><span class="s2">: Reinterpolating images&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reinterpolateImages</span><span class="p">()</span>
+            
+            <span class="c1"># calculate force</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calcForce</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failedReason</span> <span class="o">=</span> <span class="s2">&quot;String: force calculation failed&quot;</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Force calculation failed (</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">status</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">StringFailed</span><span class="p">(</span><span class="s2">&quot;Force calculation failed&quot;</span><span class="p">)</span>
+            <span class="n">forceMagnitude</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">magnitude</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+            <span class="n">energyDiff</span> <span class="o">=</span> <span class="n">previousEnergy</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalEnergy</span>
+            
+            <span class="c1"># separation between initial and final</span>
+            <span class="n">sepIniFin</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixedEndPoints</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageSeparation</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Step: </span><span class="si">%d</span><span class="s2">: TOTE </span><span class="si">%f</span><span class="s2">; EDIFF </span><span class="si">%f</span><span class="s2">; FMAG </span><span class="si">%f</span><span class="s2">; Sep ini-fin </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">stepCount</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalEnergy</span><span class="p">,</span> <span class="n">energyDiff</span><span class="p">,</span> <span class="n">forceMagnitude</span><span class="p">,</span> <span class="n">sepIniFin</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">elapsedTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">startTime</span></div>
+    
+<div class="viewcode-block" id="String.moveImages"><a class="viewcode-back" href="../../LKMC/LKMC.String.html#LKMC.String.String.moveImages">[docs]</a>    <span class="k">def</span> <span class="nf">moveImages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Move the images:</span>
+<span class="sd">        </span>
+<span class="sd">            newPos = oldPos + F * deltaR</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">climb</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Climbing&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">tauVector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculateTangentVector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxEnergyImage</span><span class="p">)</span>
+            <span class="n">c_neb</span><span class="o">.</span><span class="n">updateForceClimbingImageNEB</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxEnergyImage</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">tauVector</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">normaliseForce</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">stringMinStepSize</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span></div>
+    
+<div class="viewcode-block" id="String.reinterpolateImages"><a class="viewcode-back" href="../../LKMC/LKMC.String.html#LKMC.String.String.reinterpolateImages">[docs]</a>    <span class="k">def</span> <span class="nf">reinterpolateImages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reinterpolate images (linear for now).</span>
+<span class="sd">        </span>
+<span class="sd">        For now I only care about free end points case...</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixedEndPoints</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not implemented String reinterpolation for fixed end points yet&quot;</span><span class="p">)</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Reinterpolating String images (linear)...&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        
+        <span class="c1"># length of string</span>
+        <span class="n">currentLength</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLength</span><span class="p">()</span>
+        <span class="n">originalLength</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialLength</span>
+        <span class="n">deltaLength</span> <span class="o">=</span> <span class="n">originalLength</span> <span class="o">-</span> <span class="n">currentLength</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Current length </span><span class="si">%f</span><span class="s2">; Ideal length </span><span class="si">%f</span><span class="s2"> (delta </span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">currentLength</span><span class="p">,</span> <span class="n">originalLength</span><span class="p">,</span> <span class="n">deltaLength</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># spacing between images</span>
+        <span class="n">spacing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">idealImageSpacing</span>
+        
+        <span class="c1"># interpolate around highest point</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">climb</span> <span class="ow">or</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Reinterpolating around highest point (climbing...)&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            
+            <span class="c1"># max energy image</span>
+            <span class="n">maxEnergyPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getImagePos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxEnergyImage</span><span class="p">)</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Max energy image is: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxEnergyImage</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            
+            <span class="c1"># reinterpolate images to the right of the max</span>
+            <span class="n">vecs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">seps</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxEnergyImage</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NImagesTotal</span><span class="p">):</span>
+                <span class="n">sepVec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageSeparationVector</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                <span class="n">seps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Vectors</span><span class="o">.</span><span class="n">magnitude</span><span class="p">(</span><span class="n">sepVec</span><span class="p">))</span>
+                <span class="n">vecs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Vectors</span><span class="o">.</span><span class="n">normalise</span><span class="p">(</span><span class="n">sepVec</span><span class="p">))</span>
+            
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxEnergyImage</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NImagesTotal</span><span class="p">):</span>
+                <span class="c1"># how far to move this image from maxEnergyImage</span>
+                <span class="n">currentImageSep</span> <span class="o">=</span> <span class="n">count</span> <span class="o">*</span> <span class="n">spacing</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Image </span><span class="si">%d</span><span class="s2"> is </span><span class="si">%f</span><span class="s2"> from max energy image&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">currentImageSep</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                
+                <span class="c1"># position of this image</span>
+                <span class="n">imagePos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getImagePos</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">imagePos</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">maxEnergyPos</span><span class="p">)</span>
+                
+                <span class="c1"># loop over vectors until we have moved far enough</span>
+                <span class="n">sepFromMax</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="c1"># length of this join</span>
+                    <span class="n">joinLength</span> <span class="o">=</span> <span class="n">seps</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                    <span class="n">joinVector</span> <span class="o">=</span> <span class="n">vecs</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                    
+                    <span class="c1"># do we stop somewhere along this join</span>
+                    <span class="k">if</span> <span class="n">sepFromMax</span> <span class="o">+</span> <span class="n">joinLength</span> <span class="o">&gt;=</span> <span class="n">currentImageSep</span> <span class="ow">or</span> <span class="n">index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">seps</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="c1"># how far to move along this one</span>
+                        <span class="n">step</span> <span class="o">=</span> <span class="n">currentImageSep</span> <span class="o">-</span> <span class="n">sepFromMax</span>
+                        <span class="k">assert</span> <span class="n">step</span> <span class="o">&lt;=</span> <span class="n">joinLength</span> <span class="ow">or</span> <span class="n">index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">seps</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+                        
+                        <span class="c1"># take the step</span>
+                        <span class="n">sepFromMax</span> <span class="o">+=</span> <span class="n">step</span>
+                        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Partial step </span><span class="si">%f</span><span class="s2"> along join </span><span class="si">%d</span><span class="s2"> (sep from ini </span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">sepFromMax</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                        <span class="n">imagePos</span> <span class="o">+=</span> <span class="n">step</span> <span class="o">*</span> <span class="n">joinVector</span>
+                        
+                        <span class="c1"># break out of loop (we have moved far enough)</span>
+                        <span class="k">break</span>
+                    
+                    <span class="c1"># we move all the way along this join and keep going</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">sepFromMax</span> <span class="o">+=</span> <span class="n">joinLength</span>
+                        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Full step </span><span class="si">%f</span><span class="s2"> along join </span><span class="si">%d</span><span class="s2"> (sep from ini </span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">joinLength</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">sepFromMax</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                        <span class="n">imagePos</span> <span class="o">+=</span> <span class="n">joinLength</span> <span class="o">*</span> <span class="n">joinVector</span>
+                    
+                    <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+                
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="c1"># reinterpolate images to the left of the max</span>
+            <span class="n">vecs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">seps</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxEnergyImage</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">sepVec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageSeparationVector</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="mf">1.0</span>
+                <span class="n">seps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Vectors</span><span class="o">.</span><span class="n">magnitude</span><span class="p">(</span><span class="n">sepVec</span><span class="p">))</span>
+                <span class="n">vecs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Vectors</span><span class="o">.</span><span class="n">normalise</span><span class="p">(</span><span class="n">sepVec</span><span class="p">))</span>
+            
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxEnergyImage</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="c1"># how far to move this image from maxEnergyImage</span>
+                <span class="n">currentImageSep</span> <span class="o">=</span> <span class="n">count</span> <span class="o">*</span> <span class="n">spacing</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Image </span><span class="si">%d</span><span class="s2"> is </span><span class="si">%f</span><span class="s2"> from max energy image&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">currentImageSep</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                
+                <span class="c1"># position of this image</span>
+                <span class="n">imagePos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getImagePos</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">imagePos</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">maxEnergyPos</span><span class="p">)</span>
+                
+                <span class="c1"># loop over vectors until we have moved far enough</span>
+                <span class="n">sepFromMax</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="c1"># length of this join</span>
+                    <span class="n">joinLength</span> <span class="o">=</span> <span class="n">seps</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                    <span class="n">joinVector</span> <span class="o">=</span> <span class="n">vecs</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                    
+                    <span class="c1"># do we stop somewhere along this join</span>
+                    <span class="k">if</span> <span class="n">sepFromMax</span> <span class="o">+</span> <span class="n">joinLength</span> <span class="o">&gt;=</span> <span class="n">currentImageSep</span> <span class="ow">or</span> <span class="n">index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">seps</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="c1"># how far to move along this one</span>
+                        <span class="n">step</span> <span class="o">=</span> <span class="n">currentImageSep</span> <span class="o">-</span> <span class="n">sepFromMax</span>
+                        <span class="k">assert</span> <span class="n">step</span> <span class="o">&lt;=</span> <span class="n">joinLength</span> <span class="ow">or</span> <span class="n">index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">seps</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+                        
+                        <span class="c1"># take the step</span>
+                        <span class="n">sepFromMax</span> <span class="o">+=</span> <span class="n">step</span>
+                        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Partial step </span><span class="si">%f</span><span class="s2"> along join </span><span class="si">%d</span><span class="s2"> (sep from ini </span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">sepFromMax</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                        <span class="n">imagePos</span> <span class="o">+=</span> <span class="n">step</span> <span class="o">*</span> <span class="n">joinVector</span>
+                        
+                        <span class="c1"># break out of loop (we have moved far enough)</span>
+                        <span class="k">break</span>
+                    
+                    <span class="c1"># we move all the way along this join and keep going</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">sepFromMax</span> <span class="o">+=</span> <span class="n">joinLength</span>
+                        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Full step </span><span class="si">%f</span><span class="s2"> along join </span><span class="si">%d</span><span class="s2"> (sep from ini </span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">joinLength</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">sepFromMax</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                        <span class="n">imagePos</span> <span class="o">+=</span> <span class="n">joinLength</span> <span class="o">*</span> <span class="n">joinVector</span>
+                    
+                    <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+                
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="c1"># interpolate around centre point</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Reinterpolating around centre point&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            
+            <span class="c1"># get the vectors between the current set of images</span>
+            <span class="n">stringVectors</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">stringSeps</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NImagesTotal</span><span class="p">):</span>
+                <span class="n">sepVec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageSeparationVector</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                <span class="n">stringSeps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Vectors</span><span class="o">.</span><span class="n">magnitude</span><span class="p">(</span><span class="n">sepVec</span><span class="p">))</span>
+                <span class="n">stringVectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Vectors</span><span class="o">.</span><span class="n">normalise</span><span class="p">(</span><span class="n">sepVec</span><span class="p">))</span>
+             
+            <span class="c1"># copy the current initial position</span>
+            <span class="n">currentInitialPos</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getImagePos</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+             
+             
+             
+            <span class="c1"># loop over the images, setting their new positions</span>
+            <span class="c1">#NOTE: this only works for fixedEndPoints=False at the moment</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NImages</span><span class="p">):</span>
+                <span class="c1"># work out how far to move from the current initial</span>
+                <span class="n">currentImageSep</span> <span class="o">=</span> <span class="n">deltaLength</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">spacing</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Image </span><span class="si">%d</span><span class="s2"> is </span><span class="si">%f</span><span class="s2"> from old initial&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">currentImageSep</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                 
+                <span class="c1"># position of this image</span>
+                <span class="n">imagePos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getImagePos</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">imagePos</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">currentInitialPos</span><span class="p">)</span>
+                 
+                <span class="c1"># loop over string vectors until we have moved far enough</span>
+                <span class="n">sepFromIni</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="c1"># length of this join</span>
+                    <span class="n">joinLength</span> <span class="o">=</span> <span class="n">stringSeps</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                    <span class="n">joinVector</span> <span class="o">=</span> <span class="n">stringVectors</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                     
+                    <span class="c1"># we stop somewhere along this join</span>
+                    <span class="k">if</span> <span class="n">sepFromIni</span> <span class="o">+</span> <span class="n">joinLength</span> <span class="o">&gt;=</span> <span class="n">currentImageSep</span> <span class="ow">or</span> <span class="n">index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">stringSeps</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="c1"># how far to move along this one</span>
+                        <span class="n">step</span> <span class="o">=</span> <span class="n">currentImageSep</span> <span class="o">-</span> <span class="n">sepFromIni</span>
+                        <span class="k">assert</span> <span class="n">step</span> <span class="o">&lt;=</span> <span class="n">joinLength</span> <span class="ow">or</span> <span class="n">index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">stringSeps</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+                         
+                        <span class="c1"># take the step</span>
+                        <span class="n">sepFromIni</span> <span class="o">+=</span> <span class="n">step</span>
+                        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Partial step </span><span class="si">%f</span><span class="s2"> along join </span><span class="si">%d</span><span class="s2"> (sep from ini </span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">sepFromIni</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                        <span class="n">imagePos</span> <span class="o">+=</span> <span class="n">step</span> <span class="o">*</span> <span class="n">joinVector</span>
+                         
+                        <span class="c1"># break out of loop (we have moved far enough)</span>
+                        <span class="k">break</span>
+                     
+                    <span class="c1"># we move all the way along this join and keep going</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">sepFromIni</span> <span class="o">+=</span> <span class="n">joinLength</span>
+                        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Full step </span><span class="si">%f</span><span class="s2"> along join </span><span class="si">%d</span><span class="s2"> (sep from ini </span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">joinLength</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">sepFromIni</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                        <span class="n">imagePos</span> <span class="o">+=</span> <span class="n">joinLength</span> <span class="o">*</span> <span class="n">joinVector</span>
+                     
+                    <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span></div>
+    
+<div class="viewcode-block" id="String.reinterpolateImagesOld"><a class="viewcode-back" href="../../LKMC/LKMC.String.html#LKMC.String.String.reinterpolateImagesOld">[docs]</a>    <span class="k">def</span> <span class="nf">reinterpolateImagesOld</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reinterpolate the String images</span>
+<span class="sd">        </span>
+<span class="sd">        TODO: this needs sorting out... string should remain a fixed length,</span>
+<span class="sd">        i.e. the interimage separation should always remain the same! At the</span>
+<span class="sd">        moment the string grows in length.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">stringVectors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">numberOfJoins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NImages</span> <span class="o">-</span> <span class="mi">1</span>
+        
+        <span class="c1"># get the length of the curve and separate vectors</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">numberOfJoins</span><span class="p">):</span>
+            <span class="n">sep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageSeparationVector</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">length</span> <span class="o">+=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">magnitude</span><span class="p">(</span><span class="n">sep</span><span class="p">)</span>
+            <span class="n">stringVectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sep</span><span class="p">)</span>
+        
+        <span class="n">avgJoinLen</span> <span class="o">=</span> <span class="n">length</span> <span class="o">/</span> <span class="n">numberOfJoins</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixedEndPoints</span><span class="p">:</span>
+            <span class="n">numberOfJoinsX</span> <span class="o">=</span> <span class="n">numberOfJoins</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">numberOfJoinsX</span> <span class="o">=</span> <span class="n">numberOfJoins</span>
+        
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">numberOfJoins</span><span class="p">):</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">avgJoinLen</span>
+            
+            <span class="c1"># Copying initial lattice atoms positions</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixedEndPoints</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[(</span><span class="n">i</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="o">*</span><span class="mi">3</span><span class="p">):((</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="o">*</span><span class="mi">3</span><span class="p">)]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="o">*</span><span class="mi">3</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[((</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="o">*</span><span class="mi">3</span><span class="p">):(</span><span class="n">i</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="o">*</span><span class="mi">3</span><span class="p">)]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+            
+            <span class="n">joinNumber</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">sumLen</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">while</span> <span class="n">sumLen</span> <span class="o">&lt;</span> <span class="n">offset</span> <span class="ow">and</span> <span class="n">joinNumber</span> <span class="o">&lt;</span> <span class="n">numberOfJoins</span><span class="p">:</span>
+                <span class="n">joinVectorsMag</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">magnitude</span><span class="p">((</span><span class="n">stringVectors</span><span class="p">[</span><span class="n">joinNumber</span><span class="p">]))</span>
+                
+                <span class="k">if</span> <span class="n">joinVectorsMag</span> <span class="o">+</span> <span class="n">sumLen</span> <span class="o">&gt;</span> <span class="n">offset</span><span class="p">:</span>
+                    <span class="n">joinLenTemp</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">-</span> <span class="n">sumLen</span>
+                    
+                    <span class="n">normalizedVector</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">normalise</span><span class="p">(</span><span class="n">stringVectors</span><span class="p">[</span><span class="n">joinNumber</span><span class="p">])</span>
+                    
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixedEndPoints</span><span class="p">:</span>
+                        <span class="n">Vectors</span><span class="o">.</span><span class="n">addVectorsInplace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[(</span><span class="n">i</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="o">*</span><span class="mi">3</span><span class="p">):((</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="o">*</span><span class="mi">3</span><span class="p">)],</span> <span class="n">joinLenTemp</span> <span class="o">*</span> <span class="n">normalizedVector</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">Vectors</span><span class="o">.</span><span class="n">addVectorsInplace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[((</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="o">*</span><span class="mi">3</span><span class="p">):(</span><span class="n">i</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="o">*</span><span class="mi">3</span><span class="p">)],</span> <span class="n">joinLenTemp</span> <span class="o">*</span> <span class="n">normalizedVector</span><span class="p">)</span>
+                    
+                    <span class="n">sumLen</span> <span class="o">+=</span> <span class="n">joinLenTemp</span>
+                
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixedEndPoints</span><span class="p">:</span>
+                        <span class="n">Vectors</span><span class="o">.</span><span class="n">addVectorsInplace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[(</span><span class="n">i</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="o">*</span><span class="mi">3</span><span class="p">):((</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="o">*</span><span class="mi">3</span><span class="p">)],</span> <span class="n">stringVectors</span><span class="p">[</span><span class="n">joinNumber</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">Vectors</span><span class="o">.</span><span class="n">addVectorsInplace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[((</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="o">*</span><span class="mi">3</span><span class="p">):(</span><span class="n">i</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">imageNAtoms</span><span class="o">*</span><span class="mi">3</span><span class="p">)],</span> <span class="n">stringVectors</span><span class="p">[</span><span class="n">joinNumber</span><span class="p">])</span>
+                    
+                    <span class="n">sumLen</span> <span class="o">+=</span> <span class="n">joinVectorsMag</span>
+                
+                <span class="n">joinNumber</span> <span class="o">+=</span> <span class="mi">1</span></div></div>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="commandLineArgs"><a class="viewcode-back" href="../../LKMC/LKMC.String.html#LKMC.String.commandLineArgs">[docs]</a><span class="k">def</span> <span class="nf">commandLineArgs</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse command line arguments</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">argparse</span>
+    
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Run the String method.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;initialFile&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The initial state lattice file.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;finalFile&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The final state lattice file.&quot;</span><span class="p">)</span>
+    <span class="c1"># parser.add_argument(&#39;-r&#39;, dest=&quot;refFile&quot;, default=None, help=&quot;The reference lattice file&quot;)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;saddleFile&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The saddle state lattice file&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;paramFile&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;lkmcInput.IN&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;LKMC input file (default=lkmcInput.IN)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;NProcs&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of processors to use for force calculation (default=1)&quot;</span><span class="p">)</span>
+    <span class="c1"># parser.add_argument(&#39;-P&#39;, action=&quot;store_true&quot;, default=False, dest=&quot;profileCode&quot;, help=&quot;Profile the code using the hotshot module (not for production) (default=False)&quot;)</span>
+    <span class="c1"># parser.add_argument(&#39;-p&#39;, dest=&quot;statsFile&quot;, default=None, help=&quot;File for dumping profiling stats to (default=None)&quot;)</span>
+    <span class="c1"># parser.add_argument(&#39;-m&#39;, dest=&quot;minimiseInputs&quot;, default=False, action=&quot;store_true&quot;, help=&quot;Minimise the initial and final states first (default=False)&quot;)</span>
+    
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
+
+<span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../LKMC/LKMC.String.html#LKMC.String.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># program arguments</span>
+    <span class="n">progargs</span> <span class="o">=</span> <span class="n">commandLineArgs</span><span class="p">()</span>
+    
+    <span class="c1"># input parameters</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">Input</span><span class="o">.</span><span class="n">getLKMCParams</span><span class="p">(</span><span class="n">inputFile</span><span class="o">=</span><span class="n">progargs</span><span class="o">.</span><span class="n">paramFile</span><span class="p">)</span>
+    <span class="n">Input</span><span class="o">.</span><span class="n">readGlobals</span><span class="p">(</span><span class="n">inputParams</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    
+    <span class="c1"># read initial state and calculate energy</span>
+    <span class="n">initialState</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">initialFile</span><span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">initialState</span><span class="o">.</span><span class="n">calcForce</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Initial state force calculation failed&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># read final state</span>
+    <span class="n">finalState</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">finalFile</span><span class="p">)</span>
+    
+    <span class="c1"># read saddle state</span>
+    <span class="n">saddleState</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">saddleFile</span><span class="p">)</span> <span class="k">if</span> <span class="n">progargs</span><span class="o">.</span><span class="n">saddleFile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    
+    <span class="c1"># run String method</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="n">String</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">numProcs</span><span class="o">=</span><span class="n">progargs</span><span class="o">.</span><span class="n">NProcs</span><span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">initialState</span><span class="p">,</span> <span class="n">finalState</span><span class="p">,</span> <span class="n">saddleState</span><span class="o">=</span><span class="n">saddleState</span><span class="p">,</span> <span class="n">initialEnergy</span><span class="o">=</span><span class="n">initialState</span><span class="o">.</span><span class="n">totalEnergy</span><span class="p">,</span>
+                        <span class="n">initialPos</span><span class="o">=</span><span class="n">initialState</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
+        <span class="c1"># output result</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">stringPlotPathway</span><span class="p">:</span>
+            <span class="n">string</span><span class="o">.</span><span class="n">plotBarrierSeparation</span><span class="p">(</span><span class="s2">&quot;string_final&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;String&quot;</span><span class="p">,</span> <span class="n">useInterp</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">stringVisualisePathway</span><span class="p">:</span>
+            <span class="n">string</span><span class="o">.</span><span class="n">visualisePathwayLattice</span><span class="p">()</span></div>
+    
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

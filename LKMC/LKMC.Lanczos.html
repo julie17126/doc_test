@@ -1,0 +1,303 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Lanczos module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Lattice module" href="LKMC.Lattice.html" />
+    <link rel="prev" title="LKMC.Lammps module" href="LKMC.Lammps.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Lattice.html" title="LKMC.Lattice module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Lammps.html" title="LKMC.Lammps module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Lanczos">
+<span id="lkmc-lanczos-module"></span><h1>LKMC.Lanczos module<a class="headerlink" href="#module-LKMC.Lanczos" title="Permalink to this headline">¶</a></h1>
+<p>Lanczos module.</p>
+<ol class="loweralpha simple" start="3">
+<li>Tomas Lazauskas, 2013</li>
+</ol>
+<dl class="class">
+<dt id="LKMC.Lanczos.LanczosConjugateGradientMinimiser">
+<em class="property">class </em><code class="descclassname">LKMC.Lanczos.</code><code class="descname">LanczosConjugateGradientMinimiser</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#LanczosConjugateGradientMinimiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.LanczosConjugateGradientMinimiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="LKMC.Minimise.html#LKMC.Minimise.ConjugateGradientMinimiser" title="LKMC.Minimise.ConjugateGradientMinimiser"><code class="xref py py-class docutils literal"><span class="pre">LKMC.Minimise.ConjugateGradientMinimiser</span></code></a></p>
+<p>Lanczos conjugate gradient minimiser.</p>
+<p>Sub-class of Minimise.ConjugateGradientMinimiser.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Lanczos.LanczosConjugateGradientMinimiser.calcForce">
+<code class="descname">calcForce</code><span class="sig-paren">(</span><em>obj</em>, <em>excl</em>, <em>params</em>, <em>includeAtoms=None</em>, <em>mainIndexes=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#LanczosConjugateGradientMinimiser.calcForce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.LanczosConjugateGradientMinimiser.calcForce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override calcForce.</p>
+<p>Calculate forces at new position.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lanczos.LanczosConjugateGradientMinimiser.runMain">
+<code class="descname">runMain</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#LanczosConjugateGradientMinimiser.runMain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.LanczosConjugateGradientMinimiser.runMain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override runMain.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Lanczos.LanczosLBFGSMinimiser">
+<em class="property">class </em><code class="descclassname">LKMC.Lanczos.</code><code class="descname">LanczosLBFGSMinimiser</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#LanczosLBFGSMinimiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.LanczosLBFGSMinimiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="LKMC.Minimise.html#LKMC.Minimise.LBFGSMinimiser" title="LKMC.Minimise.LBFGSMinimiser"><code class="xref py py-class docutils literal"><span class="pre">LKMC.Minimise.LBFGSMinimiser</span></code></a></p>
+<p>Lanczos LBFGS minimiser.</p>
+<p>Sub-class of Minimise.LBFGSMinimiser.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Lanczos.LanczosLBFGSMinimiser.calcForceLBFGS">
+<code class="descname">calcForceLBFGS</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#LanczosLBFGSMinimiser.calcForceLBFGS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.LanczosLBFGSMinimiser.calcForceLBFGS" title="Permalink to this definition">¶</a></dt>
+<dd><p>We override the calcForceLBFGS method with Lanczos calcForce.</p>
+<p>Calculate forces at new position.
+Argument is new position vector.
+Return tuple containing total energy and force array</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lanczos.LanczosLBFGSMinimiser.postIterationCallback">
+<code class="descname">postIterationCallback</code><span class="sig-paren">(</span><em>xk</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#LanczosLBFGSMinimiser.postIterationCallback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.LanczosLBFGSMinimiser.postIterationCallback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override post iteration callback</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lanczos.LanczosLBFGSMinimiser.runMain">
+<code class="descname">runMain</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#LanczosLBFGSMinimiser.runMain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.LanczosLBFGSMinimiser.runMain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override runMain.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Lanczos.LanczosLBFGSMinimiserDownHill">
+<em class="property">class </em><code class="descclassname">LKMC.Lanczos.</code><code class="descname">LanczosLBFGSMinimiserDownHill</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#LanczosLBFGSMinimiserDownHill"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.LanczosLBFGSMinimiserDownHill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="LKMC.Minimise.html#LKMC.Minimise.LBFGSMinimiser" title="LKMC.Minimise.LBFGSMinimiser"><code class="xref py py-class docutils literal"><span class="pre">LKMC.Minimise.LBFGSMinimiser</span></code></a></p>
+<p>Lanczos LBFGS minimiser to climb down the hill.</p>
+<p>Sub-class of Minimise.LBFGSMinimiser.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Lanczos.LanczosLBFGSMinimiserDownHill.calcForceLBFGS">
+<code class="descname">calcForceLBFGS</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#LanczosLBFGSMinimiserDownHill.calcForceLBFGS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.LanczosLBFGSMinimiserDownHill.calcForceLBFGS" title="Permalink to this definition">¶</a></dt>
+<dd><p>We override the calcForceLBFGS method with Lanczos calcForce.</p>
+<p>Calculate forces at new position.
+Argument is new position vector.
+Return tuple containing total energy and force array</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lanczos.LanczosLBFGSMinimiserDownHill.runMain">
+<code class="descname">runMain</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#LanczosLBFGSMinimiserDownHill.runMain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.LanczosLBFGSMinimiserDownHill.runMain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override runMain.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Lanczos.LanczosLBFGSSaddleFinder">
+<em class="property">class </em><code class="descclassname">LKMC.Lanczos.</code><code class="descname">LanczosLBFGSSaddleFinder</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#LanczosLBFGSSaddleFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.LanczosLBFGSSaddleFinder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Lanczos + L-BFGS-B as a minimum mode following method.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Lanczos.LanczosLBFGSSaddleFinder.converge">
+<code class="descname">converge</code><span class="sig-paren">(</span><em>lattice</em>, <em>searchMd=1</em>, <em>looseIterMax=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#LanczosLBFGSSaddleFinder.converge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.LanczosLBFGSSaddleFinder.converge" title="Permalink to this definition">¶</a></dt>
+<dd><p>The idea is to approach saddle state with loose tolerance L-BFGS-B + Lanczos and than uses quite tight tolerance
+for convergence. Also restart of L-BFGS-B is recommended every 10-20 steps.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lanczos.LanczosLBFGSSaddleFinder.setJobID">
+<code class="descname">setJobID</code><span class="sig-paren">(</span><em>jobID</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#LanczosLBFGSSaddleFinder.setJobID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.LanczosLBFGSSaddleFinder.setJobID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set job ID.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Lanczos.LanczosLBFGSSaddleFinder.setup">
+<code class="descname">setup</code><span class="sig-paren">(</span><em>searchMd</em>, <em>looseIterMax=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#LanczosLBFGSSaddleFinder.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.LanczosLBFGSSaddleFinder.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup the method.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Lanczos.LanczosLattice">
+<em class="property">class </em><code class="descclassname">LKMC.Lanczos.</code><code class="descname">LanczosLattice</code><span class="sig-paren">(</span><em>NAtoms</em>, <em>storeEnergies=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#LanczosLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.LanczosLattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="LKMC.Lattice.html#LKMC.Lattice.Lattice" title="LKMC.Lattice.Lattice"><code class="xref py py-class docutils literal"><span class="pre">LKMC.Lattice.Lattice</span></code></a></p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Lanczos.LanczosLattice.calcForce">
+<code class="descname">calcForce</code><span class="sig-paren">(</span><em>MDPath=None</em>, <em>defectFlag=0</em>, <em>correctTE=0</em>, <em>includeAtoms=array([]</em>, <em>dtype=int32)</em>, <em>mainIndexes=array([]</em>, <em>dtype=int32)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#LanczosLattice.calcForce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.LanczosLattice.calcForce" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lanczos.calcEigenValues">
+<code class="descclassname">LKMC.Lanczos.</code><code class="descname">calcEigenValues</code><span class="sig-paren">(</span><em>system</em>, <em>mainIndexes</em>, <em>includeAtoms</em>, <em>displVector</em>, <em>params</em>, <em>lnegmd=0</em>, <em>evn=None</em>, <em>noEigenVects=0</em>, <em>jobID=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#calcEigenValues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.calcEigenValues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates system&#8217;s eigenvalues using Lanczos method.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lanczos.calcHessianVectProduct">
+<code class="descclassname">LKMC.Lanczos.</code><code class="descname">calcHessianVectProduct</code><span class="sig-paren">(</span><em>lattice</em>, <em>mainIndexes</em>, <em>includeAtoms</em>, <em>displVectorNormalised</em>, <em>parameters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#calcHessianVectProduct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.calcHessianVectProduct" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><dl class="docutils">
+<dt>Method approximates a dot product between a Hessian matrix and a vector of a </dt>
+<dd>given system.
+lattice: input lattice
+mainIndexes: list of atoms that should be included in Hessian matrix calculation
+displVectorNormalised: a random normalised vector
+parameters: input parameters from lkmcInput.IN</dd>
+<dt>Returns:</dt>
+<dd><dl class="first docutils">
+<dt>hessianU: a dot product of a hessian matrix and a normalized vector of a </dt>
+<dd>given system.</dd>
+</dl>
+<p class="last">forEvalCnt: number of force evaluations used to calculate hessian matrix</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>REMARKS: be sure that the passed lattice has an evaluated force vector</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lanczos.initialiseLanczosMinParams">
+<code class="descclassname">LKMC.Lanczos.</code><code class="descname">initialiseLanczosMinParams</code><span class="sig-paren">(</span><em>params</em>, <em>searchMd=0</em>, <em>subLatticeMd=0</em>, <em>looseMd=0</em>, <em>looseIterMax=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#initialiseLanczosMinParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.initialiseLanczosMinParams" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Sets parameters for minimisation</dt>
+<dd>parameters: input parameters from lkmcInput.IN</dd>
+<dt>Returns:</dt>
+<dd>lanczosMinToSaddParams - parameters for &#8220;minimisation&#8221; to a saddle</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lanczos.lanczosMethodForASystem">
+<code class="descclassname">LKMC.Lanczos.</code><code class="descname">lanczosMethodForASystem</code><span class="sig-paren">(</span><em>system</em>, <em>mainIndexes</em>, <em>displVector</em>, <em>params</em>, <em>normEigenVec=0</em>, <em>includeAtoms=array([]</em>, <em>dtype=int32)</em>, <em>returnMode=0</em>, <em>lnegmd=0</em>, <em>evn=None</em>, <em>jobID=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#lanczosMethodForASystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.lanczosMethodForASystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use Lanczos to find lowest eigenvalues/vector on given system</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lanczos.lanczosMinModMinimiserCalcForce">
+<code class="descclassname">LKMC.Lanczos.</code><code class="descname">lanczosMinModMinimiserCalcForce</code><span class="sig-paren">(</span><em>minModMinimiser</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#lanczosMinModMinimiserCalcForce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.lanczosMinModMinimiserCalcForce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes care of calc force for the min-mode minimiser.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lanczos.lanczosMinModNewForce">
+<code class="descclassname">LKMC.Lanczos.</code><code class="descname">lanczosMinModNewForce</code><span class="sig-paren">(</span><em>force</em>, <em>llev</em>, <em>lle</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#lanczosMinModNewForce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.lanczosMinModNewForce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modifies the force and the energy of the system for climing up using the eigenvalue and the 
+eigenvector from the lanczos method.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lanczos.transformLattice2LanczosLattice">
+<code class="descclassname">LKMC.Lanczos.</code><code class="descname">transformLattice2LanczosLattice</code><span class="sig-paren">(</span><em>lattice</em>, <em>params</em>, <em>mainIndexes</em>, <em>includeAtoms</em>, <em>rVector</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lanczos.html#transformLattice2LanczosLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lanczos.transformLattice2LanczosLattice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Lammps.html"
+                        title="previous chapter">LKMC.Lammps module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Lattice.html"
+                        title="next chapter">LKMC.Lattice module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Lanczos.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Lattice.html" title="LKMC.Lattice module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Lammps.html" title="LKMC.Lammps module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

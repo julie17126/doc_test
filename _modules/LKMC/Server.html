@@ -1,0 +1,1399 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Server &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Server</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Contains the LKMCServer class.</span>
+
+<span class="sd">Copyright Chris Scott 2014</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">multiprocessing.managers</span> <span class="k">import</span> <span class="n">SyncManager</span><span class="p">,</span> <span class="n">ListProxy</span><span class="p">,</span> <span class="n">DictProxy</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">Queue</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Utilities</span>
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Input</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">ClientServerInterface</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Writer</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Version</span>
+
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="LKMCServer"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer">[docs]</a><span class="k">class</span> <span class="nc">LKMCServer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The LKMCServer class for running parallel jobs.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    inputFile : str, optional</span>
+<span class="sd">        Path to the LKMC input file. Defaults to &#39;lkmcInput.IN&#39;.</span>
+<span class="sd">    params : `Input.InputParams`, optional</span>
+<span class="sd">        Parameters instance. If `inputFile` is not specified then this must be.</span>
+<span class="sd">    port : int, optional</span>
+<span class="sd">        The port the server should listen on. Defaults to 8098.</span>
+<span class="sd">    numProcs : int, optional</span>
+<span class="sd">        The number of processors to use from the nodes file. Defaults to all of</span>
+<span class="sd">        the specified processors.</span>
+<span class="sd">    statusObj : `Status.LKMCStatusObject`, optional</span>
+<span class="sd">        Status object. Will create its own if None is passed.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    writer : `Writer.LKMCWriter`</span>
+<span class="sd">        The writer instance associated with this server. Performs asynchronous</span>
+<span class="sd">        IO intensive tasks.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">clientDict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">serverPID</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">termQ</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">termCondition</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">termCommandProxy</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">clientOutputDir</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">clientWorkspace</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">writerList</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">serverManagers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">NUniqueNodes</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">terminated</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">LKMCInputFile</span><span class="o">=</span><span class="s2">&quot;lkmcInput.IN&quot;</span><span class="p">,</span> <span class="n">lkmcParams</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8098</span><span class="p">,</span> <span class="n">numProcs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">statusObj</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NNodes</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># init</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataSet</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">currentJobs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">currentDataID</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="k">if</span> <span class="n">lkmcParams</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LKMCInputFile</span> <span class="o">=</span> <span class="n">LKMCInputFile</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span> <span class="o">=</span> <span class="n">Input</span><span class="o">.</span><span class="n">getLKMCParams</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LKMCInputFile</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span> <span class="o">=</span> <span class="n">lkmcParams</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LKMCInputFile</span> <span class="o">=</span> <span class="n">lkmcParams</span><span class="o">.</span><span class="n">lkmcInputFile</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusObj</span> <span class="o">=</span> <span class="n">statusObj</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">NTasksCompleted</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># unique id in filesystem</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serverID</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+        <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;.lkmc_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serverID</span><span class="p">,),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">absPathToServerIDFile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s2">&quot;.lkmc_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serverID</span><span class="p">,))</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputRelPathForClients</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">])</span>
+        
+        <span class="c1"># store PID</span>
+        <span class="n">LKMCServer</span><span class="o">.</span><span class="n">serverPID</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
+        
+        <span class="c1"># dir for client output files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startTimeStamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%y%m</span><span class="si">%d</span><span class="s2">-%H%M%S&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span><span class="o">.</span><span class="n">keepOldClientFiles</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clientOutputDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span><span class="o">.</span><span class="n">outputDirectory</span><span class="p">,</span> <span class="s2">&quot;log-</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">startTimeStamp</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clientOutputDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span><span class="o">.</span><span class="n">outputDirectory</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">)</span>
+        <span class="n">LKMCServer</span><span class="o">.</span><span class="n">clientOutputDir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clientOutputDir</span>
+        
+        <span class="c1"># authorisation key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">authkey</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">idGenerator</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;LKMCServer-&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># address </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serverAddress</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">nodeAddress</span><span class="p">()</span>
+        
+        <span class="c1"># if ports in input file are reasonable randomly select between them</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span><span class="o">.</span><span class="n">serverMinPort</span> <span class="o">&gt;</span> <span class="mi">1024</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span><span class="o">.</span><span class="n">serverMaxPort</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span><span class="o">.</span><span class="n">serverMinPort</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span><span class="o">.</span><span class="n">serverMinPort</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span><span class="o">.</span><span class="n">serverMaxPort</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>    
+            <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
+        
+        <span class="c1"># make sure globals are set</span>
+        <span class="n">Input</span><span class="o">.</span><span class="n">readGlobals</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LKMCInputFile</span><span class="p">)</span>
+        
+        <span class="c1"># number of processors to use</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numProcs</span> <span class="o">=</span> <span class="n">numProcs</span>
+        
+        <span class="c1"># id: prefix to workspace</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ID</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">username</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialised</span> <span class="o">=</span> <span class="kc">False</span>
+    
+<div class="viewcode-block" id="LKMCServer.restartWriter"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.restartWriter">[docs]</a>    <span class="k">def</span> <span class="nf">restartWriter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Restart the writer process</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Restarting Writer process&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span> <span class="o">=</span> <span class="n">Writer</span><span class="o">.</span><span class="n">LKMCWriter</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">initiate</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.setData"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.setData">[docs]</a>    <span class="k">def</span> <span class="nf">setData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dataID</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the data (a dictionary) on the clients.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : `dict`</span>
+<span class="sd">            Dictionary containing the data to send to the clients</span>
+<span class="sd">        dataID : `UUID`, optional</span>
+<span class="sd">            Unique identifier for this data. Will be automatically</span>
+<span class="sd">            generated if not provide. </span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the `data` argument is not a `dict`</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the `data` argument contains the key &#39;id&#39;. This key</span>
+<span class="sd">            is reserved.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;data must be a dict&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="s2">&quot;id&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;id&#39; key is reserved in data dict&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataSet</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clearData</span><span class="p">()</span>
+        
+        <span class="c1"># data ID</span>
+        <span class="k">if</span> <span class="n">dataID</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">currentDataID</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">currentDataID</span> <span class="o">=</span> <span class="n">dataID</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Setting data (id: </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentDataID</span><span class="p">),),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># add id to dict</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentDataID</span>
+        
+        <span class="c1"># put data in data dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataDict</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataDict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">communicateToNodes</span><span class="p">(</span><span class="s2">&quot;RESETDATA&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">communicateToNodes</span><span class="p">(</span><span class="s2">&quot;FREE_WORKERS&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataSet</span> <span class="o">=</span> <span class="kc">True</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.clearData"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.clearData">[docs]</a>    <span class="k">def</span> <span class="nf">clearData</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clear current data.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataSet</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Warning: no data to clear&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        
+        <span class="n">item</span> <span class="o">=</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">JobQueueItem</span><span class="p">(</span><span class="n">clearData</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dataID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">currentDataID</span><span class="p">)</span>
+        
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NNodes</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">addJob</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataSet</span> <span class="o">=</span> <span class="kc">False</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.addJob"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.addJob">[docs]</a>    <span class="k">def</span> <span class="nf">addJob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jobQItem</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add job to jobQ.</span>
+<span class="sd">        </span>
+<span class="sd">        ID: unique identifier of job</span>
+<span class="sd">        obj: the object</span>
+<span class="sd">        job: tuple of (method, args, kwargs) for client to run</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">jobQItem</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">JobQueueItem</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Warning: can only add jobs of type ClientServerInterface.JobQueueItem&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobQ</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">jobQItem</span><span class="p">)</span> </div>
+    
+<div class="viewcode-block" id="LKMCServer.stopJob"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.stopJob">[docs]</a>    <span class="k">def</span> <span class="nf">stopJob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ID</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stop the job.</span>
+<span class="sd">        </span>
+<span class="sd">        ID: unique identifier of job to stop.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">communicateToNodes</span><span class="p">(</span><span class="s2">&quot;STOPJOB&quot;</span><span class="p">,</span> <span class="n">extraData</span><span class="o">=</span><span class="n">ID</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.setJobIDs"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.setJobIDs">[docs]</a>    <span class="k">def</span> <span class="nf">setJobIDs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jobIDs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set job IDs.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Setting job IDs&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">communicateToNodes</span><span class="p">(</span><span class="s2">&quot;SETJOBIDS&quot;</span><span class="p">,</span> <span class="n">extraData</span><span class="o">=</span><span class="n">jobIDs</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.clearResultQ"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.clearResultQ">[docs]</a>    <span class="k">def</span> <span class="nf">clearResultQ</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clear the results Q.</span>
+<span class="sd">        </span>
+<span class="sd">        NEEDS TESTING!!!</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">resultQ</span><span class="o">.</span><span class="n">mutex</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resultQ</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.clearUniquenessList"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.clearUniquenessList">[docs]</a>    <span class="k">def</span> <span class="nf">clearUniquenessList</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clear the unique list (and tell clients to </span>
+<span class="sd">            clear their local copies)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Clearing unique list&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># clear list on server</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finalsLock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finalsListProxy</span><span class="o">.</span><span class="n">__delitem__</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalsListProxy</span><span class="o">.</span><span class="n">__len__</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barriersListProxy</span><span class="o">.</span><span class="n">__delitem__</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">barriersListProxy</span><span class="o">.</span><span class="n">__len__</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finalsLock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        
+        <span class="c1"># clear lists on unique nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">communicateToNodes</span><span class="p">(</span><span class="s2">&quot;CLEARUNIQUELIST&quot;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.communicateToNodes"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.communicateToNodes">[docs]</a>    <span class="k">def</span> <span class="nf">communicateToNodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">extraData</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send the message to the head </span>
+<span class="sd">        client on each unique node.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Communicating to nodes: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">message</span><span class="p">,),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NUniqueNodes</span>
+        
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">statusQ</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">message</span><span class="p">,</span> <span class="n">extraData</span><span class="p">))</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Waiting for nodes to &#39;task_done&#39; status Q&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusQ</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Nodes have task done&#39;d status Q&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c1"># now check in nodes</span>
+        <span class="k">if</span> <span class="n">message</span> <span class="o">!=</span> <span class="s2">&quot;FINALISE&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">checkInNodes</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.checkInNodes"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.checkInNodes">[docs]</a>    <span class="k">def</span> <span class="nf">checkInNodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wait for unique nodes to check in.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># wait for clients to check in and say they are ready</span>
+        <span class="c1"># if we are waiting for a long time handle this differently</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Waiting for unique nodes to check in&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">NCheckIns</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">NCheckIns</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">NUniqueNodes</span><span class="p">:</span>
+            
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clientQ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="mi">120</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">Queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">break</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">msg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;READY&quot;</span><span class="p">):</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Warning: Unrecognised message in client Q: &#39;msg&#39;&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">continue</span>
+            
+            <span class="n">array</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+            <span class="n">nodeName</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            
+            <span class="n">NCheckIns</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Node &#39;</span><span class="si">%s</span><span class="s2">&#39; checked in (</span><span class="si">%d</span><span class="s2"> of </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nodeName</span><span class="p">,</span> <span class="n">NCheckIns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NUniqueNodes</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Server waiting too long for nodes to check in: EXITING&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            
+            <span class="n">LKMCServer</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+            
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">223</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Releasing nodes (client Q)&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUniqueNodes</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clientQ</span><span class="o">.</span><span class="n">task_done</span><span class="p">()</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Nodes released (client Q)&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.serverDebuggingOutput"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.serverDebuggingOutput">[docs]</a>    <span class="k">def</span> <span class="nf">serverDebuggingOutput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">startTime</span><span class="p">,</span> <span class="n">totalTime</span><span class="p">,</span> <span class="n">NResults</span><span class="p">,</span> <span class="n">clientDict</span><span class="p">,</span> <span class="n">taskOutputDir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write debugging ouput</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span><span class="o">.</span><span class="n">debugServer</span><span class="p">:</span>
+            <span class="c1"># timings</span>
+            <span class="n">taskTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">startTime</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Task time: </span><span class="si">%f</span><span class="s2"> s&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">taskTime</span><span class="p">,),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            
+<span class="c1">#             averageTaskTime = taskTime / float(NResults)</span>
+            <span class="n">averageTimePerJob</span> <span class="o">=</span> <span class="n">totalTime</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">NResults</span><span class="p">)</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Average time per client job was </span><span class="si">%f</span><span class="s2"> s&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">averageTimePerJob</span><span class="p">,),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="c1">#            log(__name__, &quot;Task time was %f s&quot; % (averageTaskTime,), 0, 1)</span>
+            
+            <span class="c1"># plot load num jobs per client</span>
+            <span class="n">xvals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NNodes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="n">yvals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NNodes</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">rank</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NNodes</span><span class="p">):</span>
+                <span class="n">yvals</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span> <span class="o">=</span> <span class="n">clientDict</span><span class="p">[</span><span class="n">rank</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            
+            <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;clientBalance&quot;</span>
+            
+            <span class="c1"># create tuple containing positional arguments for plot call</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">xvals</span><span class="p">,</span> <span class="s2">&quot;Client&quot;</span><span class="p">,</span> <span class="n">yvals</span><span class="p">,</span> <span class="s2">&quot;Jobs processed&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># create dictionary containing key work arguments for plot call</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;align&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Total number of jobs = </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">NResults</span><span class="p">)}</span>
+            
+            <span class="c1"># add plot to writer queue</span>
+            <span class="n">writerItem</span> <span class="o">=</span> <span class="n">Writer</span><span class="o">.</span><span class="n">WriterItem</span><span class="p">(</span><span class="s2">&quot;PLOT&quot;</span><span class="p">,</span> <span class="n">dataType</span><span class="o">=</span><span class="s2">&quot;plot&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[],</span> <span class="n">outdir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">taskOutputDir</span><span class="p">,</span> <span class="s2">&quot;timings&quot;</span><span class="p">))</span>
+            <span class="n">writerItem</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;barPlot&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">writerItem</span><span class="p">)</span>
+            
+            
+            <span class="c1"># plot time per job on each worker</span>
+            <span class="n">xvals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NNodes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="n">yvals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NNodes</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">rank</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NNodes</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">clientDict</span><span class="p">[</span><span class="n">rank</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">yvals</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">yvals</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span> <span class="o">=</span> <span class="n">clientDict</span><span class="p">[</span><span class="n">rank</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">clientDict</span><span class="p">[</span><span class="n">rank</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            
+            <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;clientTime&quot;</span>
+            
+            <span class="c1"># create tuple containing positional arguments for plot call</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">xvals</span><span class="p">,</span> <span class="s2">&quot;Client&quot;</span><span class="p">,</span> <span class="n">yvals</span><span class="p">,</span> <span class="s2">&quot;Average time per job (s)&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># create dictionary containing key work arguments for plot call</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;align&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Overall average time: </span><span class="si">%f</span><span class="s2"> s&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">averageTimePerJob</span><span class="p">)}</span>
+            
+            <span class="c1"># add plot to writer queue</span>
+            <span class="n">writerItem</span> <span class="o">=</span> <span class="n">Writer</span><span class="o">.</span><span class="n">WriterItem</span><span class="p">(</span><span class="s2">&quot;PLOT&quot;</span><span class="p">,</span> <span class="n">dataType</span><span class="o">=</span><span class="s2">&quot;plot&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[],</span> <span class="n">outdir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">taskOutputDir</span><span class="p">,</span> <span class="s2">&quot;timings&quot;</span><span class="p">))</span>
+            <span class="n">writerItem</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;barPlot&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">writerItem</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.zipCombinedFiles"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.zipCombinedFiles">[docs]</a>    <span class="k">def</span> <span class="nf">zipCombinedFiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">taskOutDir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Zips all combined files in the output directory</span>
+<span class="sd">        Combined files have extension .cdt</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">outputDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span><span class="o">.</span><span class="n">outputDirectory</span><span class="p">,</span> <span class="n">taskOutDir</span><span class="p">)</span>
+        <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">outputDir</span><span class="p">)</span>
+        <span class="n">cdts</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">findFiles</span><span class="p">(</span><span class="s2">&quot;*.cdt&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cdts</span><span class="p">):</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">FilesObject</span><span class="p">(</span><span class="n">cdts</span><span class="p">)</span>
+            
+            <span class="n">args</span> <span class="o">=</span> <span class="p">()</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">Writer</span><span class="o">.</span><span class="n">WriterItem</span><span class="p">(</span><span class="s2">&quot;ZIP&quot;</span><span class="p">,</span> <span class="n">dataType</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">obj</span><span class="p">,],</span> <span class="n">outdir</span><span class="o">=</span><span class="n">taskOutDir</span><span class="p">)</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;zip&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.prepareForTask"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.prepareForTask">[docs]</a>    <span class="k">def</span> <span class="nf">prepareForTask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare output directory.</span>
+<span class="sd">        Not the best way but will do while testing.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">outdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span><span class="o">.</span><span class="n">outputDirectory</span><span class="p">,</span> <span class="n">outdir</span><span class="p">)</span>
+        
+        <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">outdir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">outdir</span><span class="p">)</span>
+        
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">outdir</span><span class="p">)</span>
+        
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;rm -rf *&quot;</span><span class="p">)</span> <span class="c1"># don&#39;t like doing this</span>
+        
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span></div>
+                      
+<div class="viewcode-block" id="LKMCServer.getObjectQ"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.getObjectQ">[docs]</a>    <span class="k">def</span> <span class="nf">getObjectQ</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns reference to object Q.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectQ</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.getCommandQ"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.getCommandQ">[docs]</a>    <span class="k">def</span> <span class="nf">getCommandQ</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns reference to command Q.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">commandQ</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.getResult"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.getResult">[docs]</a>    <span class="k">def</span> <span class="nf">getResult</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a result from the result queue.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resultQ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="n">empty</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">except</span> <span class="n">Queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">empty</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">empty</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.readNodesFile"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.readNodesFile">[docs]</a>    <span class="k">def</span> <span class="nf">readNodesFile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read nodes file.</span>
+<span class="sd">        </span>
+<span class="sd">        - Each line should contain the address of a node.</span>
+<span class="sd">        - If numProcs is specified only read that many lines.</span>
+<span class="sd">        - Blank lines and lines starting with &#39;#&#39; are ignored</span>
+<span class="sd">        </span>
+<span class="sd">        Note: if there are less lines than numProcs we continue</span>
+<span class="sd">            anyway.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if numProcs is defined we only read that many lines</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numProcs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">numProcs</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">limit</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span><span class="o">.</span><span class="n">fullPathToNodesFile</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: nodes file does not exist: &quot;</span><span class="o">+</span><span class="n">filename</span><span class="p">)</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Reading nodes file: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># first read the nodes.IN file</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodeList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">appendNodeList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodeList</span><span class="o">.</span><span class="n">append</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            
+            <span class="c1"># skip blank lines</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                <span class="k">continue</span>
+            
+            <span class="c1"># skip lines starting with &#39;#&#39;</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
+                <span class="k">continue</span>
+            
+            <span class="c1"># add node</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">line</span>
+            <span class="n">appendNodeList</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+            
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="n">limit</span><span class="p">:</span>
+                <span class="k">break</span>
+        
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        
+        <span class="c1"># and get a list of the unique nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uniqueNodes</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">uniqueItems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodeList</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uniqueNodesNWorkers</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodeList</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">NNodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodeList</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NUniqueNodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uniqueNodes</span><span class="p">)</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> unique nodes (</span><span class="si">%d</span><span class="s2"> clients)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUniqueNodes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NNodes</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniqueNodes</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Unique node </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%d</span><span class="s2"> clients)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniqueNodesNWorkers</span><span class="p">[</span><span class="n">node</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.checkNodes"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.checkNodes">[docs]</a>    <span class="k">def</span> <span class="nf">checkNodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check can access nodes and get info about environment</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Checking nodes environment&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodePrependCommand</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodeTmpLocation</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="c1"># num procs for running setup threads</span>
+        <span class="n">num_procs</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uniqueNodes</span><span class="p">))</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Starting (</span><span class="si">%d</span><span class="s2">) threads to check nodes&quot;</span> <span class="o">%</span> <span class="n">num_procs</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        
+        <span class="c1"># first check we can ssh into all nodes</span>
+        <span class="n">statusQ</span> <span class="o">=</span> <span class="n">Queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="n">jobQ</span> <span class="o">=</span> <span class="n">Queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="n">threads</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">num_procs</span><span class="p">):</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">_checkNodes</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">jobQ</span><span class="p">,</span> <span class="n">statusQ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputRelPathForClients</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">serverID</span><span class="p">))</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">threads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        
+        <span class="c1"># add setup jobs</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniqueNodes</span><span class="p">:</span>
+            <span class="n">jobQ</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">num_procs</span><span class="p">):</span>
+            <span class="n">jobQ</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">)</span>
+        
+        <span class="n">serverVersion</span> <span class="o">=</span> <span class="n">Version</span><span class="o">.</span><span class="n">getVersion</span><span class="p">()</span>
+        <span class="n">glob_stat</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">fail_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodePathToWorkDir</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workSpace</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">versionMismatches</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUniqueNodes</span><span class="p">):</span>
+            <span class="n">status</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">prepend_commands</span><span class="p">,</span> <span class="n">tmpLocation</span><span class="p">,</span> <span class="n">workSpace</span><span class="p">,</span> <span class="n">clientVersion</span> <span class="o">=</span> <span class="n">statusQ</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">glob_stat</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">fail_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">status</span><span class="p">))</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nodePrependCommand</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prepend_commands</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nodeTmpLocation</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmpLocation</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nodePathToWorkDir</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">workSpace</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">workSpace</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                
+                <span class="k">if</span> <span class="n">serverVersion</span> <span class="o">!=</span> <span class="n">clientVersion</span><span class="p">:</span>
+                    <span class="n">versionMismatches</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">clientVersion</span>
+        
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">glob_stat</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;ERROR: could not configure some nodes: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fail_nodes</span><span class="p">),))</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">167</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniqueNodes</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Node </span><span class="si">%s</span><span class="s2">: prepend cmd: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodePrependCommand</span><span class="p">[</span><span class="n">node</span><span class="p">]),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Node </span><span class="si">%s</span><span class="s2">: tmp location: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodeTmpLocation</span><span class="p">[</span><span class="n">node</span><span class="p">]),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">versionMismatches</span><span class="p">):</span>
+            <span class="nb">print</span>
+            <span class="nb">print</span> <span class="s2">&quot;*&quot;</span><span class="o">*</span><span class="mi">80</span>
+            <span class="nb">print</span> <span class="s2">&quot;*&quot;</span><span class="o">*</span><span class="mi">80</span>
+            <span class="nb">print</span> <span class="s2">&quot;*&quot;</span><span class="o">*</span><span class="mi">80</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Client version mismatch!&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;We will proceed anyway but this may give unexpected results or just not work&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;It is the users responsibility to make sure a suitable version is installed on all machines&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">clientVersion</span> <span class="ow">in</span> <span class="n">versionMismatches</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Node &#39;</span><span class="si">%s</span><span class="s2">&#39; version &#39;</span><span class="si">%s</span><span class="s2">&#39; does not match server version &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">clientVersion</span><span class="p">,</span> <span class="n">serverVersion</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="nb">print</span>
+            <span class="nb">print</span> <span class="s2">&quot;*&quot;</span><span class="o">*</span><span class="mi">80</span>
+            <span class="nb">print</span> <span class="s2">&quot;*&quot;</span><span class="o">*</span><span class="mi">80</span>
+            <span class="nb">print</span> <span class="s2">&quot;*&quot;</span><span class="o">*</span><span class="mi">80</span>
+            <span class="nb">print</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.prepareNodesForClients"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.prepareNodesForClients">[docs]</a>    <span class="k">def</span> <span class="nf">prepareNodesForClients</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepares nodes for the clients to run on them.</span>
+<span class="sd">        This assumes the clients need:</span>
+<span class="sd">            Source code (this scripts directory)</span>
+<span class="sd">            MD Code (location specified in Globals module after readGlobals)</span>
+<span class="sd">            LKMC input file: we need that to get this far anyway</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Preparing nodes for clients&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">setupTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="c1"># check node env</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkNodes</span><span class="p">()</span>
+        
+        <span class="c1"># which nodes need a workspace making for them</span>
+        <span class="n">nodesToSetup</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniqueNodes</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodePathToWorkDir</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodesToSetup</span><span class="p">):</span>
+            <span class="c1"># num procs for running setup threads</span>
+            <span class="n">num_procs</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodesToSetup</span><span class="p">))</span>
+            
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Starting (</span><span class="si">%d</span><span class="s2">) threads to setup nodes&quot;</span> <span class="o">%</span> <span class="n">num_procs</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            
+            <span class="c1"># start setup workers</span>
+            <span class="n">nodeStatusQ</span> <span class="o">=</span> <span class="n">Queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+            <span class="n">jobQ</span> <span class="o">=</span> <span class="n">Queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+            <span class="n">threads</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">num_procs</span><span class="p">):</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">_setupClient</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">nodeStatusQ</span><span class="p">,</span> <span class="n">jobQ</span><span class="p">))</span>
+                <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                <span class="n">threads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            
+            <span class="c1"># add setup jobs</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodesToSetup</span><span class="p">:</span>
+                <span class="n">jobQ</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodeTmpLocation</span><span class="p">[</span><span class="n">node</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodePrependCommand</span><span class="p">[</span><span class="n">node</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">LKMCInputFile</span><span class="p">))</span>
+            
+            <span class="c1"># add exit jobs</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">num_procs</span><span class="p">):</span>
+                <span class="n">jobQ</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># gather results</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Waiting for thread exit status&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">statuses</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nodesToSetup</span><span class="p">)):</span>
+                <span class="n">status</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">nodeWorkSpace</span> <span class="o">=</span> <span class="n">nodeStatusQ</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="n">statuses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: status </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">status</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">workSpace</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">nodeWorkSpace</span>
+            
+            <span class="c1"># join workers</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Joining setup threads&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
+                <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+            
+            <span class="c1"># if there were any errors above there is no point continuing because it just won&#39;t work</span>
+            <span class="c1"># so check if any errors and attempt to exit cleanly if there were</span>
+            <span class="k">for</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">statuses</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Errors detected during setupNodes; exiting&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cleanNodeWorkspace</span><span class="p">()</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+        
+        <span class="n">setupTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">setupTime</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Setup nodes time: </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">setupTime</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># print workspace for each node</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniqueNodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">workSpace</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: work dir path: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodePathToWorkDir</span><span class="p">[</span><span class="n">node</span><span class="p">]),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: work space: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">workSpace</span><span class="p">[</span><span class="n">node</span><span class="p">]),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># print location of client output files</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Client output files will be stored in: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">clientOutputDir</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">LKMCServer</span><span class="o">.</span><span class="n">clientWorkspace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">workSpace</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.startClients"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.startClients">[docs]</a>    <span class="k">def</span> <span class="nf">startClients</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start clients over ssh.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">LKMCServer</span><span class="o">.</span><span class="n">NUniqueNodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NUniqueNodes</span>
+          
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Starting clients&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LKMCInputFile</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clients</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniqueNodes</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Starting client on node &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            
+            <span class="n">PYTHON</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">; &quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodePrependCommand</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+            
+            <span class="n">NWorkers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniqueNodesNWorkers</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+            
+            <span class="n">workSpace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">workSpace</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">workSpace</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">workSpace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodePathToWorkDir</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+            
+            <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">verboseLevel</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">command</span>  <span class="o">=</span> <span class="s2">&quot;ssh </span><span class="si">%s</span><span class="s2"> &#39;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> Client </span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">PYTHON</span><span class="p">,</span> <span class="s2">&quot;lkmc.py&quot;</span><span class="p">,</span> 
+                                                         <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">workSpace</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">NWorkers</span><span class="p">,</span> 
+                                                                                                       <span class="bp">self</span><span class="o">.</span><span class="n">serverAddress</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">authkey</span><span class="p">,</span> <span class="n">tail</span><span class="p">,</span>
+                                                                                                       <span class="bp">self</span><span class="o">.</span><span class="n">outputRelPathForClients</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">serverID</span><span class="p">,</span> 
+                                                                                                       <span class="bp">self</span><span class="o">.</span><span class="n">clientOutputDir</span><span class="p">))</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">command</span>  <span class="o">=</span> <span class="s2">&quot;ssh </span><span class="si">%s</span><span class="s2"> &#39;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> Client </span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">PYTHON</span><span class="p">,</span> <span class="s2">&quot;lkmc.py&quot;</span><span class="p">,</span> 
+                                                         <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">workSpace</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">NWorkers</span><span class="p">,</span> 
+                                                                                                       <span class="bp">self</span><span class="o">.</span><span class="n">serverAddress</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">authkey</span><span class="p">,</span> <span class="n">tail</span><span class="p">,</span>
+                                                                                                       <span class="bp">self</span><span class="o">.</span><span class="n">outputRelPathForClients</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">serverID</span><span class="p">,</span>
+                                                                                                       <span class="bp">self</span><span class="o">.</span><span class="n">clientOutputDir</span><span class="p">))</span>
+            
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Command: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">command</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            
+            <span class="n">p</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">_startClient</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">command</span><span class="p">,))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                        
+            <span class="n">count</span> <span class="o">+=</span> <span class="n">NWorkers</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">waitForClients</span><span class="p">()</span>
+        
+        <span class="c1"># get the client daemon pid&#39;s</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUniqueNodes</span><span class="p">):</span>
+            <span class="n">comm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resultQ</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Client daemon started on </span><span class="si">%s</span><span class="s2">; process group </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">comm</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">comm</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">LKMCServer</span><span class="o">.</span><span class="n">clientDict</span><span class="p">[</span><span class="n">comm</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">comm</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.copyClientOutputFiles"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.copyClientOutputFiles">[docs]</a>    <span class="k">def</span> <span class="nf">copyClientOutputFiles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Copy the client STDOUT and STDERR files</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clientOutputDir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clientOutputDir</span><span class="p">)</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Storing client output files in: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clientOutputDir</span><span class="p">,),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c1"># copy the stdout and stderr files back first?</span>
+        <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">workSpace</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">workSpace</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">workSpace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">globPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">workSpace</span><span class="p">,</span> <span class="s2">&quot;*.STD*.txt&quot;</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">workSpace</span><span class="p">):</span>
+                    <span class="n">globFiles</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">globPath</span><span class="p">)</span>
+                    
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">globFiles</span><span class="p">):</span>
+                        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;cp </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">globPath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clientOutputDir</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">command</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;scp </span><span class="si">%s</span><span class="s2">:&#39;</span><span class="si">%s</span><span class="s2">&#39; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">globPath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clientOutputDir</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">command</span> <span class="o">+</span> <span class="s2">&quot; &gt; /dev/null&quot;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.cleanNodeWorkspace"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.cleanNodeWorkspace">[docs]</a>    <span class="k">def</span> <span class="nf">cleanNodeWorkspace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete work space on nodes</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Tidying up workspace on nodes&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">copyClientOutputFiles</span><span class="p">()</span>
+        
+        <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">workSpace</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">workSpace</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">workSpace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># first check if we have access to tmp storage</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">workSpace</span><span class="p">):</span>
+                    <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;rm -rf </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">workSpace</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;ssh </span><span class="si">%s</span><span class="s2"> rm -rf </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">workSpace</span><span class="p">)</span>
+                
+                <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;WARNING: could not delete workspace on node: </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">workSpace</span><span class="p">[</span><span class="n">node</span><span class="p">]),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.shutdownServerManager"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.shutdownServerManager">[docs]</a>    <span class="k">def</span> <span class="nf">shutdownServerManager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clean shutdown of server manager.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Shutting down queue manager&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.makeServerManager"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.makeServerManager">[docs]</a>    <span class="k">def</span> <span class="nf">makeServerManager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a manager for the server, listening on the given port.</span>
+<span class="sd">        Manager object has getJobQ and getResultsQ methods.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Starting queue manager&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># create shared objects</span>
+        <span class="n">dataDict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobQ</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resultQ</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clientQ</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">JoinableQueue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusQ</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">JoinableQueue</span><span class="p">()</span>
+        <span class="n">LKMCServer</span><span class="o">.</span><span class="n">termQ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statusQ</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finalsLock</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+        <span class="n">finalsList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratesLock</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+        <span class="n">ratesList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">barriersList</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1"># the manager gives access to the queues</span>
+        <span class="k">class</span> <span class="nc">JobQueueManager</span><span class="p">(</span><span class="n">SyncManager</span><span class="p">):</span>
+            <span class="k">pass</span>
+        
+        <span class="c1"># register the queues with the manager</span>
+        <span class="n">JobQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getDataDict&quot;</span><span class="p">,</span> <span class="n">callable</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">dataDict</span><span class="p">,</span> <span class="n">proxytype</span><span class="o">=</span><span class="n">DictProxy</span><span class="p">)</span>
+        <span class="n">JobQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getJobQ&quot;</span><span class="p">,</span> <span class="n">callable</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobQ</span><span class="p">)</span>
+        <span class="n">JobQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getResultQ&quot;</span><span class="p">,</span> <span class="n">callable</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">resultQ</span><span class="p">)</span>
+        <span class="n">JobQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getClientQ&quot;</span><span class="p">,</span> <span class="n">callable</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">clientQ</span><span class="p">)</span>
+        <span class="n">JobQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getStatusQ&quot;</span><span class="p">,</span> <span class="n">callable</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">statusQ</span><span class="p">)</span>
+        <span class="n">JobQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getFinalsLock&quot;</span><span class="p">,</span> <span class="n">callable</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalsLock</span><span class="p">)</span>
+        <span class="n">JobQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getFinalsList&quot;</span><span class="p">,</span> <span class="n">callable</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">finalsList</span><span class="p">,</span> <span class="n">proxytype</span><span class="o">=</span><span class="n">ListProxy</span><span class="p">)</span>
+        <span class="n">JobQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getRatesLock&quot;</span><span class="p">,</span> <span class="n">callable</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ratesLock</span><span class="p">)</span>
+        <span class="n">JobQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getRatesList&quot;</span><span class="p">,</span> <span class="n">callable</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">ratesList</span><span class="p">,</span> <span class="n">proxytype</span><span class="o">=</span><span class="n">ListProxy</span><span class="p">)</span>
+        <span class="n">JobQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getBarriersList&quot;</span><span class="p">,</span> <span class="n">callable</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">barriersList</span><span class="p">,</span> <span class="n">proxytype</span><span class="o">=</span><span class="n">ListProxy</span><span class="p">)</span>
+        
+        <span class="c1"># create and start the manager</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span> <span class="o">=</span> <span class="n">JobQueueManager</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">),</span> <span class="n">authkey</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">authkey</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">LKMCServer</span><span class="o">.</span><span class="n">serverManagers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="p">)</span>
+        <span class="n">LKMCServer</span><span class="o">.</span><span class="n">termQ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statusQ</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">finalsListProxy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">getFinalsList</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratesListProxy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">getRatesList</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barriersListProxy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">getBarriersList</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataDict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">getDataDict</span><span class="p">()</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Listening on </span><span class="si">%s</span><span class="s2">:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serverAddress</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
+            
+<div class="viewcode-block" id="LKMCServer.stopClients"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.stopClients">[docs]</a>    <span class="k">def</span> <span class="nf">stopClients</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tell the clients to exit</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Telling clients to exit&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">clearData</span><span class="p">()</span>
+        
+        <span class="n">exitDict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;EXIT&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">exitDict</span><span class="p">)</span>
+        
+        <span class="c1"># tell head clients to stop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">communicateToNodes</span><span class="p">(</span><span class="s2">&quot;FINALISE&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># sleep briefly</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># copy output files and delete workspace (if exists)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cleanNodeWorkspace</span><span class="p">()</span></div>
+        
+<div class="viewcode-block" id="LKMCServer.waitForClients"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.waitForClients">[docs]</a>    <span class="k">def</span> <span class="nf">waitForClients</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Waits for the client processes to terminate</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">clients</span><span class="p">:</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.initiate"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.initiate">[docs]</a>    <span class="k">def</span> <span class="nf">initiate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initiate the server</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialised</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;ERROR: server is already initialised; skipping initiate&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Initiating server and clients&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># read the nodes file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readNodesFile</span><span class="p">()</span>
+        
+        <span class="c1"># set up nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepareNodesForClients</span><span class="p">()</span>
+        
+        <span class="c1"># make the server queue manager</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">makeServerManager</span><span class="p">()</span>
+        
+        <span class="c1"># start the clients</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startClients</span><span class="p">()</span>
+        
+        <span class="c1"># start the writer</span>
+<span class="c1">#         if self.LKMCParams.numberOfWriterProcesses &lt;= 1:</span>
+<span class="c1">#             NWriters = 1</span>
+<span class="c1">#         </span>
+<span class="c1">#         else:</span>
+<span class="c1">#             NWriters = self.LKMCParams.numberOfWriterProcesses</span>
+        
+        <span class="c1"># force 1 writer</span>
+        <span class="n">NWriters</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span> <span class="o">=</span> <span class="n">Writer</span><span class="o">.</span><span class="n">LKMCWriter</span><span class="p">(</span><span class="n">logDir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clientOutputDir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">initiate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span><span class="p">,</span> <span class="n">NWorkers</span><span class="o">=</span><span class="n">NWriters</span><span class="p">)</span>
+        <span class="n">LKMCServer</span><span class="o">.</span><span class="n">writerList</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">processList</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialised</span> <span class="o">=</span> <span class="kc">True</span></div>
+    
+<div class="viewcode-block" id="LKMCServer.finalise"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.finalise">[docs]</a>    <span class="k">def</span> <span class="nf">finalise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shutdown the server</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Finalising server&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># delete server file</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">absPathToServerIDFile</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">absPathToServerIDFile</span><span class="p">)</span>
+        
+        <span class="c1"># tell the clients to stop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stopClients</span><span class="p">()</span>
+        
+        <span class="c1"># shutdown the queue manager</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shutdownServerManager</span><span class="p">()</span>
+        
+        <span class="c1"># stop the writer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialised</span> <span class="o">=</span> <span class="kc">False</span></div>
+    
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="LKMCServer.terminate"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.LKMCServer.terminate">[docs]</a>    <span class="k">def</span> <span class="nf">terminate</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Terminate the server</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span> <span class="o">==</span> <span class="n">LKMCServer</span><span class="o">.</span><span class="n">serverPID</span><span class="p">:</span>
+            <span class="n">termTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            
+            <span class="c1"># make dir to contain client output files</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">LKMCServer</span><span class="o">.</span><span class="n">clientOutputDir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">LKMCServer</span><span class="o">.</span><span class="n">clientOutputDir</span><span class="p">)</span>
+            
+            <span class="c1"># num procs for running setup threads</span>
+            <span class="n">num_procs</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span> <span class="nb">len</span><span class="p">(</span><span class="n">LKMCServer</span><span class="o">.</span><span class="n">clientDict</span><span class="p">))</span>
+            
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Starting (</span><span class="si">%d</span><span class="s2">) threads to terminate server&quot;</span> <span class="o">%</span> <span class="n">num_procs</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            
+            <span class="c1"># start workers</span>
+            <span class="n">jobQ</span> <span class="o">=</span> <span class="n">Queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+            <span class="n">threads</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">num_procs</span><span class="p">):</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">_terminateClient</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">jobQ</span><span class="p">,))</span>
+                <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                <span class="n">threads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            
+            <span class="c1"># add jobs</span>
+            <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">pgrp</span> <span class="ow">in</span> <span class="n">LKMCServer</span><span class="o">.</span><span class="n">clientDict</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="n">workSpace</span> <span class="o">=</span> <span class="n">LKMCServer</span><span class="o">.</span><span class="n">clientWorkspace</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+                <span class="n">outputDir</span> <span class="o">=</span> <span class="n">LKMCServer</span><span class="o">.</span><span class="n">clientOutputDir</span>
+                
+                <span class="n">jobQ</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">node</span><span class="p">,</span> <span class="n">pgrp</span><span class="p">,</span> <span class="n">workSpace</span><span class="p">,</span> <span class="n">outputDir</span><span class="p">))</span>
+            
+            <span class="c1"># add exit jobs</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">num_procs</span><span class="p">):</span>
+                <span class="n">jobQ</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># join workers</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
+                <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+            
+            <span class="c1"># delete unique id file</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;rm -f .lkmc_*&quot;</span><span class="p">)</span>
+            
+            <span class="n">termTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">termTime</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Terminate time: </span><span class="si">%s</span><span class="s2"> s&quot;</span> <span class="o">%</span> <span class="n">termTime</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            
+            <span class="c1"># kill main group</span>
+            <span class="n">grpid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpgrp</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;kill -9 -</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">grpid</span><span class="p">)</span></div></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="k">def</span> <span class="nf">_terminateClient</span><span class="p">(</span><span class="n">jobQ</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Terminate clients until told to stop</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># get job</span>
+        <span class="n">job</span> <span class="o">=</span> <span class="n">jobQ</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        
+        <span class="c1"># exit?</span>
+        <span class="k">if</span> <span class="n">job</span> <span class="o">==</span> <span class="s2">&quot;EXIT&quot;</span><span class="p">:</span>
+            <span class="k">return</span>
+        
+        <span class="c1"># unpack job</span>
+        <span class="n">node</span><span class="p">,</span> <span class="n">pgrp</span><span class="p">,</span> <span class="n">workSpace</span><span class="p">,</span> <span class="n">outputDir</span> <span class="o">=</span> <span class="n">job</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Terminating node: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">node</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c1"># kill process group</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="o">==</span> <span class="s2">&quot;localhost&quot;</span><span class="p">:</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;kill -9 -</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">pgrp</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;ssh </span><span class="si">%s</span><span class="s2"> kill -9 -</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">pgrp</span><span class="p">)</span>
+         
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">workSpace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># copy output files</span>
+            <span class="n">globPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">workSpace</span><span class="p">,</span> <span class="s2">&quot;*.STD*.txt&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">workSpace</span><span class="p">):</span>
+                <span class="c1"># first glob to see if they&#39;re there</span>
+                <span class="n">globFiles</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">globPath</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">globFiles</span><span class="p">):</span>
+                    <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;cp </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">globPath</span><span class="p">,</span> <span class="n">outputDir</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">command</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;scp </span><span class="si">%s</span><span class="s2">:&#39;</span><span class="si">%s</span><span class="s2">&#39; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">globPath</span><span class="p">,</span> <span class="n">outputDir</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">command</span> <span class="o">+</span> <span class="s2">&quot; &gt; /dev/null&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># delete workspace</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">workSpace</span><span class="p">):</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;rm -rf </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">workSpace</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;ssh </span><span class="si">%s</span><span class="s2"> rm -rf </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">workSpace</span><span class="p">)</span>
+            
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+
+<span class="c1">################################################################################</span>
+
+<span class="k">def</span> <span class="nf">_setupClient</span><span class="p">(</span><span class="n">resultQ</span><span class="p">,</span> <span class="n">jobQ</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Worker thread to SSH into and setup clients</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># get job</span>
+        <span class="n">job</span> <span class="o">=</span> <span class="n">jobQ</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">job</span> <span class="o">==</span> <span class="s2">&quot;EXIT&quot;</span><span class="p">:</span>
+            <span class="k">return</span>
+        
+        <span class="c1"># unpack job</span>
+        <span class="n">node</span><span class="p">,</span> <span class="n">tmpLocation</span><span class="p">,</span> <span class="n">prependCmd</span><span class="p">,</span> <span class="n">LKMCInputFile</span> <span class="o">=</span> <span class="n">job</span>
+        
+        <span class="n">statuses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">workSpace</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="c1"># python command</span>
+        <span class="n">PYTHON</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">; python&quot;</span> <span class="o">%</span> <span class="n">prependCmd</span>
+        
+        <span class="c1"># make nodespace</span>
+        <span class="n">tmpdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmpLocation</span><span class="p">,</span> <span class="s2">&quot;lkmc-</span><span class="si">%s</span><span class="s2">.XXXXXXXX&quot;</span> <span class="o">%</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">username</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="o">==</span> <span class="s2">&quot;localhost&quot;</span><span class="p">:</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;mktemp -d </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">tmpdir</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;ssh </span><span class="si">%s</span><span class="s2"> mktemp -d </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">)</span>
+        <span class="n">output</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="n">statuses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+    
+        <span class="c1"># only continue if work space created successfully</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;ERROR: could not make tmp directory on node </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">tmpLocation</span><span class="p">)</span>
+            <span class="n">resultQ</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">workSpace</span><span class="p">))</span>
+            <span class="k">continue</span>
+        
+        <span class="c1"># get name of tmp dir</span>
+        <span class="n">workSpace</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    
+        <span class="c1"># now copy MD input files</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;scp -r &#39;</span><span class="si">%s</span><span class="s2">&#39; </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">MDLocation</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">workSpace</span><span class="p">)</span>
+        <span class="n">output</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;ERROR: failed to copy md code to node&quot;</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">workSpace</span>
+        <span class="n">statuses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+        
+        <span class="c1"># copy LKMC input file</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;scp &#39;</span><span class="si">%s</span><span class="s2">&#39; </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">LKMCInputFile</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">workSpace</span><span class="p">)</span>
+        <span class="n">output</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;ERROR: could not copy LKMC input file to node&quot;</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">workSpace</span><span class="p">,</span> <span class="n">LKMCInputFile</span>
+        <span class="n">statuses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+        
+        <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">statuses</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">break</span>
+        
+        <span class="n">resultQ</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">status</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">workSpace</span><span class="p">))</span>
+
+<span class="c1">################################################################################</span>
+
+<span class="k">def</span> <span class="nf">_startClient</span><span class="p">(</span><span class="n">command</span><span class="p">):</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1">#    subprocess.call(command + &quot; &gt; /dev/null&quot;, shell=True)</span>
+
+<span class="c1">################################################################################</span>
+
+<span class="k">def</span> <span class="nf">_checkNodes</span><span class="p">(</span><span class="n">jobQ</span><span class="p">,</span> <span class="n">statusQ</span><span class="p">,</span> <span class="n">relpath</span><span class="p">,</span> <span class="n">serverID</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if we can ssh into a client machine, what commands we should run and</span>
+<span class="sd">    what tmp directory we should use.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">job</span> <span class="o">=</span> <span class="n">jobQ</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">job</span> <span class="o">==</span> <span class="s2">&quot;EXIT&quot;</span><span class="p">:</span>
+            <span class="k">return</span>
+        
+        <span class="n">address</span> <span class="o">=</span> <span class="n">job</span>
+        <span class="n">prepend_commands</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1"># check we can ssh into node</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;ssh -q -o &#39;BatchMode=yes&#39; -p </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> &#39;echo 2&gt;&amp;1&#39; &amp;&amp; echo &#39;UP&#39; || echo &#39;DOWN&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span>
+    
+        <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
+    
+        <span class="n">output</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
+        
+        <span class="c1"># strip whitespace/line endings</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    
+        <span class="k">if</span> <span class="n">output</span> <span class="o">==</span> <span class="s2">&quot;UP&quot;</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+    
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">statusQ</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">status</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+            <span class="k">continue</span>
+        
+        <span class="c1"># now check environment</span>
+        <span class="c1"># first we look for shell</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;ssh </span><span class="si">%s</span><span class="s2"> &#39;echo $SHELL&#39;&quot;</span> <span class="o">%</span> <span class="n">address</span>
+        <span class="n">output</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">statusQ</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+            <span class="k">continue</span>
+        
+        <span class="c1"># SHELL</span>
+        <span class="n">shell</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        
+        <span class="c1"># depends on shell what we look for</span>
+        <span class="k">if</span> <span class="n">shell</span> <span class="o">==</span> <span class="s2">&quot;tcsh&quot;</span><span class="p">:</span>
+            <span class="c1"># look for .tcshrc</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;ssh </span><span class="si">%s</span><span class="s2"> &#39;test -f ~/.tcshrc&#39;&quot;</span> <span class="o">%</span> <span class="n">address</span>
+            <span class="n">output</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">prepend_commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;source ~/.tcshrc&quot;</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">shell</span> <span class="o">==</span> <span class="s2">&quot;bash&quot;</span><span class="p">:</span>
+            <span class="c1"># look for .profile</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;ssh </span><span class="si">%s</span><span class="s2"> &#39;test -f ~/.profile&#39;&quot;</span> <span class="o">%</span> <span class="n">address</span>
+            <span class="n">output</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">prepend_commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;source ~/.profile&quot;</span><span class="p">)</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># look for .bash_profile</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;ssh </span><span class="si">%s</span><span class="s2"> &#39;test -f ~/.bash_profile&#39;&quot;</span> <span class="o">%</span> <span class="n">address</span>
+                <span class="n">output</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
+                    <span class="n">prepend_commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;source ~/.bash_profile&quot;</span><span class="p">)</span>
+                
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># look for .bashrc</span>
+                    <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;ssh </span><span class="si">%s</span><span class="s2"> &#39;test -f ~/.bashrc&#39;&quot;</span> <span class="o">%</span> <span class="n">address</span>
+                    <span class="n">output</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+                
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
+                        <span class="n">prepend_commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;source ~/.bashrc&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">shell</span> <span class="o">==</span> <span class="s2">&quot;tcsh&quot;</span><span class="p">:</span>
+            <span class="n">prepend_commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;limit stacksize unlimited&quot;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">verboseLevel</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">prepend_commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;setenv PYTHONUNBUFFERED 1&quot;</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">shell</span> <span class="o">==</span> <span class="s2">&quot;bash&quot;</span><span class="p">:</span>
+            <span class="n">prepend_commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ulimit -s 65532&quot;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">verboseLevel</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">prepend_commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;export PYTHONUNBUFFERED=1&quot;</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">statusQ</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+            <span class="k">continue</span>
+        
+        <span class="c1"># now we check for access to working directory on node</span>
+        <span class="c1"># if we have access we use it, otherwise we check for</span>
+        <span class="c1"># tmp location</span>
+        
+        <span class="n">haveAccessWorkDir</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">testPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">relpath</span><span class="p">,</span> <span class="s2">&quot;.lkmc_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">serverID</span><span class="p">)</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;ssh </span><span class="si">{0}</span><span class="s2"> &#39;test -f $HOME/</span><span class="si">{1}</span><span class="s2"> &amp;&amp; echo $HOME&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">testPath</span><span class="p">)</span>
+<span class="c1">#         print &quot;DEBUG: &#39;%s&#39;&quot; % command</span>
+        <span class="n">output</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+<span class="c1">#         print &quot;DEBUG: status = %d&quot; % status</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">workSpace</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">workSpace</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">relpath</span><span class="p">)</span>
+<span class="c1">#             print &quot;DEBUG: WORKSPACE: &#39;%s&#39;&quot; % workSpace</span>
+            <span class="n">haveAccessWorkDir</span> <span class="o">=</span> <span class="kc">True</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">haveAccessWorkDir</span><span class="p">:</span>
+            <span class="c1"># now look for tmp location</span>
+            <span class="c1"># first look for scratch/tmp (but not on hera...)</span>
+            <span class="n">tmpLocation</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">uname</span><span class="p">()[</span><span class="mi">1</span><span class="p">][:</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;hera&quot;</span><span class="p">:</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;ssh </span><span class="si">%s</span><span class="s2"> &#39;test -d /scratch/tmp -a -w /scratch/tmp&#39;&quot;</span> <span class="o">%</span> <span class="n">address</span>
+                <span class="n">output</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
+                    <span class="n">tmpLocation</span> <span class="o">=</span> <span class="s2">&quot;/scratch/tmp&quot;</span>
+            
+            <span class="c1"># look for /scratch</span>
+            <span class="k">if</span> <span class="n">tmpLocation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;ssh </span><span class="si">%s</span><span class="s2"> &#39;test -d /scratch -a -w /scratch&#39;&quot;</span> <span class="o">%</span> <span class="n">address</span>
+                <span class="n">output</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
+                    <span class="n">tmpLocation</span> <span class="o">=</span> <span class="s2">&quot;/scratch&quot;</span>
+            
+            <span class="c1"># look for Scratch on magrid</span>
+            <span class="k">if</span> <span class="n">tmpLocation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;ssh </span><span class="si">%s</span><span class="s2"> &#39;test -d /Volumes/Scratch_HD/Scratch -a -w /Volumes/Scratch_HD/Scratch&#39;&quot;</span> <span class="o">%</span> <span class="n">address</span>
+                <span class="n">output</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
+                    <span class="n">tmpLocation</span> <span class="o">=</span> <span class="s2">&quot;/Volumes/Scratch_HD/Scratch&quot;</span>
+            
+            <span class="c1"># default</span>
+            <span class="k">if</span> <span class="n">tmpLocation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">tmpLocation</span> <span class="o">=</span> <span class="s2">&quot;/tmp&quot;</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tmpLocation</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="c1"># check version running on remote machine</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;ssh </span><span class="si">%s</span><span class="s2"> &#39;</span><span class="si">%s</span><span class="s2">; lkmc.py --version&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prepend_commands</span><span class="p">))</span>
+        <span class="n">output</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">runSubProcess</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">statusQ</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+            <span class="k">continue</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">clientVersion</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="c1"># result</span>
+        <span class="n">statusQ</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">prepend_commands</span><span class="p">,</span> <span class="n">tmpLocation</span><span class="p">,</span> <span class="n">workSpace</span><span class="p">,</span> <span class="n">clientVersion</span><span class="p">))</span>
+
+<span class="c1">################################################################################</span>
+
+<span class="k">def</span> <span class="nf">_check_ssh_client</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">statusQ</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if we can ssh into a client machine.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;ssh -q -o &#39;BatchMode=yes&#39; -p </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> &#39;echo 2&gt;&amp;1&#39; &amp;&amp; echo &#39;UP&#39; || echo &#39;DOWN&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span>
+    
+    <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
+    
+    <span class="n">output</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
+    
+    <span class="c1"># strip whitespace/line endings</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    
+    <span class="k">if</span> <span class="n">output</span> <span class="o">==</span> <span class="s2">&quot;UP&quot;</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+    
+    <span class="n">statusQ</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">status</span><span class="p">,</span> <span class="n">address</span><span class="p">))</span>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="handler"><a class="viewcode-back" href="../../LKMC/LKMC.Server.html#LKMC.Server.handler">[docs]</a><span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">nodeAddress</span><span class="p">()</span><span class="o">+</span><span class="s2">&quot;: </span><span class="si">%s</span><span class="s2">: Caught signal: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()),</span> <span class="nb">str</span><span class="p">(</span><span class="n">signum</span><span class="p">)),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">LKMCServer</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;EXITING: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()))</span></div>
+
+<span class="c1"># add signal handlers</span>
+<span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+<span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGABRT</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+<span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

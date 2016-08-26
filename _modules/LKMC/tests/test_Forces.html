@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.tests.test_Forces &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.tests.test_Forces</h1><div class="highlight"><pre>
+<span></span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Unit tests for the Forces module</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">BaseTestClass</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">Input</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">Forces</span>
+
+
+<div class="viewcode-block" id="TestLatticeCalcForceLbomd"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Forces.html#LKMC.tests.test_Forces.TestLatticeCalcForceLbomd">[docs]</a><span class="k">class</span> <span class="nc">TestLatticeCalcForceLbomd</span><span class="p">(</span><span class="n">BaseTestClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test Lattice calcForce (LBOMD)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TestLatticeCalcForceLbomd.setUp"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Forces.html#LKMC.tests.test_Forces.TestLatticeCalcForceLbomd.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># test if LBOMD interface is loaded</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Forces</span><span class="o">.</span><span class="n">lbomdLoaded</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skipTest</span><span class="p">(</span><span class="s2">&quot;LBOMD Python interface could not be loaded&quot;</span><span class="p">)</span>
+        
+        <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pathToInputFile</span><span class="p">()</span>
+        <span class="n">Input</span><span class="o">.</span><span class="n">readGlobals</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+        
+        <span class="c1"># we need to hard code Globals.MDLocation and PBC</span>
+        <span class="n">Globals</span><span class="o">.</span><span class="n">MDLocation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pathToData</span><span class="p">(</span><span class="s2">&quot;md&quot;</span><span class="p">)</span>
+        <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">[:]</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        <span class="c1"># read lattice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pathToData</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="s2">&quot;lbomd&quot;</span><span class="p">,</span> <span class="s2">&quot;puga_864.dat&quot;</span><span class="p">)))</span></div>
+    
+<div class="viewcode-block" id="TestLatticeCalcForceLbomd.tearDown"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Forces.html#LKMC.tests.test_Forces.TestLatticeCalcForceLbomd.tearDown">[docs]</a>    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="kc">None</span></div>
+    
+<div class="viewcode-block" id="TestLatticeCalcForceLbomd.test_latticeCalcForce_totalEnergy"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Forces.html#LKMC.tests.test_Forces.TestLatticeCalcForceLbomd.test_latticeCalcForce_totalEnergy">[docs]</a>    <span class="k">def</span> <span class="nf">test_latticeCalcForce_totalEnergy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice calcForce totalEnergy (LBOMD)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">totalEnergy</span><span class="p">,</span> <span class="o">-</span><span class="mf">3333.2431509929074</span><span class="p">,</span> <span class="n">places</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestLatticeCalcForceLbomd.test_latticeCalcForce_maxForce"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Forces.html#LKMC.tests.test_Forces.TestLatticeCalcForceLbomd.test_latticeCalcForce_maxForce">[docs]</a>    <span class="k">def</span> <span class="nf">test_latticeCalcForce_maxForce</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice calcForce maxForce (LBOMD)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">maxForce</span><span class="p">,</span> <span class="mf">0.29328468866537183</span><span class="p">,</span> <span class="n">places</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestLatticeCalcForceLbomd.test_latticeCalcForce_maxForceAtom"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Forces.html#LKMC.tests.test_Forces.TestLatticeCalcForceLbomd.test_latticeCalcForce_maxForceAtom">[docs]</a>    <span class="k">def</span> <span class="nf">test_latticeCalcForce_maxForceAtom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice calcForce maxForceAtom (LBOMD)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">maxForceAtomNo</span><span class="p">,</span> <span class="mi">343</span><span class="p">)</span></div></div>
+
+
+
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

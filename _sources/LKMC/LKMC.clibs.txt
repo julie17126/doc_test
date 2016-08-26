@@ -1,0 +1,27 @@
+LKMC.clibs package
+==================
+
+Submodules
+----------
+
+.. toctree::
+
+   LKMC.clibs.defects
+   LKMC.clibs.graphs
+   LKMC.clibs.io_module
+   LKMC.clibs.lanczos
+   LKMC.clibs.lattice
+   LKMC.clibs.nauty_iface
+   LKMC.clibs.neb
+   LKMC.clibs.numpy_utils
+   LKMC.clibs.setup
+   LKMC.clibs.utilities
+   LKMC.clibs.vectors
+
+Module contents
+---------------
+
+.. automodule:: LKMC.clibs
+    :members:
+    :undoc-members:
+    :show-inheritance:

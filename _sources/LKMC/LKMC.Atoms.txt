@@ -1,0 +1,7 @@
+LKMC.Atoms module
+=================
+
+.. automodule:: LKMC.Atoms
+    :members:
+    :undoc-members:
+    :show-inheritance:

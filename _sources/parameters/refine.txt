@@ -1,0 +1,189 @@
+Refinement
+==========
+
+Parameters for the refinement and reuse of transitions that have been stored
+in the database.
+
+refineSuccessFracForStorage
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Float
+
+Fraction of searches that must be successful (unique or duplicate)
+in order for the transitions to be stored for reuse.
+
+Default: 0.25
+
+refineSavedFracForStorage
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Float
+
+Fraction of searches that must be being saved for reuse, otherwise
+we discard them (generally lower than above *refineSuccessFracForStorage*).
+
+Default: 0.05
+
+refineUseSubLattLanczos
+^^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: turn on sub-lattice Lanczos minimisation.
+
+Default: 1
+
+refineUseWholeLattLanczos
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: turn on whole-lattice Lanczos minimisation.
+
+Default: 0
+
+refineSaddleLBFGSLanczosRestart
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+???
+
+Default: 1
+
+refineLBFGSLanczosLooseMaxIter
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Integer
+
+Maximum iterations for the loose LBFGS Lanczos minimisation.
+
+Default: 5
+
+refineLBFGSLanczosMaxIter
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Integer
+
+Maximum iterations for the LBFGS Lanczos minimisation.
+
+Default: 5
+
+refineSaddleMinTol
+^^^^^^^^^^^^^^^^^^
+
+Real
+
+The minimisation tolerance for refining saddles.
+
+Default: 1e-2
+
+refineFailedUseNEB
+^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: use NEB if Lanczos minimisation fails.
+
+Default: 0
+
+refineFinal
+^^^^^^^^^^^
+
+0 or 1
+
+If 0: refine the final state just for the selected transition.
+
+If 1: refine all final states.
+
+Default: 0
+
+refineFinalUseInclMin
+^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: use inclusive minimiser on a final lattice.
+
+Default: 1
+
+refineFinalInclMinTol
+^^^^^^^^^^^^^^^^^^^^^
+
+Real
+
+Tolerance for the inclusive minimiser.
+
+Default: 1e-1
+
+refineFinalUseExclMin
+^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: use exclusive minimiser on a final lattice.
+
+Note if you refinements are failing then try turing this off, it
+does not work well with all systems.
+
+Default: 1
+
+refineFinalExclMinTol
+^^^^^^^^^^^^^^^^^^^^^
+
+Real
+
+Tolerance for the exclusive minimiser.
+
+Default: 1e-3
+
+refineFinalMinTol
+^^^^^^^^^^^^^^^^^
+
+Real
+
+Tolerance for the final state minimiser.
+
+Default: 1e-3
+
+refineSaddleMinTol
+^^^^^^^^^^^^^^^^^^
+
+Real tolerance for the saddle lattice minimiser Default: 1e-3
+
+refineDimerMinTolR
+^^^^^^^^^^^^^^^^^^
+
+Real
+
+Tolerance for finding the approximation to the lowest eigenvector while
+refining the saddle point (by running a Dimer rotation).
+
+Default: 0.0001
+
+refineMaxBarrier
+^^^^^^^^^^^^^^^^
+
+Real
+
+Value of the maximum acceptable barrier after refinement.
+
+Default: 5.0
+
+refineConv2Rank1Saddle
+^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: converge to rank 1 saddle in the case that we find a rank 2 saddle.
+
+Default: 1
+
+timeRefinement
+^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: use timer on refinement.
+
+Default: 1

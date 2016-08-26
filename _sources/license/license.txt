@@ -1,0 +1,5 @@
+
+License
+*******
+
+Put license stuff here, eg. nauty license separately, lapack too?

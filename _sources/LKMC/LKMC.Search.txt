@@ -1,0 +1,7 @@
+LKMC.Search module
+==================
+
+.. automodule:: LKMC.Search
+    :members:
+    :undoc-members:
+    :show-inheritance:

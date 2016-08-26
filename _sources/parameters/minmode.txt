@@ -1,0 +1,54 @@
+Minimum mode (MinMode)
+======================
+
+Parameters for minimum mode search algorithm.
+
+minModeMinimiser
+^^^^^^^^^^^^^^^^
+
+'CG'
+
+Method used for minimum mode search algorithm.
+
+Default: 'CG'
+
+minModeMinimiserLineSearch
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+'oneStepper'
+
+Line search method used for minimum mode search algorithm.
+
+- oneStepper: one step secant method.
+
+Default: 'oneStepper'
+
+minModeMinTol
+^^^^^^^^^^^^^
+
+Real
+
+Tolerance used for minimum mode search algorithm.
+
+Default: 1e-3
+
+minModeMaxIterations
+^^^^^^^^^^^^^^^^^^^^
+
+Integer
+
+Max iterations in minimum mode search algorithm.
+
+Default: 5
+
+minModeEigVMethod:
+^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+Algorithm to calculate eigenvalues and eigenvectors:
+
+- 0: Direct,
+- 1: Lanczos)
+
+Default: 1

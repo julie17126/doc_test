@@ -1,0 +1,100 @@
+RAT
+===
+
+Parameter for the Relaxation and Translation (RAT) method.
+
+ratAlpha
+^^^^^^^^
+
+Real
+
+Constant value for the translation component of each step.
+
+Default: 0.625
+
+ratMaxBarrier
+^^^^^^^^^^^^^
+
+Real
+
+Criteria to kill RAT if the barrier is higher then this value.
+
+Default: 10.0
+
+ratMaxMoveDistance
+^^^^^^^^^^^^^^^^^^
+
+Real
+
+Criteria to kill RAT if one of the atoms moves more then this
+distance from it's original position.
+
+Default: 10.0
+
+ratMaxFuncEval
+^^^^^^^^^^^^^^
+
+Integer
+
+Criteria to kill RAT if the function evaluation count reaches this
+number.
+
+Default: 1000
+
+ratRelaxationStep
+^^^^^^^^^^^^^^^^^
+
+Real
+
+Constant for the relaxation step.
+
+Default: 0.005
+
+ratFdotRPvalue
+^^^^^^^^^^^^^^
+
+Real
+
+Used for determining whether the a saddle has been crossed. We take the
+dot product of the force vector with the separation vector of the current
+position from the initial position. When the value exceeds this parameter
+we assume we have crossed the saddle point. Setting to >= 0 is sensible.
+
+Default: 0.5
+
+ratMaxMoveCriteria
+^^^^^^^^^^^^^^^^^^
+
+Real
+
+Maximum movement criteria for RAT. An atom must have moved by at least this
+amount for a search to be successful.
+
+Default: 0.1
+
+ratMaxMinSteps
+^^^^^^^^^^^^^^
+
+Integer
+
+Maximum number of minimisation steps for RAT.
+
+Default: 5
+
+ratDebugMode
+^^^^^^^^^^^^
+
+0 or 1
+
+If 1: run RAT in debug mode (developer mode).
+
+Default: 0
+
+timeRat
+^^^^^^^
+
+0 or 1
+
+If 1: use timer on RAT method.
+
+Default: 1

@@ -1,0 +1,7 @@
+LKMC.MinModeFollower module
+===========================
+
+.. automodule:: LKMC.MinModeFollower
+    :members:
+    :undoc-members:
+    :show-inheritance:

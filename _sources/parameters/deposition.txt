@@ -1,0 +1,128 @@
+Deposition
+==========
+
+You can either use LBOMD or LAMMPS to do depositions. The whole section
+will only works when *`JOBTYPE <parameters_main>`__* is 'GROWTH'.
+
+depoThermoTimeWhole
+^^^^^^^^^^^^^^^^^^^
+
+Integer >= 0
+
+The time (fs) for thermalise the whole system. It's part of
+the thermalisation process. For the purpose of fast reaching the
+temperature set in *`systemTemperature <parameters_main>`__*.
+
+Default: 0
+
+depoThermoTimeLayer
+^^^^^^^^^^^^^^^^^^^
+
+Integer >= 0
+
+The time (fs) for thermalize the thermal region only in the
+system. Still part of the thermalisation process before actually doing
+the deposition. The thermal region should be predefined either in
+*`lammpsInFile <parameters_lammps>`__* (LAMMPS) or
+*`MDLocation <parameters_main>`__*/indenter.IN (LBOMD). The thermal
+region will be the only region to be thermalised during the deposition
+process.
+
+Default: 0
+
+depoTime
+^^^^^^^^
+
+Integer >= 0
+
+The time (fs) for doing the deposition. (i.e. the time for
+the deposited clusters impact the surface.)
+
+Default: 0
+
+depoAtFirstStep
+^^^^^^^^^^^^^^^
+
+Integer >= 0
+
+- 0: starting with initial state
+*`inputDirectory <parameters_main>`__*/launch.dat;
+
+- 1 (or more): starting with initial state
+*`inputDirectory <parameters_main>`__*/ref.dat and do deposition with 1
+(or more) cluster deposited to the system. Default: 0
+
+depoMinAfterDepo
+^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: minimize the system after deposition.
+
+Default: 1
+
+depoBinWidth
+^^^^^^^^^^^^
+
+Float The bin width (angstrom) used to remove sputter atoms, should be
+larger than the layer height. Default: 3.0
+
+depoRate
+^^^^^^^^
+
+Float
+
+The deposition rate (clusters per system area per second), i.e.
+the frequency of deposition during the KMC simulation.
+
+Default: 0
+
+depoThermoType
+^^^^^^^^^^^^^^
+
+'NO\_THERMOSTAT', 'NOSE-HOOVER' or 'BERENDSEN'
+
+Only valid when
+*`MDType <parameters_main>`__* is 'LBOMDPIPING' or 'LBOMDDIRECT'. The
+thermo type when thermalising using LBOMD.
+
+Default: 'BERENDSEN'
+
+depoMinUseLAMMPS
+^^^^^^^^^^^^^^^^
+
+0 or 1
+
+Only valid when *`MDType <parameters_main>`__* is 'LAMMPS'. If 1
+minimize the system (after deposition) using LAMMPS build in command.
+The stopping tolerance for energy/force and max iterations of minimiser
+are defined in the section of
+`Minimization <parameters_minimization>`__. Details of minimising using
+LAMMPS see `LAMMPS
+minimize <http://lammps.sandia.gov/doc/minimize.html>`__.
+
+Default: 0
+
+depoMinStyle
+^^^^^^^^^^^^
+
+'cg', 'hftn', 'sd', 'quickmin' or 'fire'
+
+Only valid when
+*`MDType <parameters_main>`__* is 'LAMMPS' and
+*`depoMinUseLAMMPS <parameters_deposition>`__* is 1. The minimisation
+method to be used in LAMMPS. Details see `LAMMPS
+min\_style <http://lammps.sandia.gov/doc/min_style.html>`__
+
+Default: 'cg'
+
+depoMinMaxEval
+^^^^^^^^^^^^^^
+
+Integer
+
+Only valid when *`MDType <parameters_main>`__* is 'LAMMPS' and
+*`depoMinUseLAMMPS <parameters_deposition>`__* is 1. The max number of
+force/energy evaluations when minimising use LAMMPS.
+
+Default: 10000

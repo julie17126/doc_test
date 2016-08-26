@@ -1,0 +1,7 @@
+LKMC.clibs.nauty_iface module
+=============================
+
+.. automodule:: LKMC.clibs.nauty_iface
+    :members:
+    :undoc-members:
+    :show-inheritance:

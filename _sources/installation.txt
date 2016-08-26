@@ -1,0 +1,196 @@
+
+
+Installation
+************
+
+Requirements
+------------
+
+The code requires `Python 2.7`_ to run. It also requires C and Fortran compilers to 
+compile the extensions. It has been tested with the intel compilers (icc/ifort) and 
+the GNU compilers (gcc/gfortran).
+
+The software nauty_ is included in the package and requires the GNU autoconf installation 
+system.
+
+Python modules
+==============
+
+This is a list of third-party Python modules that this code requires to run:
+
+* NumPy_
+* SciPy_ (>= 0.12.0)
+* Matplotlib_
+* Sphinx_ (for building the documentation)
+* numpydoc_ (for building the documentation)
+* nose_ (for running the tests) 
+
+These libraries can be installed in a number of ways.  For example, you may wish to use a package
+manager, such as MacPorts_ on Mac OS X, or install them from source. If you wish to use the Python
+package manager pip_ a requirements file is included in the 'requirements' directory of the source
+code. To install the required libraries using pip you could run the following command:
+
+.. code-block:: sh
+   
+   pip install -r requirements/requirements.txt
+
+which should install the required libraries and all their dependencies.
+
+**Note**: NumPy and SciPy must be built with LAPACK support (for example from the Intel MKL). See
+`here <http://www.scipy.org/scipylib/building/linux.html>`_ for more information.
+
+Forces library
+==============
+
+For the force calculations we require that an external program be installed that we can call from
+our Python code. Currently we support the following codes:
+
+* LBOMD (via the Python interface)
+* LAMMPS_ (via the Python/shared library interface)
+* SIESTA_ (built as an executable and installed in your PATH)
+
+**Note**: You need to install the force library on all machines you intend to run on (i.e. all
+those that appear in the nodes file).
+
+Additional programmes
+=====================
+
+The following additional programmes are also required:
+
+* POV-Ray_ (optional; to create images of the defects in the system at each step or 
+  per transition)
+
+Mac OS X and MacPorts Python
+============================
+
+You *may* need to add a symbolic link to '/Library/Frameworks' to make sure that the MacPorts Python
+takes precedence over the system Python when using f2py. This command will achieve this (you will
+probably need to be root):
+
+.. code-block:: sh
+
+   ln -s /opt/local/Library/Frameworks/Python.framework /Library/Frameworks/Python.framework
+
+Installation
+------------
+
+There are two options for installing LKMC:
+
+* build the code in-place and add the main directory to you PATH and PYTHONPATH
+* install it into your Python site-packages directory, for example using a virtualenv_
+
+**Note**: You need to install the code using one of the above methods on all machines you intend to
+run on (i.e. all those that appear in the :ref:`nodes-file`).
+
+Install in-place
+================
+
+You should add the top LKMC directory (eg. `$HOME/git/LKMC`) to your PATH and PYTHONPATH, eg. for
+bash:
+
+.. code-block:: sh
+
+   export PYTHONPATH=$HOME/git/LKMC:$PYTHONPATH
+
+or for tcsh:
+
+.. code-block:: sh
+
+   setenv PYTHONPATH $HOME/git/LKMC:$PYTHONPATH
+
+and the same for PATH. These lines should be added to your shell startup files, for example
+".profile", ".bashrc" or ".tcshrc".
+
+You should then copy and edit the setup.cfg file:
+
+.. code-block:: sh
+
+   cp setup.cfg.example setup.cfg
+
+There are comments in the file to help with choosing settings. For example, on hydra/hera you will
+have to uncomment a line in the 'build_ext' section that says `compiler = intelem`.
+
+You should then run setup:
+
+.. code-block:: sh
+
+   python setup.py build_ext --inplace
+
+which should compile all the extensions.
+
+Install Python package
+======================
+
+First you should copy and edit the setup.cfg file:
+
+.. code-block:: sh
+
+   cp setup.cfg.example setup.cfg
+
+There are comments in the file to help with choosing settings. For example, on hydra/hera you 
+will have to uncomment a line in the 'build_ext' section that says 'compiler = intelem'.
+
+You should then build and install the package (before installing you should run the test suite,
+see below):
+
+.. code-block:: sh
+
+   python setup.py build
+   python setup.py install
+
+Running the tests
+-----------------
+
+You should run the test suite to ensure everything is working. You should also clone
+the 'LKMCData' repository and place it in the same directory as this repository.
+If you don't do this many of the (important) tests will be skipped.
+
+Fast/unit tests are run using:
+
+.. code-block:: sh
+
+   nosetests LKMC/tests -v
+
+Slower, more complex, tests are run using:
+
+.. code-block:: sh
+
+   nosetests LKMC/slow_tests -v
+
+Alternatively, you can run both the fast/unit tests and slow tests by running:
+
+.. code-block:: sh
+
+   nosetests LKMC -v
+
+All the tests should exit successfully.
+
+Building the documentation
+--------------------------
+
+To build the html documentation you should run (after copying setup.cfg.example as described
+above):
+
+.. code-block:: sh
+
+   python setup.py build_sphinx
+
+Following this the documentation can be found in `build/sphinx/html/` (open
+`build/sphinx/html/index.html` in your browser).
+
+.. _`Python 2.7`: http://www.python.org/download/releases/2.7/
+.. _MacPorts: https://www.macports.org/
+.. _pip: http://pip.readthedocs.org/en/latest/reference/pip_install.html
+.. _NumPy: http://www.numpy.org/
+.. _SciPy: http://www.scipy.org/
+.. _Matplotlib: http://matplotlib.org/
+.. _PIL: http://www.pythonware.com/products/pil/
+.. _Sphinx: http://sphinx-doc.org/
+.. _numpydoc: https://pypi.python.org/pypi/numpydoc
+.. _LBOMD: http://magrid-server-5.lut.ac.uk/master/LBOMD/wikis/home
+.. _LAMMPS: http://lammps.sandia.gov/doc/Section_python.html
+.. _POV-Ray: http://www.povray.org/
+.. _nose: https://nose.readthedocs.org/en/latest/
+.. _SIESTA: http://departments.icmab.es/leem/siesta/
+.. _nauty: http://pallini.di.uniroma1.it/
+.. _virtualenv: http://docs.python-guide.org/en/latest/dev/virtualenvs/

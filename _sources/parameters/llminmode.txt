@@ -1,0 +1,86 @@
+Lanczos minimum mode (LLMinMode)
+================================
+
+Parameters for Lanczos and L-BFGS-B as a minimum mode search method.
+
+LBFGSLanczosRestart
+^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+???
+
+Default: 1
+
+LBFGSLanczosMemory
+^^^^^^^^^^^^^^^^^^
+
+Integer
+
+LBFGS memory parameter.
+
+Default: 5
+
+LBFGSLanczosSubTolerance
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Real
+
+???
+
+Default: 1e-3
+
+LBFGSLanczosTolerance
+^^^^^^^^^^^^^^^^^^^^^
+
+Real
+
+???
+
+Default: 1e-2
+
+LBFGSLanczosMaxIter
+^^^^^^^^^^^^^^^^^^^
+
+Integer
+
+???
+
+Default: 75
+
+LBFGSLanczosLooseSubTolerance
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Real
+
+???
+
+Default: 1e-4
+
+LBFGSLanczosLooseSubMaxIter
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Integer
+
+???
+
+Default: 2
+
+LBFGSLanczosConvgOnlyByTolerance
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+???
+
+Default: 1
+
+LBFGSLanczosFixEigenVectorForStep
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: Fixes the eigenvalue and eigenvector calculated on the
+first iteration of a step.
+
+Default: 1

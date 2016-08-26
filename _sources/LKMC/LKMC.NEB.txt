@@ -1,0 +1,7 @@
+LKMC.NEB module
+===============
+
+.. automodule:: LKMC.NEB
+    :members:
+    :undoc-members:
+    :show-inheritance:

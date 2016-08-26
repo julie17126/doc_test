@@ -1,0 +1,7 @@
+LKMC.tests.test_multiprocessing module
+======================================
+
+.. automodule:: LKMC.tests.test_multiprocessing
+    :members:
+    :undoc-members:
+    :show-inheritance:

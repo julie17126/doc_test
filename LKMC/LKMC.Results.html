@@ -1,0 +1,288 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Results module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Search module" href="LKMC.Search.html" />
+    <link rel="prev" title="LKMC.Rendering module" href="LKMC.Rendering.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Search.html" title="LKMC.Search module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Rendering.html" title="LKMC.Rendering module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Results">
+<span id="lkmc-results-module"></span><h1>LKMC.Results module<a class="headerlink" href="#module-LKMC.Results" title="Permalink to this headline">¶</a></h1>
+<p>Results module.</p>
+<dl class="class">
+<dt id="LKMC.Results.KMCStepResults">
+<em class="property">class </em><code class="descclassname">LKMC.Results.</code><code class="descname">KMCStepResults</code><span class="sig-paren">(</span><em>outputDirectory</em>, <em>writer</em>, <em>params</em>, <em>statusObj=None</em>, <em>KMCStep=None</em>, <em>initialState=None</em>, <em>refState=None</em>, <em>ratesListLock=None</em>, <em>ratesListProxy=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Results object.
+Holds results from a single KMC step.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.addEventRateToDict">
+<code class="descname">addEventRateToDict</code><span class="sig-paren">(</span><em>eventRate</em>, <em>type</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.addEventRateToDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.addEventRateToDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the deposition rate to the dictionary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.addIniEigenValCalcs">
+<code class="descname">addIniEigenValCalcs</code><span class="sig-paren">(</span><em>ID</em>, <em>volumesList</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.addIniEigenValCalcs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.addIniEigenValCalcs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds initial eigenvalue calculation jobs to the dictionaries.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.addMergeResultToDict">
+<code class="descname">addMergeResultToDict</code><span class="sig-paren">(</span><em>mergeNum</em>, <em>volTransObject</em>, <em>currentVolIndexes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.addMergeResultToDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.addMergeResultToDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add transitions which are merged to the defectVolume (last mergeNum transitions) to the dictionary.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.addResultToDict">
+<code class="descname">addResultToDict</code><span class="sig-paren">(</span><em>result</em>, <em>currentVolIndex</em>, <em>resultIndex</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.addResultToDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.addResultToDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the given result to the dictionary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.addSaddSearchToDict">
+<code class="descname">addSaddSearchToDict</code><span class="sig-paren">(</span><em>result</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.addSaddSearchToDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.addSaddSearchToDict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.addTimeLogToDict">
+<code class="descname">addTimeLogToDict</code><span class="sig-paren">(</span><em>result</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.addTimeLogToDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.addTimeLogToDict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.addVolume">
+<code class="descname">addVolume</code><span class="sig-paren">(</span><em>ID</em>, <em>volumeIndex</em>, <em>NItems</em>, <em>repeat</em>, <em>volTransObject=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.addVolume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.addVolume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add volume.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.debugJobsByRank">
+<code class="descname">debugJobsByRank</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.debugJobsByRank"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.debugJobsByRank" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debug server/clients load etc.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.finalise">
+<code class="descname">finalise</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.finalise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.finalise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do anything that needs to be done at the end of a task.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.finishLeftRateCalculations">
+<code class="descname">finishLeftRateCalculations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.finishLeftRateCalculations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.finishLeftRateCalculations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finishes all unfinished rate calculations</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.modifyVolumeNItems">
+<code class="descname">modifyVolumeNItems</code><span class="sig-paren">(</span><em>volumeIndex</em>, <em>addToNItems</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.modifyVolumeNItems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.modifyVolumeNItems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the given number of searches to the volume</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.processDebugOutputData">
+<code class="descname">processDebugOutputData</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.processDebugOutputData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.processDebugOutputData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.processIniEigenValCalcsResult">
+<code class="descname">processIniEigenValCalcsResult</code><span class="sig-paren">(</span><em>result</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.processIniEigenValCalcsResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.processIniEigenValCalcsResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes initial eigenvalue calculation job result</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.processResult">
+<code class="descname">processResult</code><span class="sig-paren">(</span><em>result</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.processResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.processResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process result.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.processSearchRefineResult">
+<code class="descname">processSearchRefineResult</code><span class="sig-paren">(</span><em>result</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.processSearchRefineResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.processSearchRefineResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes search/refinement job result</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.processTimingResults">
+<code class="descname">processTimingResults</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.processTimingResults"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.processTimingResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Summarises timelog results.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.rateDebuggingOutput">
+<code class="descname">rateDebuggingOutput</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.rateDebuggingOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.rateDebuggingOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output stats for rate debugging.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.removeFromDict">
+<code class="descname">removeFromDict</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.removeFromDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.removeFromDict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.saveFix">
+<code class="descname">saveFix</code><span class="sig-paren">(</span><em>result</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.saveFix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.saveFix" title="Permalink to this definition">¶</a></dt>
+<dd><p>store fix to file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.searchTimingOutput">
+<code class="descname">searchTimingOutput</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.searchTimingOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.searchTimingOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output stats for Search timing</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.stopVolume">
+<code class="descname">stopVolume</code><span class="sig-paren">(</span><em>volumeIndex</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.stopVolume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.stopVolume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Notify results object that searches on this volume have stopped.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.summarise">
+<code class="descname">summarise</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.summarise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.summarise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Summarise results.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.writeRouletteEvent">
+<code class="descname">writeRouletteEvent</code><span class="sig-paren">(</span><em>eventIndex</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.writeRouletteEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.writeRouletteEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write given event to Roulette file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.writeRouletteFooter">
+<code class="descname">writeRouletteFooter</code><span class="sig-paren">(</span><em>chosenIndex</em>, <em>simulationTime</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.writeRouletteFooter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.writeRouletteFooter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write footer to Roulette file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.writeRouletteHeader">
+<code class="descname">writeRouletteHeader</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.writeRouletteHeader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.writeRouletteHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write header to Roulette file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.writeRouletteHeaderBasin">
+<code class="descname">writeRouletteHeaderBasin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.writeRouletteHeaderBasin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.writeRouletteHeaderBasin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write header to Roulette file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Results.KMCStepResults.writeSelectedFinal">
+<code class="descname">writeSelectedFinal</code><span class="sig-paren">(</span><em>index</em>, <em>filename</em>, <em>latticeIn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Results.html#KMCStepResults.writeSelectedFinal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Results.KMCStepResults.writeSelectedFinal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the selected final to file</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Rendering.html"
+                        title="previous chapter">LKMC.Rendering module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Search.html"
+                        title="next chapter">LKMC.Search module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Results.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Search.html" title="LKMC.Search module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Rendering.html" title="LKMC.Rendering module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,740 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Client &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Client</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">LKMC Client script.</span>
+
+<span class="sd">Runs as daemon on remote machine and connects to server process.</span>
+<span class="sd">Spawns worker processes to do the jobs.</span>
+
+<span class="sd">Copyright Chris Scott 2014</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">from</span> <span class="nn">multiprocessing.managers</span> <span class="k">import</span> <span class="n">SyncManager</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Utilities</span>
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Input</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">ClientServerInterface</span>
+
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="clientWorker"><a class="viewcode-back" href="../../LKMC/LKMC.Client.html#LKMC.Client.clientWorker">[docs]</a><span class="k">def</span> <span class="nf">clientWorker</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">resultQ</span><span class="p">,</span> <span class="n">clientQ</span><span class="p">,</span> <span class="n">taskStatus</span><span class="p">,</span> <span class="n">finalsLock</span><span class="p">,</span> <span class="n">finalsListProxy</span><span class="p">,</span>
+                 <span class="n">finalsListLocal</span><span class="p">,</span> <span class="n">parentConn</span><span class="p">,</span> <span class="n">jobQ</span><span class="p">,</span> <span class="n">jobStatusDict</span><span class="p">,</span> <span class="n">jobStatusLock</span><span class="p">,</span> <span class="n">nodeName</span><span class="p">,</span>
+                 <span class="n">ratesListLock</span><span class="p">,</span> <span class="n">ratesListProxy</span><span class="p">,</span> <span class="n">barrierListProxy</span><span class="p">,</span> <span class="n">barrierListLocal</span><span class="p">,</span> <span class="n">dataDictProxy</span><span class="p">,</span>
+                 <span class="n">clientOutputPath</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The client worker that gets jobs from the </span>
+<span class="sd">    shared job queue, processes them and adds</span>
+<span class="sd">    result to shared result queue.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># node this worker is running on</span>
+    <span class="n">address</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">nodeAddress</span><span class="p">()</span>
+    
+    <span class="c1"># set log prepend</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Worker-</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rank</span>
+    <span class="n">Globals</span><span class="o">.</span><span class="n">prependLog</span> <span class="o">=</span> <span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">]: &quot;</span> <span class="o">%</span> <span class="n">name</span>
+    
+    <span class="k">if</span> <span class="n">parameters</span><span class="o">.</span><span class="n">clientIndividualOutput</span><span class="p">:</span>
+        <span class="c1"># redirect stdout/stderr to a file</span>
+        <span class="n">stdoutFile</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.worker</span><span class="si">%d</span><span class="s2">.STDOUT.txt&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nodeName</span><span class="p">,</span> <span class="n">rank</span><span class="p">)</span>
+        <span class="n">stderrfile</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.worker</span><span class="si">%d</span><span class="s2">.STDERR.txt&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nodeName</span><span class="p">,</span> <span class="n">rank</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">clientOutputPath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">clientOutputPath</span><span class="p">):</span>
+            <span class="n">stdoutFile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clientOutputPath</span><span class="p">,</span> <span class="n">stdoutFile</span><span class="p">)</span>
+            <span class="n">stderrfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clientOutputPath</span><span class="p">,</span> <span class="n">stderrfile</span><span class="p">)</span>
+        
+        <span class="c1"># flush current output</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        
+        <span class="c1"># new stdout file</span>
+        <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">verboseLevel</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">so</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="n">stdoutFile</span><span class="p">,</span> <span class="s1">&#39;a+&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">so</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="n">stdoutFile</span><span class="p">,</span> <span class="s1">&#39;a+&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># new stderr file</span>
+        <span class="n">se</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="n">stderrfile</span><span class="p">,</span> <span class="s1">&#39;a+&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># copy to stdout and stderr</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">so</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">se</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+    
+    <span class="c1"># ready to begin</span>
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Ready to work...&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    
+    <span class="c1"># job status</span>
+    <span class="n">Globals</span><span class="o">.</span><span class="n">jobStatusDict</span> <span class="o">=</span> <span class="n">jobStatusDict</span>
+    <span class="n">Globals</span><span class="o">.</span><span class="n">jobStatusLock</span> <span class="o">=</span> <span class="n">jobStatusLock</span>
+    
+    <span class="c1"># signal parent to let them know we are awake</span>
+    <span class="n">parentConn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    
+    <span class="c1"># wait for parent to tell us to continue</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="n">parentConn</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Parent has freed us to proceed (initial) (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    
+    <span class="c1"># main loop - until we are told to exit</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># signal parent to let them know we are ready</span>
+        <span class="n">parentConn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        
+        <span class="c1"># now we wait for parent to tell us to continue</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Waiting on parent&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">parentConn</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Parent has freed us to proceed (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c1"># flush stdout</span>
+        <span class="k">if</span> <span class="n">parameters</span><span class="o">.</span><span class="n">flushSTDOUT</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        
+        <span class="c1"># get data</span>
+        <span class="n">dataDict</span> <span class="o">=</span> <span class="n">dataDictProxy</span><span class="o">.</span><span class="n">_getvalue</span><span class="p">()</span>
+        
+        <span class="c1"># check if we are being told to exit</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dataDict</span><span class="p">[</span><span class="s2">&quot;EXIT&quot;</span><span class="p">]</span>
+        
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Exiting&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="k">return</span>
+        
+        <span class="c1"># unique id for current data</span>
+        <span class="n">dataID</span> <span class="o">=</span> <span class="n">dataDict</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+        
+        <span class="c1"># job loop - process jobs until told to get new data</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Waiting for new job&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="c1"># get job from job queue</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">jobQ</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            
+            <span class="c1"># data ID</span>
+            <span class="n">jobDataID</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">dataID</span>
+            
+            <span class="c1"># clear data?</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">clearData</span> <span class="ow">and</span> <span class="n">jobDataID</span> <span class="o">==</span> <span class="n">dataID</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Breaking job loop to clear data&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">break</span>
+            
+            <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">clearData</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Tried to clear old data! (</span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">jobDataID</span><span class="p">,</span> <span class="n">dataID</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">continue</span>
+            
+            <span class="c1"># check this job corresponds to current data</span>
+            <span class="k">if</span> <span class="n">jobDataID</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">jobDataID</span> <span class="o">!=</span> <span class="n">dataID</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Job does not correspond to current data (</span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">jobDataID</span><span class="p">,</span> <span class="n">dataID</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">continue</span>
+            
+            <span class="c1"># unpack object</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">obj</span>
+            <span class="n">jobID</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">ID</span>
+            
+            <span class="c1"># finals list?</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;setFinalsList&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">method</span><span class="p">(</span><span class="n">finalsLock</span><span class="p">,</span> <span class="n">finalsListProxy</span><span class="p">,</span> <span class="n">finalsListLocal</span><span class="p">,</span> <span class="n">barrierListProxy</span><span class="p">,</span> <span class="n">barrierListLocal</span><span class="p">)</span>
+
+            
+            <span class="c1"># finals list?</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;setRatesList&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">method</span><span class="p">(</span><span class="n">ratesListLock</span><span class="p">,</span> <span class="n">ratesListProxy</span><span class="p">)</span>
+            
+            <span class="c1"># rank?</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;setRank&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">method</span><span class="p">(</span><span class="n">rank</span><span class="p">)</span>
+            
+            <span class="c1"># data?</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;setInitialData&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="n">dataDict</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;FAIL: COULD NOT GET DATA FROM DATA DICT&quot;</span>
+                    <span class="n">resultQ</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+                    <span class="n">item</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">continue</span>
+            
+            <span class="c1"># ID?</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;setJobID&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">method</span><span class="p">(</span><span class="n">jobID</span><span class="p">)</span>
+            
+            <span class="c1"># unpack job</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">method</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">args</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">kwargs</span>
+            
+            <span class="c1"># get the method from the object</span>
+            <span class="n">objMethod</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            
+            <span class="c1"># now run it</span>
+            <span class="k">if</span> <span class="n">objMethod</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># failure</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;FAIL: UNRECOGNISED METHOD&quot;</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">runTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">objMethod</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">runTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">runTime</span>
+                
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;setRunTime&quot;</span><span class="p">):</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">setRunTime</span><span class="p">(</span><span class="n">runTime</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;worker&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">worker</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">worker</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">rank</span><span class="p">)</span>
+            
+            <span class="c1"># check status of this job</span>
+            <span class="n">jobStatus</span> <span class="o">=</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">checkJobStatus</span><span class="p">(</span><span class="n">jobID</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">jobStatus</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Breaking to get new job&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="c1"># if the result is complete we may as well send it back???? or not cos server not expecting it????</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="kc">None</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">resultQ</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="LKMCClient"><a class="viewcode-back" href="../../LKMC/LKMC.Client.html#LKMC.Client.LKMCClient">[docs]</a><span class="k">class</span> <span class="nc">LKMCClient</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    LKMC client class.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">clientPID</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">workDir</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">workDir</span><span class="p">,</span> <span class="n">startRank</span><span class="p">,</span> <span class="n">NWorkers</span><span class="p">,</span> <span class="n">serverAddress</span><span class="p">,</span> <span class="n">serverPort</span><span class="p">,</span> <span class="n">authkey</span><span class="p">,</span> <span class="n">inputFile</span><span class="p">,</span> <span class="n">relpath</span><span class="p">,</span> <span class="n">serverID</span><span class="p">,</span> <span class="n">outputDirTail</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodeName</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workDir</span> <span class="o">=</span> <span class="n">workDir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NWorkers</span> <span class="o">=</span> <span class="n">NWorkers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serverAddress</span> <span class="o">=</span> <span class="n">serverAddress</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serverPort</span> <span class="o">=</span> <span class="n">serverPort</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">authkey</span> <span class="o">=</span> <span class="n">authkey</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputFile</span> <span class="o">=</span> <span class="n">inputFile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startRank</span> <span class="o">=</span> <span class="n">startRank</span>
+        
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workDir</span><span class="p">)</span>
+        
+        <span class="n">LKMCClient</span><span class="o">.</span><span class="n">clientPID</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
+        <span class="n">LKMCClient</span><span class="o">.</span><span class="n">workDir</span> <span class="o">=</span> <span class="n">workDir</span>
+        
+        <span class="c1"># read input file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span> <span class="o">=</span> <span class="n">Input</span><span class="o">.</span><span class="n">getLKMCParams</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputFile</span><span class="p">)</span>
+        <span class="n">Input</span><span class="o">.</span><span class="n">readGlobals</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputFile</span><span class="p">)</span>
+        
+        <span class="c1"># task status value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">taskStatus</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">firstTime</span> <span class="o">=</span> <span class="kc">True</span>
+        
+        <span class="n">outputPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;HOME&quot;</span><span class="p">],</span> <span class="n">relpath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clientOutputPath</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">outputPath</span><span class="p">):</span>
+            <span class="n">serverFiles</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputPath</span><span class="p">,</span> <span class="s2">&quot;.lkmc_*&quot;</span><span class="p">))</span>
+            
+            <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">serverFiles</span><span class="p">:</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+                
+                <span class="n">fileID</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                
+                <span class="k">if</span> <span class="n">fileID</span> <span class="o">==</span> <span class="n">serverID</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">clientOutputPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputPath</span><span class="p">,</span> <span class="n">outputDirTail</span><span class="p">)</span>
+                    
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clientOutputPath</span><span class="p">):</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clientOutputPath</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mi">0755</span><span class="p">)</span>
+                        <span class="k">except</span><span class="p">:</span>
+                            <span class="k">pass</span>
+    
+<div class="viewcode-block" id="LKMCClient.daemonise"><a class="viewcode-back" href="../../LKMC/LKMC.Client.html#LKMC.Client.LKMCClient.daemonise">[docs]</a>    <span class="k">def</span> <span class="nf">daemonise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Daemonise the client.</span>
+<span class="sd">        </span>
+<span class="sd">        We fork once and create our own session, then fork again to detach </span>
+<span class="sd">        from the controlling terminal.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># first fork</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fork</span><span class="p">()</span>
+            
+            <span class="c1"># parent exits</span>
+            <span class="k">if</span> <span class="n">pid</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;fork #1 failed: </span><span class="si">%d</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">errno</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">strerror</span><span class="p">))</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                
+        <span class="c1"># decouple from parent environment</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">setsid</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">umask</span><span class="p">(</span><span class="mi">022</span><span class="p">)</span>
+        
+        <span class="c1"># second fork</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fork</span><span class="p">()</span>
+            
+            <span class="c1"># parent exits</span>
+            <span class="k">if</span> <span class="n">pid</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;fork #2 failed: </span><span class="si">%d</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">errno</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">strerror</span><span class="p">))</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># change to work dir</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workDir</span><span class="p">)</span>    
+        
+        <span class="c1"># node address</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">nodeAddress</span><span class="p">()</span>
+        
+        <span class="c1"># redirect standard file descriptors</span>
+        <span class="n">stdoutFile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodeName</span> <span class="o">+</span> <span class="s2">&quot;.STDOUT.txt&quot;</span>
+        <span class="n">stderrfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodeName</span> <span class="o">+</span> <span class="s2">&quot;.STDERR.txt&quot;</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">clientOutputPath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clientOutputPath</span><span class="p">):</span>
+            <span class="n">stdoutFile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clientOutputPath</span><span class="p">,</span> <span class="n">stdoutFile</span><span class="p">)</span>
+            <span class="n">stderrfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clientOutputPath</span><span class="p">,</span> <span class="n">stderrfile</span><span class="p">)</span>
+        
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">si</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="s2">&quot;/dev/null&quot;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">verboseLevel</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">so</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="n">stdoutFile</span><span class="p">,</span> <span class="s1">&#39;a+&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">so</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="n">stdoutFile</span><span class="p">,</span> <span class="s1">&#39;a+&#39;</span><span class="p">)</span>
+        <span class="n">se</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="n">stderrfile</span><span class="p">,</span> <span class="s1">&#39;a+&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">so</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">se</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+        
+        <span class="n">LKMCClient</span><span class="o">.</span><span class="n">clientPID</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span></div>
+        
+<div class="viewcode-block" id="LKMCClient.makeClientManager"><a class="viewcode-back" href="../../LKMC/LKMC.Client.html#LKMC.Client.LKMCClient.makeClientManager">[docs]</a>    <span class="k">def</span> <span class="nf">makeClientManager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make sync manager for the client and connect to the queues</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">class</span> <span class="nc">ClientQueueManager</span><span class="p">(</span><span class="n">SyncManager</span><span class="p">):</span>
+            <span class="k">pass</span>
+    
+        <span class="c1"># register functions for getting queues</span>
+        <span class="n">ClientQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getDataDict&quot;</span><span class="p">)</span>
+        <span class="n">ClientQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getJobQ&quot;</span><span class="p">)</span>
+        <span class="n">ClientQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getResultQ&quot;</span><span class="p">)</span>
+        <span class="n">ClientQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getClientQ&quot;</span><span class="p">)</span>
+        <span class="n">ClientQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getStatusQ&quot;</span><span class="p">)</span>
+        <span class="n">ClientQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getFinalsLock&quot;</span><span class="p">)</span>
+        <span class="n">ClientQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getFinalsList&quot;</span><span class="p">)</span>
+        <span class="n">ClientQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getRatesLock&quot;</span><span class="p">)</span>
+        <span class="n">ClientQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getRatesList&quot;</span><span class="p">)</span>
+        <span class="n">ClientQueueManager</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;getBarriersList&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># create and connect the manager</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span> <span class="o">=</span> <span class="n">ClientQueueManager</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serverAddress</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">serverPort</span><span class="p">),</span> <span class="n">authkey</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">authkey</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Connected to </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serverAddress</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">serverPort</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># get the queues</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataDict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">getDataDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobQ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">getJobQ</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resultQ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">getResultQ</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clientQ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">getClientQ</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusQ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">getStatusQ</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finalsLock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">getFinalsLock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finalsListProxy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">getFinalsList</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratesListLock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">getRatesLock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratesListProxy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">getRatesList</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barriersListProxy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">getBarriersList</span><span class="p">()</span>
+        
+        <span class="c1"># we put our pid into result q for the server to store</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resultQ</span><span class="o">.</span><span class="n">put</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">nodeName</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getpgrp</span><span class="p">()])</span>
+        
+        <span class="c1"># make a local manager for the local copy of finals list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">localManager</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finalsListLocal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">localManager</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrierListLocal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">localManager</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+        
+        <span class="c1"># and the dict for job status</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusDict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">localManager</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusLock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">localManager</span><span class="o">.</span><span class="n">RLock</span><span class="p">()</span>
+        
+        <span class="c1"># make dict for data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">localDataDict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">localManager</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="LKMCClient.getWorkerResponses"><a class="viewcode-back" href="../../LKMC/LKMC.Client.html#LKMC.Client.LKMCClient.getWorkerResponses">[docs]</a>    <span class="k">def</span> <span class="nf">getWorkerResponses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">raiseOnError</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get responses from workers</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#TODO: run on multiple threads?</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Checking all workers are responsive (timeout=</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">timeout</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="n">missingList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">conn</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workersNames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">workersConnections</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">conn</span><span class="o">.</span><span class="n">poll</span><span class="p">(</span><span class="n">timeout</span><span class="p">):</span>
+                <span class="c1"># worker is ready and waiting</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+                <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Worker is ready: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># worker is not responding</span>
+                <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Worker has not responded: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="n">missingList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">missingList</span> <span class="ow">and</span> <span class="n">raiseOnError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Some workers did not respond: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missingList</span><span class="p">))</span>
+        
+        <span class="k">return</span> <span class="n">missingList</span></div>
+    
+<div class="viewcode-block" id="LKMCClient.tellWorkersToContinue"><a class="viewcode-back" href="../../LKMC/LKMC.Client.html#LKMC.Client.LKMCClient.tellWorkersToContinue">[docs]</a>    <span class="k">def</span> <span class="nf">tellWorkersToContinue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Signal the workers to continue</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Telling workers to continue&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">conn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">workersConnections</span><span class="p">:</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;CONTINUE&quot;</span><span class="p">)</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Workers have been told to continue&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LKMCClient.createWorkerProcess"><a class="viewcode-back" href="../../LKMC/LKMC.Client.html#LKMC.Client.LKMCClient.createWorkerProcess">[docs]</a>    <span class="k">def</span> <span class="nf">createWorkerProcess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rank</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new worker process.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rank : int</span>
+<span class="sd">            The rank of the new process</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># create pipe for this worker</span>
+        <span class="n">conn1</span><span class="p">,</span> <span class="n">conn2</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pipe</span><span class="p">()</span>
+        
+        <span class="c1"># create worker process</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">clientWorker</span><span class="p">,</span> 
+                                    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resultQ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clientQ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">taskStatus</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalsLock</span><span class="p">,</span>
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">finalsListProxy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalsListLocal</span><span class="p">,</span> <span class="n">conn2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobQ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusDict</span><span class="p">,</span>
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusLock</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodeName</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ratesListLock</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ratesListProxy</span><span class="p">,</span>
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">barriersListProxy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">barrierListLocal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">localDataDict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clientOutputPath</span><span class="p">),</span> 
+                                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Worker-</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="n">conn1</span></div>
+    
+<div class="viewcode-block" id="LKMCClient.startWorkers"><a class="viewcode-back" href="../../LKMC/LKMC.Client.html#LKMC.Client.LKMCClient.startWorkers">[docs]</a>    <span class="k">def</span> <span class="nf">startWorkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start the workers</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># now we start the worker processes, passing them the queues</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workersNames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workersConnections</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NWorkers</span><span class="p">):</span>
+            <span class="c1"># rank of this process</span>
+            <span class="n">rank</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">startRank</span> <span class="o">+</span> <span class="n">i</span>
+            
+            <span class="c1"># create the process and pipe</span>
+            <span class="n">p</span><span class="p">,</span> <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createWorkerProcess</span><span class="p">(</span><span class="n">rank</span><span class="p">)</span>
+            
+            <span class="c1"># start the process</span>
+            <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Starting Worker-</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            
+            <span class="c1"># make sure the process started</span>
+            <span class="k">if</span> <span class="n">conn</span><span class="o">.</span><span class="n">poll</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+                <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Worker started: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># process did not start correctly!</span>
+                <span class="c1"># we attempt to restart it</span>
+                <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Worker failed to start: Worker-</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Attempting to restart it...&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                
+                <span class="c1"># first we terminate the process</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+                
+                <span class="c1"># then we start another one</span>
+                <span class="n">p</span><span class="p">,</span> <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createWorkerProcess</span><span class="p">(</span><span class="n">rank</span><span class="p">)</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                
+                <span class="k">if</span> <span class="n">conn</span><span class="o">.</span><span class="n">poll</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Worker started successfully this time: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># raise exception</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not start Worker-</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span>
+            
+            <span class="c1"># store process</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">workersNames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Worker-</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">workersConnections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+        
+        <span class="c1"># workers are waiting for us to tell them to continue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tellWorkersToContinue</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="LKMCClient.joinWorkers"><a class="viewcode-back" href="../../LKMC/LKMC.Client.html#LKMC.Client.LKMCClient.joinWorkers">[docs]</a>    <span class="k">def</span> <span class="nf">joinWorkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wait for workers to finish</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Waiting for workers to exit&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># now join</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">workers</span><span class="p">:</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="LKMCClient.watchStatus"><a class="viewcode-back" href="../../LKMC/LKMC.Client.html#LKMC.Client.LKMCClient.watchStatus">[docs]</a>    <span class="k">def</span> <span class="nf">watchStatus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wait for server to tell us what to do</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># main loop</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># get job/status from server</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Head client waiting for command&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            
+            <span class="n">status</span><span class="p">,</span> <span class="n">extraData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statusQ</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Client received command: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">status</span><span class="p">,),</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;FREE_WORKERS&quot;</span><span class="p">:</span>
+                <span class="c1"># free workers</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tellWorkersToContinue</span><span class="p">()</span>
+            
+            <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;FINALISE&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">joinWorkers</span><span class="p">()</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">statusQ</span><span class="o">.</span><span class="n">task_done</span><span class="p">()</span>
+                
+                <span class="k">return</span>
+            
+            <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;CLEARUNIQUELIST&quot;</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Clearing local uniqueness list&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">finalsLock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">finalsListLocal</span><span class="o">.</span><span class="n">__delitem__</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalsListLocal</span><span class="o">.</span><span class="n">__len__</span><span class="p">()))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">barrierListLocal</span><span class="o">.</span><span class="n">__delitem__</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">barrierListLocal</span><span class="o">.</span><span class="n">__len__</span><span class="p">()))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">finalsLock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            
+            <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;STOPJOB&quot;</span><span class="p">:</span>
+                <span class="n">jobID</span> <span class="o">=</span> <span class="n">extraData</span>
+                
+                <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Stopping job: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">jobID</span><span class="p">),),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusLock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusDict</span><span class="p">[</span><span class="n">jobID</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusLock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            
+            <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;CLEARJOBSTATUS&quot;</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Clearing job status dict&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusLock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusDict</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusLock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                        
+            <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;SETJOBIDS&quot;</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Setting job IDs&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusLock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusDict</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                
+                <span class="n">jobIDs</span> <span class="o">=</span> <span class="n">extraData</span>
+                <span class="k">for</span> <span class="n">jobID</span> <span class="ow">in</span> <span class="n">jobIDs</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusDict</span><span class="p">[</span><span class="n">jobID</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusLock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            
+            <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;RESETDATA&quot;</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;(Re)setting data&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                
+                <span class="c1"># check workers are ready/responsive</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">getWorkerResponses</span><span class="p">()</span>
+                
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">firstTime</span><span class="p">:</span>
+                    <span class="c1"># clear job status</span>
+                    <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Clearing job status dict&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusLock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusDict</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">jobStatusLock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">firstTime</span> <span class="o">=</span> <span class="kc">False</span>
+                
+                <span class="c1"># all workers are now waiting for us to tell them to continue</span>
+                <span class="c1"># now we get data from data q and insert it into localDataDict</span>
+                
+                <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataDict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Data keys: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">keys</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">localDataDict</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataDict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">localDataDict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+            
+            <span class="c1"># check in with server</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">statusQ</span><span class="o">.</span><span class="n">task_done</span><span class="p">()</span>
+            <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Status Q task_done&#39;d&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;Waiting for server to task_done clientQ&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clientQ</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;READY:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodeName</span><span class="p">,))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clientQ</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Join client Q freed&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div></div>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../LKMC/LKMC.Client.html#LKMC.Client.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The main client loop.</span>
+<span class="sd">    First we create a queue manager which connects to the </span>
+<span class="sd">    queues on the server.</span>
+<span class="sd">    We then create &quot;NWorkers&quot; worker processes and pass</span>
+<span class="sd">    them the queues.</span>
+<span class="sd">    We then wait for the workers to exit, and then return.</span>
+<span class="sd">    (We should probably listen on a special queue from the </span>
+<span class="sd">    server so that it can tell us to exit, eg if received sigint...)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">12</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;Usage: Client.py NODENAME WORKDIR RANK NUMWORKERS SERVERADDRESS SERVERPORT AUTHKEY INPUTFILE RELDIR SERVERID CLIENTOUTPUTDIR&quot;</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="c1"># create client instance</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">LKMCClient</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">4</span><span class="p">]),</span> 
+                        <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">6</span><span class="p">]),</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">9</span><span class="p">],</span> 
+                        <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">11</span><span class="p">])</span>
+    
+    <span class="c1"># daemonise the main client</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">daemonise</span><span class="p">()</span>
+    
+    <span class="c1"># start the sync manager and connect to the server</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">makeClientManager</span><span class="p">()</span>
+    
+    <span class="c1"># start the workers</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">startWorkers</span><span class="p">()</span>
+    
+    <span class="c1"># check status</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">watchStatus</span><span class="p">()</span>
+    
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Finished&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

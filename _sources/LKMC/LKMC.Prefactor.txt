@@ -1,0 +1,7 @@
+LKMC.Prefactor module
+=====================
+
+.. automodule:: LKMC.Prefactor
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,7 @@
+LKMC.clibs.setup module
+=======================
+
+.. automodule:: LKMC.clibs.setup
+    :members:
+    :undoc-members:
+    :show-inheritance:

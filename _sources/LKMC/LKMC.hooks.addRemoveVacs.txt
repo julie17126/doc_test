@@ -1,0 +1,7 @@
+LKMC.hooks.addRemoveVacs module
+===============================
+
+.. automodule:: LKMC.hooks.addRemoveVacs
+    :members:
+    :undoc-members:
+    :show-inheritance:

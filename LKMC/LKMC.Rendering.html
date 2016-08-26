@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Rendering module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Results module" href="LKMC.Results.html" />
+    <link rel="prev" title="LKMC.Refine module" href="LKMC.Refine.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Results.html" title="LKMC.Results module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Refine.html" title="LKMC.Refine module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Rendering">
+<span id="lkmc-rendering-module"></span><h1>LKMC.Rendering module<a class="headerlink" href="#module-LKMC.Rendering" title="Permalink to this headline">¶</a></h1>
+<p>Module for rendering (eg. POV-Ray)</p>
+<p>Author: Chris Scott</p>
+<dl class="class">
+<dt id="LKMC.Rendering.AtomsObject">
+<em class="property">class </em><code class="descclassname">LKMC.Rendering.</code><code class="descname">AtomsObject</code><a class="reference internal" href="../_modules/LKMC/Rendering.html#AtomsObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rendering.AtomsObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Holds information about specific atoms in a system.
+Writes povray file and renders if required.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Rendering.AtomsObject.build">
+<code class="descname">build</code><span class="sig-paren">(</span><em>indexes</em>, <em>lattice</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rendering.html#AtomsObject.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rendering.AtomsObject.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Rendering.AtomsObject.output">
+<code class="descname">output</code><span class="sig-paren">(</span><em>filename</em>, <em>storePOV=0</em>, <em>renderPOV=True</em>, <em>outdir='.'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rendering.html#AtomsObject.output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rendering.AtomsObject.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output the object.
+filename: filename without prefix
+storePOV: store the povray file
+renderPOV: render the povray file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Rendering.AtomsObject.writeCellOutline">
+<code class="descname">writeCellOutline</code><span class="sig-paren">(</span><em>fpov</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rendering.html#AtomsObject.writeCellOutline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rendering.AtomsObject.writeCellOutline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the simulation cell outline.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Rendering.AtomsObject.writePOVHeader">
+<code class="descname">writePOVHeader</code><span class="sig-paren">(</span><em>fpov</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rendering.html#AtomsObject.writePOVHeader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rendering.AtomsObject.writePOVHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write header to povray file</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Rendering.DefectsObject">
+<em class="property">class </em><code class="descclassname">LKMC.Rendering.</code><code class="descname">DefectsObject</code><a class="reference internal" href="../_modules/LKMC/Rendering.html#DefectsObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rendering.DefectsObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Holds information about defects in a system.
+Writes povray file and renders if required.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Rendering.DefectsObject.build">
+<code class="descname">build</code><span class="sig-paren">(</span><em>vacancies</em>, <em>interstitials</em>, <em>antisites</em>, <em>onAntisites</em>, <em>input</em>, <em>ref</em>, <em>NClusters=0</em>, <em>cluster=[]</em>, <em>overlayMode=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rendering.html#DefectsObject.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rendering.DefectsObject.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the defects object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Rendering.DefectsObject.output">
+<code class="descname">output</code><span class="sig-paren">(</span><em>filename</em>, <em>storePOV=0</em>, <em>renderPOV=True</em>, <em>renderClusters=0</em>, <em>simTime=None</em>, <em>simTimeUnits=None</em>, <em>overlayMode=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rendering.html#DefectsObject.output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rendering.DefectsObject.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output the defects object.
+filename: filename without prefix
+storePOV: store the povray file
+renderPOV: render the povray file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Rendering.DefectsObject.renderClusters">
+<code class="descname">renderClusters</code><span class="sig-paren">(</span><em>filename</em>, <em>storePOV</em>, <em>renderPOV</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rendering.html#DefectsObject.renderClusters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rendering.DefectsObject.renderClusters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render clusters of defects to separate files</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Rendering.DefectsObject.writeAntisites">
+<code class="descname">writeAntisites</code><span class="sig-paren">(</span><em>fpov</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rendering.html#DefectsObject.writeAntisites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rendering.DefectsObject.writeAntisites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write interstitials</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Rendering.DefectsObject.writeCellOutline">
+<code class="descname">writeCellOutline</code><span class="sig-paren">(</span><em>fpov</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rendering.html#DefectsObject.writeCellOutline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rendering.DefectsObject.writeCellOutline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the simulation cell outline.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Rendering.DefectsObject.writeInterstitials">
+<code class="descname">writeInterstitials</code><span class="sig-paren">(</span><em>fpov</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rendering.html#DefectsObject.writeInterstitials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rendering.DefectsObject.writeInterstitials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write interstitials</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Rendering.DefectsObject.writePOVHeader">
+<code class="descname">writePOVHeader</code><span class="sig-paren">(</span><em>fpov</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rendering.html#DefectsObject.writePOVHeader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rendering.DefectsObject.writePOVHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write header to povray file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Rendering.DefectsObject.writeVacancies">
+<code class="descname">writeVacancies</code><span class="sig-paren">(</span><em>fpov</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Rendering.html#DefectsObject.writeVacancies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Rendering.DefectsObject.writeVacancies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write vacancies</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Refine.html"
+                        title="previous chapter">LKMC.Refine module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Results.html"
+                        title="next chapter">LKMC.Results module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Rendering.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Results.html" title="LKMC.Results module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Refine.html" title="LKMC.Refine module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

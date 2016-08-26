@@ -1,0 +1,122 @@
+String
+======
+
+Parameters for the string method.
+
+stringNImages
+^^^^^^^^^^^^^
+
+Integer
+
+Number of images (including initial and final).
+
+Default: 9
+
+stringMinStepSize
+^^^^^^^^^^^^^^^^^
+
+Real
+
+The minimisation step size for minimisation within string method.
+
+Default: 0.2
+
+stringEnergTol
+^^^^^^^^^^^^^^
+
+Real
+
+The energy tolerance for string method.
+
+Default: 0.001
+
+stringMaxSteps
+^^^^^^^^^^^^^^
+
+Integer
+
+The maximum number of steps for string method.
+
+Default: 2000000
+
+stringMaxRunTimeSecs
+^^^^^^^^^^^^^^^^^^^^
+
+Integer (seconds)
+
+The maximum run time for string method.
+
+Default: 1200
+
+stringClimbCriteria
+^^^^^^^^^^^^^^^^^^^
+
+iterations
+
+???
+
+Default: iterations
+
+stringClimbImageValue
+^^^^^^^^^^^^^^^^^^^^^
+
+Integer
+
+???
+
+Default: 10000000
+
+stringFixInitialAndFinal
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: fix the initial and final states so they cannot move.
+
+Default: 1
+
+stringPlotPathway
+^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: plot image energies.
+
+Default: 0
+
+stringVisualisePathway
+^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: write files for visualising images.
+
+Default: 0
+
+stringSaveImages
+^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: Save images to file
+
+Default: 0
+
+stringDebugMode
+^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: Debug mode for string. This will print out lots
+of information.
+
+Default: 0
+
+timeString
+^^^^^^^^^^
+
+0 or 1
+
+If 1: log the run time of string method.
+
+Default: 0

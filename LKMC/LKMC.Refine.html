@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Refine module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Rendering module" href="LKMC.Rendering.html" />
+    <link rel="prev" title="LKMC.Rates module" href="LKMC.Rates.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Rendering.html" title="LKMC.Rendering module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Rates.html" title="LKMC.Rates module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Refine">
+<span id="lkmc-refine-module"></span><h1>LKMC.Refine module<a class="headerlink" href="#module-LKMC.Refine" title="Permalink to this headline">¶</a></h1>
+<p>Transition refining module.</p>
+<dl class="class">
+<dt id="LKMC.Refine.TransitionRefiner">
+<em class="property">class </em><code class="descclassname">LKMC.Refine.</code><code class="descname">TransitionRefiner</code><span class="sig-paren">(</span><em>params</em>, <em>ref</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Refine.html#TransitionRefiner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Refine.TransitionRefiner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">LKMC.TransitionCalculatorBase.TransitionFinder</span></code></p>
+<p>Transition refiner object.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Refine.TransitionRefiner.checkCalcPrefactor">
+<code class="descname">checkCalcPrefactor</code><span class="sig-paren">(</span><em>barrier</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Refine.html#TransitionRefiner.checkCalcPrefactor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Refine.TransitionRefiner.checkCalcPrefactor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if we need to calculate the prefactor for this transition.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Refine.TransitionRefiner.createDuplicateResult">
+<code class="descname">createDuplicateResult</code><span class="sig-paren">(</span><em>linkedIdx</em>, <em>storeTimings=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Refine.html#TransitionRefiner.createDuplicateResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Refine.TransitionRefiner.createDuplicateResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create duplicate result.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Refine.TransitionRefiner.createEmptyResult">
+<code class="descname">createEmptyResult</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Refine.html#TransitionRefiner.createEmptyResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Refine.TransitionRefiner.createEmptyResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create empty job result.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Refine.TransitionRefiner.createFailResult">
+<code class="descname">createFailResult</code><span class="sig-paren">(</span><em>linkedIdx</em>, <em>storeTimings=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Refine.html#TransitionRefiner.createFailResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Refine.TransitionRefiner.createFailResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create fail result.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Refine.TransitionRefiner.createSuccessResult">
+<code class="descname">createSuccessResult</code><span class="sig-paren">(</span><em>refinedBarrier</em>, <em>final</em>, <em>images</em>, <em>linkedIdx</em>, <em>reverseBarrier=None</em>, <em>saddle=None</em>, <em>reuseHashKey=None</em>, <em>reuseWorkVolId=None</em>, <em>linkedBarrier=None</em>, <em>calcPrefactor=None</em>, <em>rate=None</em>, <em>saddleSumLogEVs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Refine.html#TransitionRefiner.createSuccessResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Refine.TransitionRefiner.createSuccessResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create success result.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Refine.TransitionRefiner.refineFinalState">
+<code class="descname">refineFinalState</code><span class="sig-paren">(</span><em>transIniPos</em>, <em>transSpecie</em>, <em>volumeAtoms</em>, <em>reuseWorkVolId=None</em>, <em>volumeTransitionObject=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Refine.html#TransitionRefiner.refineFinalState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Refine.TransitionRefiner.refineFinalState" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Refine.TransitionRefiner.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>volumeIndex</em>, <em>transIniPos</em>, <em>transSpecie</em>, <em>volumeAtoms</em>, <em>reuseWorkVolId=None</em>, <em>volumeTransitionObject=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Refine.html#TransitionRefiner.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Refine.TransitionRefiner.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refine the transition.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Refine.TransitionRefiner.setInitialData">
+<code class="descname">setInitialData</code><span class="sig-paren">(</span><em>dataDict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Refine.html#TransitionRefiner.setInitialData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Refine.TransitionRefiner.setInitialData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Refine.TransitionRefiner.setInitialState">
+<code class="descname">setInitialState</code><span class="sig-paren">(</span><em>initialState</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Refine.html#TransitionRefiner.setInitialState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Refine.TransitionRefiner.setInitialState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the initial state.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Refine.TransitionRefiner.setJobID">
+<code class="descname">setJobID</code><span class="sig-paren">(</span><em>jobID</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Refine.html#TransitionRefiner.setJobID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Refine.TransitionRefiner.setJobID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set job ID.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Refine.TransitionRefiner.setRank">
+<code class="descname">setRank</code><span class="sig-paren">(</span><em>rank</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Refine.html#TransitionRefiner.setRank"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Refine.TransitionRefiner.setRank" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set rank.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Refine.TransitionRefiner.setRatesList">
+<code class="descname">setRatesList</code><span class="sig-paren">(</span><em>ratesListLock</em>, <em>ratesListProxy</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Refine.html#TransitionRefiner.setRatesList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Refine.TransitionRefiner.setRatesList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rates list etc.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Refine.TransitionRefiner.setup">
+<code class="descname">setup</code><span class="sig-paren">(</span><em>initialState=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Refine.html#TransitionRefiner.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Refine.TransitionRefiner.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup the transition refiner.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Rates.html"
+                        title="previous chapter">LKMC.Rates module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Rendering.html"
+                        title="next chapter">LKMC.Rendering module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Refine.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Rendering.html" title="LKMC.Rendering module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Rates.html" title="LKMC.Rates module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

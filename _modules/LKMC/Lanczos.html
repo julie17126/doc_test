@@ -1,0 +1,1070 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Lanczos &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Lanczos</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Lanczos module.</span>
+
+<span class="sd">(c) Tomas Lazauskas, 2013</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">linalg</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Algebra</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">ClientServerInterface</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Minimise</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Vectors</span>
+
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">.clibs</span> <span class="k">import</span> <span class="n">lanczos</span> <span class="k">as</span> <span class="n">c_lanczos</span>
+
+<div class="viewcode-block" id="LanczosLBFGSSaddleFinder"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.LanczosLBFGSSaddleFinder">[docs]</a><span class="k">class</span> <span class="nc">LanczosLBFGSSaddleFinder</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Lanczos + L-BFGS-B as a minimum mode following method.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="kc">None</span>
+        
+<div class="viewcode-block" id="LanczosLBFGSSaddleFinder.converge"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.LanczosLBFGSSaddleFinder.converge">[docs]</a>    <span class="k">def</span> <span class="nf">converge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">searchMd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">looseIterMax</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The idea is to approach saddle state with loose tolerance L-BFGS-B + Lanczos and than uses quite tight tolerance</span>
+<span class="sd">        for convergence. Also restart of L-BFGS-B is recommended every 10-20 steps.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">searchMd</span><span class="p">,</span> <span class="n">looseIterMax</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;First we do couple of steps of Lanczos - L-BFGS-B...&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># first we run loose tolerance sub-lattice finder to approach the saddle state</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lanczosLooseSubMinimiser</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">forceCalls</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">NMinLanczosFE</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Now we do Lanczos - L-BFGS-B with restarts every </span><span class="si">%d</span><span class="s2"> steps&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">LBFGSMaxIter</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+         
+        <span class="n">itern</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">and</span> <span class="p">(</span><span class="n">itern</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">lattice</span><span class="o">.</span><span class="n">LBFGSConvTask</span> <span class="o">==</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lanczosSubMinimiser</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">forceCalls</span> <span class="o">+=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">NMinLanczosFE</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">and</span> <span class="n">lattice</span><span class="o">.</span><span class="n">LBFGSConvTask</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">LBFGSLanczosConvgOnlyByTolerance</span><span class="p">:</span>
+                
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Convergence by _FACTR*EPSMCH is not allowed!!!&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                
+                <span class="c1"># if this case occurs during searches, give up on direction</span>
+                <span class="k">if</span> <span class="n">searchMd</span><span class="p">:</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>                    
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># otherwise, try again</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="mi">2</span>
+                     
+            <span class="n">itern</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="n">lattice</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">lattice</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="n">lattice</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lanczosSubMinimiser</span><span class="o">.</span><span class="n">rVector</span><span class="p">)</span>
+        <span class="n">lattice</span><span class="o">.</span><span class="n">rVectorIndexes</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lanczosSubMinimiser</span><span class="o">.</span><span class="n">mainIndexesFinal</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">status</span></div>
+        
+<div class="viewcode-block" id="LanczosLBFGSSaddleFinder.setJobID"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.LanczosLBFGSSaddleFinder.setJobID">[docs]</a>    <span class="k">def</span> <span class="nf">setJobID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jobID</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set job ID.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="o">=</span> <span class="n">jobID</span></div>
+    
+<div class="viewcode-block" id="LanczosLBFGSSaddleFinder.setup"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.LanczosLBFGSSaddleFinder.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">searchMd</span><span class="p">,</span> <span class="n">looseIterMax</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup the method.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Loose sub-lattice minimiser</span>
+        <span class="n">lanczosLooseSubParams</span> <span class="o">=</span> <span class="n">initialiseLanczosMinParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">searchMd</span><span class="o">=</span><span class="n">searchMd</span><span class="p">,</span> <span class="n">looseMd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">looseIterMax</span><span class="o">=</span><span class="n">looseIterMax</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosLooseSubMinimiser</span> <span class="o">=</span> <span class="n">LanczosLBFGSMinimiser</span><span class="p">(</span><span class="n">lanczosLooseSubParams</span><span class="p">)</span>
+<span class="c1">#         self.lanczosLooseSubMinimiser = LanczosConjugateGradientMinimiser(lanczosLooseSubParams)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosLooseSubMinimiser</span><span class="o">.</span><span class="n">setJobID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+        
+        <span class="c1"># Sub-lattice minimiser</span>
+        <span class="n">lanczosSubParams</span> <span class="o">=</span> <span class="n">initialiseLanczosMinParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">searchMd</span><span class="o">=</span><span class="n">searchMd</span><span class="p">,</span> <span class="n">subLatticeMd</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosSubMinimiser</span> <span class="o">=</span> <span class="n">LanczosLBFGSMinimiser</span><span class="p">(</span><span class="n">lanczosSubParams</span><span class="p">)</span>
+<span class="c1">#         self.lanczosSubMinimiser = LanczosConjugateGradientMinimiser(lanczosSubParams)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosSubMinimiser</span><span class="o">.</span><span class="n">setJobID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="LanczosLattice"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.LanczosLattice">[docs]</a><span class="k">class</span> <span class="nc">LanczosLattice</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">Lattice</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="n">storeEnergies</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">LanczosLattice</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">storeEnergies</span><span class="o">=</span><span class="n">storeEnergies</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">invertForceComponent</span> <span class="o">=</span> <span class="mi">1</span>
+        
+<div class="viewcode-block" id="LanczosLattice.calcForce"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.LanczosLattice.calcForce">[docs]</a>    <span class="k">def</span> <span class="nf">calcForce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">MDPath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">defectFlag</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">correctTE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">includeAtoms</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">mainIndexes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lanczosMaxIter</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">includeAtoms</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">):</span>
+            <span class="n">mainIdx</span> <span class="o">=</span> <span class="n">mainIndexes</span>
+            <span class="n">inclIdx</span> <span class="o">=</span> <span class="n">includeAtoms</span>
+        
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">includeAtoms</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mainIndexes</span><span class="p">):</span>
+            <span class="n">mainIdx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainIndexes</span>
+            <span class="n">inclIdx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeAtoms</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;PROBLEM!!!&quot;</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        
+        <span class="n">status</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">LanczosLattice</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">MDPath</span><span class="o">=</span><span class="n">MDPath</span><span class="p">,</span> <span class="n">defectFlag</span><span class="o">=</span><span class="n">defectFlag</span><span class="p">,</span> <span class="n">correctTE</span><span class="o">=</span><span class="n">correctTE</span><span class="p">,</span> 
+            <span class="n">includeAtoms</span><span class="o">=</span><span class="n">inclIdx</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="o">=</span><span class="n">mainIdx</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">invertForceComponent</span><span class="p">:</span>
+            
+            <span class="n">iFCBackup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invertForceComponent</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">invertForceComponent</span> <span class="o">=</span> <span class="mi">0</span>
+            
+            <span class="n">status</span><span class="p">,</span> <span class="n">lle</span><span class="p">,</span> <span class="n">llev</span><span class="p">,</span> <span class="n">fEvals</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rVector</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">lanczosMethodForASystem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                <span class="n">mainIdx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rVector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">normEigenVec</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="o">=</span><span class="n">inclIdx</span><span class="p">)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">invertForceComponent</span> <span class="o">=</span> <span class="n">iFCBackup</span>
+        
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>                
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Lowest eigenvalue </span><span class="si">%f</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lle</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> 
+                                   
+                <span class="k">if</span> <span class="p">(</span><span class="n">lle</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lanczosNegExtCrit</span><span class="p">):</span>
+                    
+                    <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Lowest eigenvalue is positive (</span><span class="si">%f</span><span class="s2">) (&gt; </span><span class="si">%f</span><span class="s2">)...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lanczosNegExtCrit</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+                
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">newForce</span><span class="p">,</span> <span class="n">deltaE</span> <span class="o">=</span> <span class="n">lanczosMinModNewForce</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">llev</span><span class="p">,</span> <span class="n">lle</span><span class="p">)</span>
+                    
+                    <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">newForce</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">+=</span> <span class="n">deltaE</span>
+
+        <span class="k">return</span> <span class="n">status</span></div></div>
+
+<div class="viewcode-block" id="LanczosConjugateGradientMinimiser"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.LanczosConjugateGradientMinimiser">[docs]</a><span class="k">class</span> <span class="nc">LanczosConjugateGradientMinimiser</span><span class="p">(</span><span class="n">Minimise</span><span class="o">.</span><span class="n">ConjugateGradientMinimiser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Lanczos conjugate gradient minimiser.</span>
+<span class="sd">    </span>
+<span class="sd">    Sub-class of Minimise.ConjugateGradientMinimiser.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">LanczosConjugateGradientMinimiser</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        
+        <span class="c1"># initialise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mainIndexesFinal</span> <span class="o">=</span> <span class="kc">None</span>
+    
+<div class="viewcode-block" id="LanczosConjugateGradientMinimiser.runMain"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.LanczosConjugateGradientMinimiser.runMain">[docs]</a>    <span class="k">def</span> <span class="nf">runMain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Override runMain.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#self.testInitialPos = obj.pos</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">NMinLanczosFE</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">rVector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NForceLanczosCalls</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NForceCalls</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">excl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">minimizationExclusion</span>
+        
+        <span class="n">obj</span><span class="o">.</span><span class="n">jobID</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span>
+        
+        <span class="c1"># we still call runMain from ConjugateGradientMinimiser (same (maybe better) as super call...)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">ConjugateGradientMinimiser</span><span class="o">.</span><span class="n">runMain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">object</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="n">obj</span><span class="o">.</span><span class="n">NMinLanczosFE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NForceLanczosCalls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span>
+        
+        <span class="k">return</span> <span class="n">status</span></div>
+    
+<div class="viewcode-block" id="LanczosConjugateGradientMinimiser.calcForce"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.LanczosConjugateGradientMinimiser.calcForce">[docs]</a>    <span class="k">def</span> <span class="nf">calcForce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">excl</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Override calcForce.</span>
+<span class="sd">        </span>
+<span class="sd">        Calculate forces at new position.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object</span> <span class="o">=</span> <span class="n">obj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">previousEnergy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">totalEnergy</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">excl</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">saddleConvergeRadius</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                        <span class="n">mainIndexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">saddleConvergeRadius</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">)</span>
+                    
+                    <span class="n">includeAtoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">mainIndexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">mainIndexes</span>
+                    <span class="n">includeAtoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">includeAtoms</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mainIndexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainIndexes</span>
+                <span class="n">includeAtoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeAtoms</span>
+            
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">includeAtoms</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">includeAtoms</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">ConjugateGradientMinimiser</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+                
+            <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">useSubLatticeForceCalc</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">ConjugateGradientMinimiser</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">excl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+                
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">ConjugateGradientMinimiser</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">excl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> 
+                                                                            <span class="n">includeAtoms</span><span class="o">=</span><span class="n">includeAtoms</span><span class="p">,</span> 
+                                                                            <span class="n">mainIndexes</span><span class="o">=</span><span class="n">mainIndexes</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mainIndexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainIndexes</span>
+                
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">ConjugateGradientMinimiser</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">excl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">checkJobStatus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">):</span>
+            <span class="nb">print</span> <span class="s2">&quot;*** OCH, STOPPING MID LANCZOS&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">255</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">actualForce</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+            
+            <span class="n">lstatus</span><span class="p">,</span> <span class="n">lle</span><span class="p">,</span> <span class="n">llev</span><span class="p">,</span> <span class="n">fEvals</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rVector</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">lanczosMethodForASystem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rVector</span><span class="p">,</span> 
+                                                                                           <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">normEigenVec</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+                                                                                           <span class="n">includeAtoms</span><span class="o">=</span><span class="n">includeAtoms</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span><span class="c1">#, lnegmd=1)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">NForceLanczosCalls</span> <span class="o">+=</span> <span class="n">fEvals</span>
+ 
+            <span class="k">if</span> <span class="n">lstatus</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                
+            <span class="k">else</span><span class="p">:</span>  
+                <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">actualForce</span>
+                              
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Lowest eigenvalue </span><span class="si">%f</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lle</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>    
+                                
+                <span class="k">if</span> <span class="p">(</span><span class="n">lle</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lanczosNegExtCrit</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Lowest eigenvalue is positive (</span><span class="si">%f</span><span class="s2">) (&gt; </span><span class="si">%f</span><span class="s2">)...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lanczosNegExtCrit</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+                    
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">newForce</span><span class="p">,</span> <span class="n">deltaE</span> <span class="o">=</span> <span class="n">lanczosMinModNewForce</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">llev</span><span class="p">,</span> <span class="n">lle</span><span class="p">)</span>
+                    
+                    <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">newForce</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">+=</span> <span class="n">deltaE</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">NForceCalls</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">NForceCalls</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">iniEnergy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">totalEnergy</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Initial energy is </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iniEnergy</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                
+                <span class="c1"># debugging output</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s2">&quot;lanczos.output&quot;</span><span class="p">):</span>
+                    <span class="c1"># write lattice</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="p">,</span> <span class="s2">&quot;writeLattice&quot;</span><span class="p">):</span>
+                        <span class="n">fn</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;lanczos.output&quot;</span><span class="p">,</span> <span class="s2">&quot;lanczos</span><span class="si">%d</span><span class="s2">.dat&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterationCount</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">writeLattice</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">NForceCalls</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">checkJobStatus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">5</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">mainIndexesFinal</span> <span class="o">=</span> <span class="n">mainIndexes</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span></div></div>
+
+<div class="viewcode-block" id="LanczosLBFGSMinimiser"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.LanczosLBFGSMinimiser">[docs]</a><span class="k">class</span> <span class="nc">LanczosLBFGSMinimiser</span><span class="p">(</span><span class="n">Minimise</span><span class="o">.</span><span class="n">LBFGSMinimiser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Lanczos LBFGS minimiser.</span>
+<span class="sd">    </span>
+<span class="sd">    Sub-class of Minimise.LBFGSMinimiser.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">LanczosLBFGSMinimiser</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">noFallback</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="c1"># initialise</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">stepEigenVector</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stepEigenValue</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mainIndexesFinal</span> <span class="o">=</span> <span class="kc">None</span>
+    
+<div class="viewcode-block" id="LanczosLBFGSMinimiser.runMain"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.LanczosLBFGSMinimiser.runMain">[docs]</a>    <span class="k">def</span> <span class="nf">runMain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Override runMain.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">NMinLanczosFE</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">rVector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NForceLanczosCalls</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="n">obj</span><span class="o">.</span><span class="n">jobID</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span>
+
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">LBFGSMinimiser</span><span class="o">.</span><span class="n">runMain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+<span class="c1">#         status = super(LanczosLBFGSMinimiser, self).runMain(obj)</span>
+        
+        <span class="n">obj</span><span class="o">.</span><span class="n">NMinLanczosFE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NForceLanczosCalls</span>
+        
+        <span class="k">return</span> <span class="n">status</span></div>
+    
+<div class="viewcode-block" id="LanczosLBFGSMinimiser.postIterationCallback"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.LanczosLBFGSMinimiser.postIterationCallback">[docs]</a>    <span class="k">def</span> <span class="nf">postIterationCallback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xk</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Override post iteration callback</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stepEigenVector</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stepEigenValue</span> <span class="o">=</span> <span class="kc">None</span>
+            
+        <span class="c1"># we still run postIterationCallback on LBFGSMinimiser</span>
+        <span class="k">return</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">LBFGSMinimiser</span><span class="o">.</span><span class="n">postIterationCallback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xk</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LanczosLBFGSMinimiser.calcForceLBFGS"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.LanczosLBFGSMinimiser.calcForceLBFGS">[docs]</a>    <span class="k">def</span> <span class="nf">calcForceLBFGS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        We override the calcForceLBFGS method with Lanczos calcForce.</span>
+<span class="sd">        </span>
+<span class="sd">        Calculate forces at new position.</span>
+<span class="sd">        Argument is new position vector.</span>
+<span class="sd">        Return tuple containing total energy and force array</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">x</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">previousEnergy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">totalEnergy</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">totalEnergy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">*</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
+        
+        <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span> <span class="o">=</span> <span class="n">lanczosMinModMinimiserCalcForce</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">checkJobStatus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">):</span>
+            <span class="nb">print</span> <span class="s2">&quot;*** OCH, STOPPING MID LANCZOS&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">255</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">lstatus</span> <span class="o">=</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">actualForce</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+            <span class="n">lstatus</span> <span class="o">=</span> <span class="mi">0</span>
+                         
+        <span class="k">if</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">stepEigenVector</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stepEigenValue</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> 
+                <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">LBFGSLanczosFixEigenVectorForStep</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">:</span>
+        
+            <span class="n">lstatus</span><span class="p">,</span> <span class="n">lle</span><span class="p">,</span> <span class="n">llev</span><span class="p">,</span> <span class="n">fEvals</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rVector</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">lanczosMethodForASystem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> 
+                                                                                           <span class="bp">self</span><span class="o">.</span><span class="n">rVector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> 
+                                                                                           <span class="n">normEigenVec</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+                                                                                           <span class="n">includeAtoms</span><span class="o">=</span><span class="n">includeAtoms</span><span class="p">)</span> <span class="c1">#, lnegmd=1)</span>
+       
+            <span class="bp">self</span><span class="o">.</span><span class="n">NForceLanczosCalls</span> <span class="o">+=</span> <span class="n">fEvals</span>
+
+            <span class="k">if</span> <span class="n">lstatus</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+               
+            <span class="k">else</span><span class="p">:</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">stepEigenValue</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">lle</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stepEigenVector</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">llev</span><span class="p">)</span>
+                
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lstatus</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">actualForce</span>
+                              
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Lowest eigenvalue </span><span class="si">%f</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stepEigenValue</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>    
+                                
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stepEigenValue</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lanczosNegExtCrit</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">NForceCalls</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Lowest eigenvalue is positive (</span><span class="si">%f</span><span class="s2">) (&gt; </span><span class="si">%f</span><span class="s2">)...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stepEigenValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lanczosNegExtCrit</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+                    
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">newForce</span><span class="p">,</span> <span class="n">deltaE</span> <span class="o">=</span> <span class="n">lanczosMinModNewForce</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stepEigenVector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stepEigenValue</span><span class="p">)</span>
+                    
+                <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">newForce</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">+=</span> <span class="n">deltaE</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">NForceCalls</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iniEnergy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">totalEnergy</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Initial energy is </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iniEnergy</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    
+        <span class="bp">self</span><span class="o">.</span><span class="n">NForceCalls</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">NForceCalls</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">checkJobStatus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">5</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">mainIndexesFinal</span> <span class="o">=</span> <span class="n">mainIndexes</span>
+        
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">totalEnergy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">*</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="LanczosLBFGSMinimiserDownHill"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.LanczosLBFGSMinimiserDownHill">[docs]</a><span class="k">class</span> <span class="nc">LanczosLBFGSMinimiserDownHill</span><span class="p">(</span><span class="n">Minimise</span><span class="o">.</span><span class="n">LBFGSMinimiser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Lanczos LBFGS minimiser to climb down the hill.</span>
+<span class="sd">    </span>
+<span class="sd">    Sub-class of Minimise.LBFGSMinimiser.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">LanczosLBFGSMinimiserDownHill</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">noFallback</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="c1"># initialise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mainIndexesFinal</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forceAlpha</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">lanczosDownHillAlpha</span>
+    
+<div class="viewcode-block" id="LanczosLBFGSMinimiserDownHill.runMain"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.LanczosLBFGSMinimiserDownHill.runMain">[docs]</a>    <span class="k">def</span> <span class="nf">runMain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Override runMain.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">NMinLanczosFE</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">rVector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NForceLanczosCalls</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="n">obj</span><span class="o">.</span><span class="n">jobID</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span>
+        
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">LBFGSMinimiser</span><span class="o">.</span><span class="n">runMain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+        
+        <span class="n">obj</span><span class="o">.</span><span class="n">NMinLanczosFE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NForceLanczosCalls</span>
+        
+        <span class="k">return</span> <span class="n">status</span></div>
+    
+<div class="viewcode-block" id="LanczosLBFGSMinimiserDownHill.calcForceLBFGS"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.LanczosLBFGSMinimiserDownHill.calcForceLBFGS">[docs]</a>    <span class="k">def</span> <span class="nf">calcForceLBFGS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        We override the calcForceLBFGS method with Lanczos calcForce.</span>
+<span class="sd">        </span>
+<span class="sd">        Calculate forces at new position.</span>
+<span class="sd">        Argument is new position vector.</span>
+<span class="sd">        Return tuple containing total energy and force array</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">x</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">totalEnergy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">*</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
+        
+        <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span> <span class="o">=</span> <span class="n">lanczosMinModMinimiserCalcForce</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">checkJobStatus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">):</span>
+            <span class="nb">print</span> <span class="s2">&quot;*** OCH, STOPPING MID LANCZOS&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">255</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">actualForce</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+            
+            <span class="n">lstatus</span><span class="p">,</span> <span class="n">lle</span><span class="p">,</span> <span class="n">llev</span><span class="p">,</span> <span class="n">fEvals</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rVector</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">lanczosMethodForASystem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="p">,</span> 
+                <span class="n">mainIndexes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rVector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">normEigenVec</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="o">=</span><span class="n">includeAtoms</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span><span class="c1">#, lnegmd=1)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">NForceLanczosCalls</span> <span class="o">+=</span> <span class="n">fEvals</span>
+ 
+            <span class="k">if</span> <span class="n">lstatus</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                
+            <span class="k">else</span><span class="p">:</span>  
+                <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">actualForce</span>
+                              
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Lowest eigenvalue </span><span class="si">%f</span><span class="s2"> (</span><span class="si">%d</span><span class="s2"> iterations)...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lle</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>    
+                                
+                <span class="k">if</span> <span class="p">((</span><span class="n">lle</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lanczosNegExtCrit</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NForceCalls</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Lowest eigenvalue is positive (</span><span class="si">%f</span><span class="s2">) (&gt; </span><span class="si">%f</span><span class="s2">)...&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lanczosNegExtCrit</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+                    
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">FdI</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">llev</span><span class="p">)</span>
+                    
+                    <span class="c1"># inverting the force along the lowest eigenvector direction</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">-=</span> <span class="n">FdI</span> <span class="o">*</span> <span class="n">llev</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">forceAlpha</span> <span class="o">*</span> <span class="n">llev</span>
+                    
+                    <span class="c1"># Using Newton&#39;s method in optimization to calculate delta x</span>
+                    <span class="c1"># deltaX = -1.0 * FdI / lle (-1.0 removed to save time)</span>
+                    <span class="n">deltaX</span> <span class="o">=</span> <span class="n">FdI</span> <span class="o">/</span> <span class="n">lle</span>
+                    <span class="n">deltaX2</span> <span class="o">=</span> <span class="n">deltaX</span> <span class="o">*</span> <span class="n">deltaX</span>
+                    
+                    <span class="n">deltaE</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">lle</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">forceAlpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">deltaX2</span>
+                    
+                    <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">+=</span> <span class="n">deltaE</span> 
+                    
+        <span class="bp">self</span><span class="o">.</span><span class="n">previousEnergy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">totalEnergy</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">NForceCalls</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iniEnergy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">totalEnergy</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Initial energy is </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iniEnergy</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">NForceCalls</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">NForceCalls</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">checkJobStatus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">5</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">mainIndexesFinal</span> <span class="o">=</span> <span class="n">mainIndexes</span>
+        
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">totalEnergy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">force</span> <span class="o">*</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="calcEigenValues"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.calcEigenValues">[docs]</a><span class="k">def</span> <span class="nf">calcEigenValues</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">displVector</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">lnegmd</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">evn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">noEigenVects</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates system&#39;s eigenvalues using Lanczos method.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">timeSt</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">lattice</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+    
+    <span class="n">minTol</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">lanczosConvTol</span>
+    <span class="n">iterMax</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">lanczosMaxIter</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span>
+        
+    <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">iterCnt</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">forceEvalSum</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">eigenValues</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">eigenVectors</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">useSubLatticeForceCalc</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">includeAtoms</span><span class="p">):</span>
+            <span class="n">includeAtoms</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span><span class="p">)</span>
+                    
+    <span class="k">if</span> <span class="n">displVector</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">debugLanczos</span><span class="p">:</span>
+            <span class="n">rdmSeed</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rdmSeed</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">displVector</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">normalise</span><span class="p">(</span><span class="n">Vectors</span><span class="o">.</span><span class="n">randomVector</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="n">randomSeed</span><span class="o">=</span><span class="n">rdmSeed</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="n">evn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">evn</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">lanczosConvByEigenVNo</span>
+    
+    <span class="n">r</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">displVector</span><span class="p">)</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">magnitude</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+    <span class="n">eigenOld</span> <span class="o">=</span> <span class="mf">1000.0</span>
+    <span class="n">eigenDiff</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">evectOld</span> <span class="o">=</span> <span class="kc">None</span>
+        
+    <span class="n">alphaVecTmp</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">sigmaVecTmp</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">qVecTmp</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="n">q</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="n">iterCnt</span> <span class="o">&lt;</span> <span class="n">iterMax</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">iterCnt</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">displVector</span><span class="p">)):</span>
+        
+        <span class="c1"># check job status to stop</span>
+        <span class="k">if</span> <span class="n">iterCnt</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">jobID</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">checkJobStatus</span><span class="p">(</span><span class="n">jobID</span><span class="p">):</span>
+                <span class="n">timeElapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">timeSt</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;eigenvalue calculation terminated due to job status&quot;</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+                <span class="k">return</span> <span class="mi">1</span><span class="p">,</span> <span class="n">eigenValues</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="n">forceEvalSum</span><span class="p">,</span> <span class="n">timeElapsed</span>
+        
+        <span class="k">if</span> <span class="n">sigma</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">timeElapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">timeSt</span>
+            <span class="k">return</span> <span class="mi">1</span><span class="p">,</span> <span class="n">eigenValues</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="n">forceEvalSum</span><span class="p">,</span> <span class="n">timeElapsed</span>
+        
+        <span class="n">qOld</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">r</span> <span class="o">/</span> <span class="n">sigma</span>
+    
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">qVecTmp</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">nq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">qVecTmp</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">[:,</span><span class="o">-</span><span class="n">iterMax</span><span class="p">::]</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">nq</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="n">timeElapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">timeSt</span>
+                <span class="k">return</span> <span class="mi">1</span><span class="p">,</span> <span class="n">eigenValues</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="n">forceEvalSum</span><span class="p">,</span> <span class="n">timeElapsed</span>
+
+            <span class="n">q</span> <span class="o">=</span> <span class="n">q</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">nq</span><span class="p">,</span> <span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">nq</span><span class="p">,</span><span class="n">q</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">status</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">fEval</span> <span class="o">=</span> <span class="n">calcHessianVectProduct</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="n">forceEvalSum</span> <span class="o">+=</span> <span class="n">fEval</span>
+        
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">timeElapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">timeSt</span>
+            <span class="k">return</span> <span class="mi">1</span><span class="p">,</span> <span class="n">eigenValues</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="n">forceEvalSum</span><span class="p">,</span> <span class="n">timeElapsed</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="n">u</span> <span class="o">-</span> <span class="n">sigma</span><span class="o">*</span><span class="n">qOld</span>
+        
+        <span class="k">if</span>  <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+            <span class="n">timeElapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">timeSt</span>
+            <span class="k">return</span> <span class="mi">1</span><span class="p">,</span> <span class="n">eigenValues</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="n">forceEvalSum</span><span class="p">,</span> <span class="n">timeElapsed</span>
+        
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">alphaVecTmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+        
+        <span class="n">qVecTmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+        
+        <span class="n">r</span> <span class="o">=</span> <span class="n">r</span> <span class="o">-</span> <span class="n">alpha</span><span class="o">*</span><span class="n">q</span>
+        
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">magnitude</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+      
+        <span class="k">if</span> <span class="n">iterCnt</span> <span class="o">&gt;</span> <span class="n">params</span><span class="o">.</span><span class="n">lanczosMinIter</span><span class="p">:</span>
+            <span class="n">alphaVec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">alphaVecTmp</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">betaVec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sigmaVecTmp</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            
+            <span class="n">status</span><span class="p">,</span> <span class="n">eigenValues</span><span class="p">,</span> <span class="n">eigenVectors</span> <span class="o">=</span> <span class="n">Algebra</span><span class="o">.</span><span class="n">getEigenvaluesST</span><span class="p">(</span><span class="n">alphaVec</span><span class="p">,</span> <span class="n">betaVec</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">noEigenVects</span><span class="o">=</span><span class="n">noEigenVects</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">timeElapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">timeSt</span>
+                <span class="k">return</span> <span class="mi">1</span><span class="p">,</span> <span class="n">eigenValues</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="n">forceEvalSum</span><span class="p">,</span> <span class="n">timeElapsed</span>
+            
+            <span class="c1">#eigenDiff = eigenOld-eigenValues[evn]</span>
+            <span class="n">eigenDiff</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">((</span><span class="n">eigenOld</span><span class="o">-</span><span class="n">eigenValues</span><span class="p">[</span><span class="n">evn</span><span class="p">])</span><span class="o">/</span><span class="n">eigenOld</span><span class="p">)</span>
+
+            <span class="n">eigenOld</span> <span class="o">=</span> <span class="n">eigenValues</span><span class="p">[</span><span class="n">evn</span><span class="p">]</span>
+                        
+            <span class="k">if</span><span class="p">(</span><span class="n">eigenDiff</span> <span class="o">&lt;</span> <span class="n">minTol</span><span class="p">):</span>
+                <span class="n">iterCnt</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">break</span>
+        
+        <span class="n">sigmaVecTmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sigma</span><span class="p">)</span>
+        
+        <span class="n">iterCnt</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+    <span class="n">lneidx</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">if</span> <span class="n">lnegmd</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">evn</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">eigenValues</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">lneidx</span> <span class="o">=</span> <span class="n">i</span>
+    
+    <span class="k">if</span> <span class="n">eigenValues</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">timeElapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">timeSt</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="p">,</span> <span class="n">eigenValues</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="n">forceEvalSum</span><span class="p">,</span> <span class="n">timeElapsed</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">eigenValue</span> <span class="o">=</span> <span class="n">eigenValues</span><span class="p">[</span><span class="n">lneidx</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">noEigenVects</span><span class="p">:</span>
+        <span class="n">evectLB</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">eigenValues</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">evect</span> <span class="o">=</span> <span class="n">eigenVectors</span><span class="p">[:,</span> <span class="n">lneidx</span><span class="p">]</span>
+        
+        <span class="c1"># Orthogonal basis of Lanczos vectors</span>
+        <span class="n">nq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">qVecTmp</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        
+        <span class="c1"># Transforming lowest eigenvalue vector to Lanczos orthogonal basis</span>
+        <span class="n">evectLB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">nq</span><span class="p">,</span> <span class="n">evect</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        
+    <span class="n">timeElapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">timeSt</span>
+    
+    <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">eigenValues</span><span class="p">,</span> <span class="n">eigenValue</span><span class="p">,</span> <span class="n">evectLB</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="n">forceEvalSum</span><span class="p">,</span> <span class="n">timeElapsed</span></div>
+
+<div class="viewcode-block" id="calcHessianVectProduct"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.calcHessianVectProduct">[docs]</a><span class="k">def</span> <span class="nf">calcHessianVectProduct</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">displVectorNormalised</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">     Method approximates a dot product between a Hessian matrix and a vector of a </span>
+<span class="sd">        given system.</span>
+<span class="sd">        lattice: input lattice</span>
+<span class="sd">        mainIndexes: list of atoms that should be included in Hessian matrix calculation</span>
+<span class="sd">        displVectorNormalised: a random normalised vector</span>
+<span class="sd">        parameters: input parameters from lkmcInput.IN</span>
+<span class="sd">     Returns:</span>
+<span class="sd">        hessianU: a dot product of a hessian matrix and a normalized vector of a </span>
+<span class="sd">            given system.</span>
+<span class="sd">        forEvalCnt: number of force evaluations used to calculate hessian matrix</span>
+<span class="sd">    </span>
+<span class="sd">    REMARKS: be sure that the passed lattice has an evaluated force vector</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wholeSystemMd</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">mainIndexesLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">mainIndexesLen</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">if</span> <span class="n">mainIndexesLen</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">wholeSystemMd</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">mainIndexesLen</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span>
+    
+    <span class="n">hessianU</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">mainIndexesLen</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    
+    <span class="n">tempLattice</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+    
+    <span class="n">tempDispl</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="n">hessianDispl</span>
+    
+    <span class="c1"># what to use for main indexes</span>
+    <span class="k">if</span> <span class="n">parameters</span><span class="o">.</span><span class="n">lanczosLocaliseHessian</span><span class="p">:</span>
+        <span class="n">mainIndexesUse</span> <span class="o">=</span> <span class="n">tempLattice</span><span class="o">.</span><span class="n">defectSubSystem</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mainIndexesUse</span> <span class="o">=</span> <span class="n">mainIndexes</span>
+    
+    <span class="c1"># do step left first if needed</span>
+    <span class="k">if</span> <span class="n">parameters</span><span class="o">.</span><span class="n">hessianApproxMode</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">tempDispl</span> <span class="o">*=</span> <span class="o">-</span><span class="mf">1.0</span>
+        
+        <span class="n">displVector</span> <span class="o">=</span> <span class="n">tempDispl</span> <span class="o">*</span> <span class="n">displVectorNormalised</span>
+        
+        <span class="n">tempLattice</span><span class="o">.</span><span class="n">initiateAtomsDisplacement</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">,</span> <span class="n">displVector</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">parameters</span><span class="o">.</span><span class="n">useSubLatticeForceCalc</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">tempLattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">mainIndexes</span><span class="o">=</span><span class="n">mainIndexesUse</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="o">=</span><span class="n">includeAtoms</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">tempLattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">hessianU</span><span class="p">,</span> <span class="mi">0</span>
+        
+        <span class="n">leftStepForce</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">tempLattice</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+        
+        <span class="n">tempDispl</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">parameters</span><span class="o">.</span><span class="n">hessianDispl</span>
+        
+    <span class="n">displVector</span> <span class="o">=</span> <span class="n">tempDispl</span> <span class="o">*</span> <span class="n">displVectorNormalised</span>
+    <span class="n">tempLattice</span><span class="o">.</span><span class="n">initiateAtomsDisplacement</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">,</span> <span class="n">displVector</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">parameters</span><span class="o">.</span><span class="n">useSubLatticeForceCalc</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">tempLattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">mainIndexes</span><span class="o">=</span><span class="n">mainIndexesUse</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="o">=</span><span class="n">includeAtoms</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">tempLattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">()</span>
+        
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">hessianU</span><span class="p">,</span> <span class="mi">0</span>
+    
+    <span class="k">if</span> <span class="n">parameters</span><span class="o">.</span><span class="n">hessianApproxMode</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">forEvalCnt</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        <span class="k">if</span> <span class="n">wholeSystemMd</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">mainIndexesLen</span><span class="p">):</span>
+                <span class="n">hessianU</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">tempLattice</span><span class="o">.</span><span class="n">force</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">parameters</span><span class="o">.</span><span class="n">hessianDispl</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c_lanczos</span><span class="o">.</span><span class="n">calcHessianUSubSystem</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">parameters</span><span class="o">.</span><span class="n">hessianDispl</span><span class="p">,</span> <span class="n">mainIndexesLen</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> 
+                                            <span class="n">hessianU</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">tempLattice</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">forEvalCnt</span> <span class="o">=</span> <span class="mi">2</span>
+        
+        <span class="k">if</span> <span class="n">wholeSystemMd</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">mainIndexesLen</span><span class="p">):</span>
+                <span class="n">hessianU</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">leftStepForce</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">tempLattice</span><span class="o">.</span><span class="n">force</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">parameters</span><span class="o">.</span><span class="n">hessianDispl</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c_lanczos</span><span class="o">.</span><span class="n">calcHessianUSubSystem</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">parameters</span><span class="o">.</span><span class="n">hessianDispl</span><span class="p">,</span> <span class="n">mainIndexesLen</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> 
+                                            <span class="n">hessianU</span><span class="p">,</span> <span class="n">leftStepForce</span><span class="p">,</span> <span class="n">tempLattice</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">hessianU</span><span class="p">,</span> <span class="n">forEvalCnt</span></div>
+
+<div class="viewcode-block" id="initialiseLanczosMinParams"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.initialiseLanczosMinParams">[docs]</a><span class="k">def</span> <span class="nf">initialiseLanczosMinParams</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">searchMd</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">subLatticeMd</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">looseMd</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">looseIterMax</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets parameters for minimisation</span>
+<span class="sd">        parameters: input parameters from lkmcInput.IN</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        lanczosMinToSaddParams - parameters for &quot;minimisation&quot; to a saddle</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lanczosParams</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    
+    <span class="n">lanczosParams</span><span class="o">.</span><span class="n">minimizationType</span> <span class="o">=</span> <span class="s2">&quot;LBFGSMinMode&quot;</span>
+    <span class="n">lanczosParams</span><span class="o">.</span><span class="n">lanczosMinMode</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">lanczosParams</span><span class="o">.</span><span class="n">LBFGSMemory</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">LBFGSLanczosMemory</span>
+    
+    <span class="k">if</span> <span class="n">subLatticeMd</span> <span class="ow">or</span> <span class="n">looseMd</span><span class="p">:</span>
+        <span class="n">lanczosParams</span><span class="o">.</span><span class="n">minimizationExclusion</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lanczosParams</span><span class="o">.</span><span class="n">minimizationExclusion</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="c1"># parameters for saddle point search</span>
+    <span class="k">if</span> <span class="n">searchMd</span><span class="p">:</span>
+        <span class="n">lanczosParams</span><span class="o">.</span><span class="n">lanczosNegExtCrit</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">lanczosSearchNegExtCrit</span>
+        
+        <span class="k">if</span> <span class="n">subLatticeMd</span><span class="p">:</span>
+            <span class="n">lanczosParams</span><span class="o">.</span><span class="n">LBFGSTolerance</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">LBFGSLanczosSubTolerance</span>
+            <span class="n">lanczosParams</span><span class="o">.</span><span class="n">LBFGSMaxIter</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">LBFGSLanczosMaxIter</span>
+            
+        <span class="k">elif</span> <span class="n">looseMd</span><span class="p">:</span>
+            <span class="n">lanczosParams</span><span class="o">.</span><span class="n">LBFGSTolerance</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">LBFGSLanczosLooseSubTolerance</span>
+            
+            <span class="k">if</span> <span class="n">looseIterMax</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">lanczosParams</span><span class="o">.</span><span class="n">LBFGSMaxIter</span> <span class="o">=</span> <span class="n">looseIterMax</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lanczosParams</span><span class="o">.</span><span class="n">LBFGSMaxIter</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">LBFGSLanczosLooseSubMaxIter</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lanczosParams</span><span class="o">.</span><span class="n">LBFGSTolerance</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">LBFGSLanczosTolerance</span>
+            <span class="n">lanczosParams</span><span class="o">.</span><span class="n">LBFGSMaxIter</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">LBFGSLanczosMaxIter</span>
+            
+        <span class="n">lanczosParams</span><span class="o">.</span><span class="n">LBFGSRestartMode</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">LBFGSLanczosRestart</span>
+        
+    <span class="c1"># parameters for saddle point refinement</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lanczosParams</span><span class="o">.</span><span class="n">lanczosNegExtCrit</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">lanczosReuseNegExtCrit</span>
+        
+        <span class="k">if</span> <span class="n">looseMd</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">looseIterMax</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">lanczosParams</span><span class="o">.</span><span class="n">LBFGSMaxIter</span> <span class="o">=</span> <span class="n">looseIterMax</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lanczosParams</span><span class="o">.</span><span class="n">LBFGSMaxIter</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">refineLBFGSLanczosLooseMaxIter</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lanczosParams</span><span class="o">.</span><span class="n">LBFGSMaxIter</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">refineLBFGSLanczosMaxIter</span>
+        
+        <span class="n">lanczosParams</span><span class="o">.</span><span class="n">LBFGSTolerance</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">refineSaddleMinTol</span>
+        
+        
+        <span class="n">lanczosParams</span><span class="o">.</span><span class="n">LBFGSRestartMode</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">refineSaddleLBFGSLanczosRestart</span>
+        
+    <span class="k">return</span> <span class="n">lanczosParams</span></div>
+ 
+<div class="viewcode-block" id="lanczosMethodForASystem"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.lanczosMethodForASystem">[docs]</a><span class="k">def</span> <span class="nf">lanczosMethodForASystem</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">displVector</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">normEigenVec</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+        <span class="n">includeAtoms</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">returnMode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">lnegmd</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">evn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Use Lanczos to find lowest eigenvalues/vector on given system</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># calculate eigenvalues</span>
+    <span class="n">result</span><span class="p">,</span> <span class="n">elist</span><span class="p">,</span> <span class="n">le</span><span class="p">,</span> <span class="n">lev</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="n">forceEvalSum</span><span class="p">,</span> <span class="n">timeElapsed</span> <span class="o">=</span> <span class="n">calcEigenValues</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> 
+                                                                                 <span class="n">displVector</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">lnegmd</span><span class="o">=</span><span class="n">lnegmd</span><span class="p">,</span> 
+                                                                                 <span class="n">evn</span><span class="o">=</span><span class="n">evn</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="n">jobID</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">returnMode</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">forceEvalSum</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    
+    <span class="n">system</span><span class="o">.</span><span class="n">lanczosEigenVals</span> <span class="o">=</span> <span class="n">elist</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">returnMode</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">le</span>
+    
+    <span class="k">if</span> <span class="n">normEigenVec</span><span class="p">:</span>
+        <span class="n">lev</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">normalise</span><span class="p">(</span><span class="n">lev</span><span class="p">)</span>
+        
+    <span class="c1"># Making the result vector to be of length of the system</span>
+    <span class="n">resultVector</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">expandVector3</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">,</span> <span class="n">lev</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">system</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">le</span><span class="p">,</span> <span class="n">resultVector</span><span class="p">,</span> <span class="n">forceEvalSum</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="n">lev</span><span class="p">,</span> <span class="n">elist</span></div>
+
+<div class="viewcode-block" id="transformLattice2LanczosLattice"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.transformLattice2LanczosLattice">[docs]</a><span class="k">def</span> <span class="nf">transformLattice2LanczosLattice</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">rVector</span><span class="p">):</span>
+            
+    <span class="n">lanczosLattice</span> <span class="o">=</span> <span class="n">LanczosLattice</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">storeEnergies</span><span class="o">=</span><span class="n">lattice</span><span class="o">.</span><span class="n">storeEnergies</span><span class="p">)</span>
+    <span class="n">lanczosLattice</span><span class="o">.</span><span class="n">__dict__</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    
+    <span class="n">lanczosLattice</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">lanczosLattice</span><span class="o">.</span><span class="n">invertForceComponent</span> <span class="o">=</span> <span class="mi">1</span>
+    
+    <span class="n">lanczosLattice</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">)</span>
+    <span class="n">lanczosLattice</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">includeAtoms</span><span class="p">)</span>
+        
+    <span class="n">lanczosLattice</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">rVector</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">lanczosLattice</span></div>
+
+<div class="viewcode-block" id="lanczosMinModMinimiserCalcForce"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.lanczosMinModMinimiserCalcForce">[docs]</a><span class="k">def</span> <span class="nf">lanczosMinModMinimiserCalcForce</span><span class="p">(</span><span class="n">minModMinimiser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Takes care of calc force for the min-mode minimiser.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="nb">object</span> <span class="o">=</span> <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">object</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">params</span>
+    <span class="n">excl</span> <span class="o">=</span> <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">excl</span>
+    
+    <span class="n">mainIndexes</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">includeAtoms</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">if</span> <span class="n">excl</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c1"># use sub-lattice?</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">useSubLatticeForceCalc</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">object</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">object</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+                <span class="n">includeAtoms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mainIndexes</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">mainIndexes</span>
+                <span class="n">includeAtoms</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">includeAtoms</span>
+            <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">excl</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+            
+        <span class="k">else</span><span class="p">:</span>    
+            <span class="c1"># check if indexes are set by on the minimiser?</span>
+            <span class="k">if</span> <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                
+                <span class="c1"># check if indexes are set on the lattice object?</span>
+                <span class="k">if</span> <span class="nb">object</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">object</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">mainIndexes</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">saddleConvergeRadius</span><span class="p">)</span>
+                    <span class="n">includeAtoms</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">mainIndexes</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">mainIndexes</span>
+                    <span class="n">includeAtoms</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">includeAtoms</span>
+                    
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">mainIndexes</span>
+                <span class="n">includeAtoms</span> <span class="o">=</span> <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">includeAtoms</span>
+                
+            <span class="c1"># if include atoms is same len as main indexes</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">includeAtoms</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">includeAtoms</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">):</span>
+                <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+                    
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">excl</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> 
+                        <span class="n">includeAtoms</span><span class="o">=</span><span class="n">includeAtoms</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="o">=</span><span class="n">mainIndexes</span><span class="p">)</span>
+                
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mainIndexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainIndexes</span>
+                
+        <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">minModMinimiser</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">excl</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span></div>
+    
+<div class="viewcode-block" id="lanczosMinModNewForce"><a class="viewcode-back" href="../../LKMC/LKMC.Lanczos.html#LKMC.Lanczos.lanczosMinModNewForce">[docs]</a><span class="k">def</span> <span class="nf">lanczosMinModNewForce</span><span class="p">(</span><span class="n">force</span><span class="p">,</span> <span class="n">llev</span><span class="p">,</span> <span class="n">lle</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Modifies the force and the energy of the system for climing up using the eigenvalue and the </span>
+<span class="sd">    eigenvector from the lanczos method.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">FdI</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">force</span><span class="p">,</span> <span class="n">llev</span><span class="p">)</span>
+                    
+    <span class="c1"># inverting the force along the lowest eigenvector direction</span>
+    <span class="n">newForce</span> <span class="o">=</span> <span class="n">force</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">FdI</span> <span class="o">*</span> <span class="n">llev</span>
+                    
+    <span class="c1"># Using Newton&#39;s method in optimization to calculate delta x</span>
+    <span class="c1"># deltaX = -1.0 * FdI / lle (-1.0 removed to save time)</span>
+    <span class="n">deltaX</span> <span class="o">=</span> <span class="n">FdI</span> <span class="o">/</span> <span class="n">lle</span>
+    <span class="n">deltaX2</span> <span class="o">=</span> <span class="n">deltaX</span> <span class="o">*</span> <span class="n">deltaX</span>
+                    
+    <span class="c1"># Energy change using Taylor series: </span>
+    <span class="c1"># deltaE = -0.5 * lle * deltaX2 (-0.5 removed to save time)</span>
+    <span class="n">deltaE</span> <span class="o">=</span> <span class="n">lle</span> <span class="o">*</span> <span class="n">deltaX2</span>
+                    
+    <span class="c1"># Adding twice us much due to inverse of the force</span>
+    <span class="c1"># totalEnergy += deltaE * 2.0 (+= 2.0* removed to save time)  </span>
+    
+    <span class="k">return</span> <span class="n">newForce</span><span class="p">,</span> <span class="o">-</span><span class="n">deltaE</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

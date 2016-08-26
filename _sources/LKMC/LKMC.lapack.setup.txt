@@ -1,0 +1,7 @@
+LKMC.lapack.setup module
+========================
+
+.. automodule:: LKMC.lapack.setup
+    :members:
+    :undoc-members:
+    :show-inheritance:

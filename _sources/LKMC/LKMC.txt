@@ -1,0 +1,73 @@
+LKMC package
+============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    LKMC.clibs
+    LKMC.hooks
+    LKMC.lapack
+    LKMC.slow_tests
+    LKMC.tests
+
+Submodules
+----------
+
+.. toctree::
+
+   LKMC.ART
+   LKMC.Algebra
+   LKMC.Atoms
+   LKMC.Basin
+   LKMC.Cascades
+   LKMC.Client
+   LKMC.ClientServerInterface
+   LKMC.Constants
+   LKMC.Defects
+   LKMC.Deposition
+   LKMC.Dimer
+   LKMC.Dummy
+   LKMC.ExternalEvents
+   LKMC.Filtering
+   LKMC.Forces
+   LKMC.Globals
+   LKMC.Graphs
+   LKMC.Images
+   LKMC.Input
+   LKMC.KMC
+   LKMC.Lammps
+   LKMC.Lanczos
+   LKMC.Lattice
+   LKMC.Lbomd
+   LKMC.MinModeFollower
+   LKMC.Minimise
+   LKMC.NEB
+   LKMC.Plot
+   LKMC.Prefactor
+   LKMC.Profiling
+   LKMC.RAT
+   LKMC.Rates
+   LKMC.Refine
+   LKMC.Rendering
+   LKMC.Results
+   LKMC.Search
+   LKMC.Server
+   LKMC.Status
+   LKMC.String
+   LKMC.Timer
+   LKMC.Utilities
+   LKMC.Vectors
+   LKMC.Version
+   LKMC.Writer
+   LKMC.setup
+   LKMC.updateParameters
+
+Module contents
+---------------
+
+.. automodule:: LKMC
+    :members:
+    :undoc-members:
+    :show-inheritance:

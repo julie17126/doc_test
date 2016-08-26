@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.clibs.io_module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.clibs.io_module</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Wrapper to io_module.c</span>
+
+<span class="sd">Copyright 2013 Chris Scott</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">ctypes</span> <span class="k">import</span> <span class="n">CDLL</span><span class="p">,</span> <span class="n">c_double</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_char</span><span class="p">,</span> <span class="n">c_char_p</span>
+
+<span class="kn">from</span> <span class="nn">.numpy_utils</span> <span class="k">import</span> <span class="n">CPtrToDouble</span><span class="p">,</span> <span class="n">CPtrToInt</span><span class="p">,</span> <span class="n">CPtrToChar</span>
+
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># load lib</span>
+<span class="n">_lib</span> <span class="o">=</span> <span class="n">CDLL</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s2">&quot;_io_module.so&quot;</span><span class="p">))</span>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># readLatticeLBOMD prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">readLatticeLBOMD</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">readLatticeLBOMD</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_char_p</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_char</span><span class="p">),</span>
+                                  <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">]</span>
+
+<span class="c1"># readLatticeLBOMD</span>
+<div class="viewcode-block" id="readLatticeLBOMD"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.io_module.html#LKMC.clibs.io_module.readLatticeLBOMD">[docs]</a><span class="k">def</span> <span class="nf">readLatticeLBOMD</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span> <span class="n">maxSpecies</span><span class="p">,</span> <span class="n">specieList</span><span class="p">,</span> <span class="n">specieCount</span><span class="p">,</span> <span class="n">maxPos</span><span class="p">,</span> <span class="n">minPos</span><span class="p">,</span> <span class="n">verboseLevel</span><span class="p">,</span> <span class="n">specieListForced</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read LBOMD lattice file.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">readLatticeLBOMD</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">specie</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">charge</span><span class="p">),</span> <span class="n">maxSpecies</span><span class="p">,</span> <span class="n">CPtrToChar</span><span class="p">(</span><span class="n">specieList</span><span class="p">),</span> 
+                                 <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">specieCount</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">maxPos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">minPos</span><span class="p">),</span> <span class="n">verboseLevel</span><span class="p">,</span> <span class="n">specieListForced</span><span class="p">)</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># writeLatticeLBOMD prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">writeLatticeLBOMD</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">writeLatticeLBOMD</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_char_p</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_char</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> 
+                                   <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">]</span>
+
+<span class="c1"># readLatticeLBOMD</span>
+<div class="viewcode-block" id="writeLatticeLBOMD"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.io_module.html#LKMC.clibs.io_module.writeLatticeLBOMD">[docs]</a><span class="k">def</span> <span class="nf">writeLatticeLBOMD</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">specieList</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span> <span class="n">append</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write LBOMD lattice file.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">writeLatticeLBOMD</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span> <span class="n">CPtrToChar</span><span class="p">(</span><span class="n">specieList</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">specie</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">charge</span><span class="p">),</span> <span class="n">append</span><span class="p">)</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># writeLatticeLBOMD prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">readCombinedLattice</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">readCombinedLattice</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_char_p</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> 
+                                     <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_char</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># readLatticeLBOMD</span>
+<div class="viewcode-block" id="readCombinedLattice"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.io_module.html#LKMC.clibs.io_module.readCombinedLattice">[docs]</a><span class="k">def</span> <span class="nf">readCombinedLattice</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="n">NLattices</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span> <span class="n">maxSpecies</span><span class="p">,</span> <span class="n">specieList</span><span class="p">,</span> <span class="n">specieCount</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read combined lattice file.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">readCombinedLattice</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="n">NLattices</span><span class="p">,</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">specie</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">charge</span><span class="p">),</span> <span class="n">maxSpecies</span><span class="p">,</span> <span class="n">CPtrToChar</span><span class="p">(</span><span class="n">specieList</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">specieCount</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># readVolumeTransitionsFile prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">readVolumeTransitionsFile</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">readVolumeTransitionsFile</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_char_p</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_char</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> 
+                                           <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># readVolumeTransitionsFile</span>
+<div class="viewcode-block" id="readVolumeTransitionsFile"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.io_module.html#LKMC.clibs.io_module.readVolumeTransitionsFile">[docs]</a><span class="k">def</span> <span class="nf">readVolumeTransitionsFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="n">NTransitions</span><span class="p">,</span> <span class="n">specieList</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">iniPos</span><span class="p">,</span> <span class="n">sadPos</span><span class="p">,</span> <span class="n">finPos</span><span class="p">,</span> <span class="n">barriers</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read volume file.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">readVolumeTransitionsFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="n">NTransitions</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">specieList</span><span class="p">),</span> <span class="n">CPtrToChar</span><span class="p">(</span><span class="n">specieList</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">specie</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">iniPos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">sadPos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">finPos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">barriers</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># readLBOMDXYZ prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">readLBOMDXYZ</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">readLBOMDXYZ</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_char_p</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> 
+                              <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">]</span>
+
+<span class="c1"># readLBOMDXYZ</span>
+<div class="viewcode-block" id="readLBOMDXYZ"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.io_module.html#LKMC.clibs.io_module.readLBOMDXYZ">[docs]</a><span class="k">def</span> <span class="nf">readLBOMDXYZ</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span> <span class="n">KE</span><span class="p">,</span> <span class="n">PE</span><span class="p">,</span> <span class="n">force</span><span class="p">,</span> <span class="n">maxPos</span><span class="p">,</span> <span class="n">minPos</span><span class="p">,</span> <span class="n">xyzFormat</span><span class="p">,</span> <span class="n">storeEnergies</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read LBOMD XYZ file.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">readLBOMDXYZ</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">charge</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">KE</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">PE</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">force</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">maxPos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">minPos</span><span class="p">),</span> <span class="n">xyzFormat</span><span class="p">,</span> <span class="n">storeEnergies</span><span class="p">)</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># readLBOMDRef prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">readLBOMDRef</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">readLBOMDRef</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_char_p</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> 
+                              <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_char</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> 
+                              <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">]</span>
+
+<span class="c1"># readLBOMDRef</span>
+<div class="viewcode-block" id="readLBOMDRef"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.io_module.html#LKMC.clibs.io_module.readLBOMDRef">[docs]</a><span class="k">def</span> <span class="nf">readLBOMDRef</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span> <span class="n">KE</span><span class="p">,</span> <span class="n">PE</span><span class="p">,</span> <span class="n">force</span><span class="p">,</span> <span class="n">specieList</span><span class="p">,</span> <span class="n">specieCount</span><span class="p">,</span> <span class="n">maxPos</span><span class="p">,</span> <span class="n">minPos</span><span class="p">,</span> <span class="n">storeEnergies</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read LBOMD ref file.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">readLBOMDRef</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">specie</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">charge</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">KE</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">PE</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">force</span><span class="p">),</span> <span class="n">CPtrToChar</span><span class="p">(</span><span class="n">specieList</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">specieCount</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">maxPos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">minPos</span><span class="p">),</span> <span class="n">storeEnergies</span><span class="p">)</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># writeLammpsAtomDataFile prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">writeLammpsAtomDataFile</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">writeLammpsAtomDataFile</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_char_p</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span>
+                                         <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span>
+                                         <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># writeLammpsAtomDataFile</span>
+<div class="viewcode-block" id="writeLammpsAtomDataFile"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.io_module.html#LKMC.clibs.io_module.writeLammpsAtomDataFile">[docs]</a><span class="k">def</span> <span class="nf">writeLammpsAtomDataFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="n">NSpecies</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">append</span><span class="p">,</span>
+                            <span class="n">velocity</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write LAMMPS atom data file.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">velocity</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">writeLammpsAtomDataFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="n">NSpecies</span><span class="p">,</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">specie</span><span class="p">),</span>
+                                        <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">charge</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">mass</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span> <span class="n">append</span><span class="p">,</span>
+                                        <span class="nb">len</span><span class="p">(</span><span class="n">velocity</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">velocity</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># readLatticeLAMMPS prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">readLatticeLAMMPS</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">readLatticeLAMMPS</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_char_p</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> 
+                                   <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">]</span>
+
+<span class="c1"># readLatticeLAMMPS</span>
+<div class="viewcode-block" id="readLatticeLAMMPS"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.io_module.html#LKMC.clibs.io_module.readLatticeLAMMPS">[docs]</a><span class="k">def</span> <span class="nf">readLatticeLAMMPS</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span> <span class="n">specieListAMU</span><span class="p">,</span> <span class="n">specieCount</span><span class="p">,</span> <span class="n">maxPos</span><span class="p">,</span> <span class="n">minPos</span><span class="p">,</span> <span class="n">verboseLevel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read LAMMPS lattice file.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">readLatticeLAMMPS</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">specie</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">charge</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">specieListAMU</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">specieCount</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">maxPos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">minPos</span><span class="p">),</span> <span class="n">verboseLevel</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

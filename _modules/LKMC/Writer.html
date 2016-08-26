@@ -1,0 +1,380 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Writer &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Writer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Copyright Chris Scott 2012</span>
+
+<span class="sd">Contains the LKMCWriter class.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">Queue</span>
+
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Plot</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="WriterItem"><a class="viewcode-back" href="../../LKMC/LKMC.Writer.html#LKMC.Writer.WriterItem">[docs]</a><span class="k">class</span> <span class="nc">WriterItem</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An object to be placed into `LKMCWriter` queue.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    job : str</span>
+<span class="sd">        The name of the job. Does nothing currently. If you set `job` to</span>
+<span class="sd">        &#39;EXIT&#39; the writer process will terminate.</span>
+<span class="sd">    dataType : {&#39;plot&#39;, &#39;object&#39;}</span>
+<span class="sd">        The type of data you are passing. If you are writing an object </span>
+<span class="sd">        `dataType` should be &#39;object&#39;, whereas if you are doing a plot</span>
+<span class="sd">        then `dataType` should be &#39;plot&#39;.</span>
+<span class="sd">    data : list, optional</span>
+<span class="sd">        For &#39;object&#39; `dataType` the first item in the list should be the</span>
+<span class="sd">        object. For &#39;plot&#39; `dataType` this list is not required.</span>
+<span class="sd">    outdir : str</span>
+<span class="sd">        The directory to write into. Relative paths should be specified</span>
+<span class="sd">        relative to the *params.outputDirectory*.</span>
+<span class="sd">    filename : str, optional</span>
+<span class="sd">        The name of the file to write. Generally not required as it is</span>
+<span class="sd">        normally part of the args tuple.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    commands : list</span>
+<span class="sd">        List of commands to run on the object or plots to plot. Each item</span>
+<span class="sd">        should be a tuple containing:</span>
+<span class="sd">        * the objects method you want to run / plot you want to plot (str)</span>
+<span class="sd">        * the tuple containing the positional arguments for the method or </span>
+<span class="sd">          plot (tuple)</span>
+<span class="sd">        * the dictionary of key word arguments for the method or plot</span>
+<span class="sd">          (dict)</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job</span><span class="p">,</span> <span class="n">dataType</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[],</span> <span class="n">outdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># what to do</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job</span> <span class="o">=</span> <span class="n">job</span>
+        
+        <span class="c1"># what type is the data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataType</span> <span class="o">=</span> <span class="n">dataType</span>
+        
+        <span class="c1"># data?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        
+        <span class="c1"># which directory to write in</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">outdir</span>
+        
+        <span class="c1"># filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        
+        <span class="c1"># list of commands to run</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commands</span> <span class="o">=</span> <span class="p">[]</span>
+    
+<div class="viewcode-block" id="WriterItem.addCommand"><a class="viewcode-back" href="../../LKMC/LKMC.Writer.html#LKMC.Writer.WriterItem.addCommand">[docs]</a>    <span class="k">def</span> <span class="nf">addCommand</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a command to list of commands.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        method : str</span>
+<span class="sd">            The name of the method/plot to run.</span>
+<span class="sd">        args : tuple</span>
+<span class="sd">            The positional arguments to pass when calling `method`.</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            The key word arguments to pass when calling `method`.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">method</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span></div></div>
+
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="LKMCWriter"><a class="viewcode-back" href="../../LKMC/LKMC.Writer.html#LKMC.Writer.LKMCWriter">[docs]</a><span class="k">class</span> <span class="nc">LKMCWriter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The Writer class for asynchronous writing/plotting.</span>
+<span class="sd">    </span>
+<span class="sd">    The writer runs in a separate process, working from a queue.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    initiated : bool</span>
+<span class="sd">        &#39;True&#39; if the `LKMCWriter` has been initiated, &#39;False&#39; otherwise.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logDir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initiated</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logDir</span> <span class="o">=</span> <span class="n">logDir</span>
+    
+<div class="viewcode-block" id="LKMCWriter.writerItem"><a class="viewcode-back" href="../../LKMC/LKMC.Writer.html#LKMC.Writer.LKMCWriter.writerItem">[docs]</a>    <span class="k">def</span> <span class="nf">writerItem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job</span><span class="p">,</span> <span class="n">dataType</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[],</span> <span class="n">outdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return writer item object</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">WriterItem</span><span class="p">(</span><span class="n">job</span><span class="p">,</span> <span class="n">dataType</span><span class="o">=</span><span class="n">dataType</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">outdir</span><span class="o">=</span><span class="n">outdir</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LKMCWriter.initiate"><a class="viewcode-back" href="../../LKMC/LKMC.Writer.html#LKMC.Writer.LKMCWriter.initiate">[docs]</a>    <span class="k">def</span> <span class="nf">initiate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">NWorkers</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start the writer thread.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        params : `Input.InputParams`</span>
+<span class="sd">            Parameters object.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initiated</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;ERROR: writer already initiated!&quot;</span>
+            <span class="k">return</span>
+        
+        <span class="n">NWorkers</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span> <span class="o">=</span> <span class="n">params</span>
+        
+        <span class="c1"># first create input queue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeQ</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        
+        <span class="c1"># start worker processes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">NWorkers</span><span class="p">):</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">_writerProcess</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">writeQ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LKMCParams</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logDir</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Writer-</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">NWorkers</span> <span class="o">=</span> <span class="n">NWorkers</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">initiated</span> <span class="o">=</span> <span class="kc">True</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span><span class="s2">&quot;Initialised writer&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LKMCWriter.add"><a class="viewcode-back" href="../../LKMC/LKMC.Writer.html#LKMC.Writer.LKMCWriter.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writeItem</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add `writeItem` to the queue.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        writeItem : `WriterItem`</span>
+<span class="sd">            The item to be written/plotted.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeQ</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">writeItem</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LKMCWriter.checkAlive"><a class="viewcode-back" href="../../LKMC/LKMC.Writer.html#LKMC.Writer.LKMCWriter.checkAlive">[docs]</a>    <span class="k">def</span> <span class="nf">checkAlive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check whether or not the Writer process is still alive.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dead : int</span>
+<span class="sd">            The number of dead writer processes.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dead</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">processList</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+                <span class="n">dead</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="k">return</span> <span class="n">dead</span></div>
+    
+<div class="viewcode-block" id="LKMCWriter.terminate"><a class="viewcode-back" href="../../LKMC/LKMC.Writer.html#LKMC.Writer.LKMCWriter.terminate">[docs]</a>    <span class="k">def</span> <span class="nf">terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tell the writer process to exit.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Telling Writer workers to stop&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">exitObj</span> <span class="o">=</span> <span class="n">WriterItem</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">processList</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeQ</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">exitObj</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">processList</span><span class="p">:</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">initiated</span> <span class="o">=</span> <span class="kc">False</span></div></div>
+
+<span class="c1">################################################################################</span>
+<span class="k">def</span> <span class="nf">_writerProcess</span><span class="p">(</span><span class="n">writeQ</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">logDir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The writer process.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">logDir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">outputDirectory</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">logDir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">logDir</span><span class="p">)</span>
+    
+    <span class="c1"># redirect output and error</span>
+    <span class="n">stdoutFile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">logDir</span><span class="p">,</span> <span class="s2">&quot;writer.stdout.txt&quot;</span><span class="p">)</span>
+    <span class="n">stderrfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">logDir</span><span class="p">,</span> <span class="s2">&quot;writer.stderr.txt&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># flush current output pipes</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    
+    <span class="c1"># new stdout file</span>
+    <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">verboseLevel</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">so</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="n">stdoutFile</span><span class="p">,</span> <span class="s1">&#39;a+&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">so</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="n">stdoutFile</span><span class="p">,</span> <span class="s1">&#39;a+&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># new stderr file</span>
+    <span class="n">se</span> <span class="o">=</span> <span class="n">file</span><span class="p">(</span><span class="n">stderrfile</span><span class="p">,</span> <span class="s1">&#39;a+&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    
+    <span class="c1"># copy to stdout and stderr</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">so</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">se</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+    
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Hello, I am the writer (pid: </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">(),),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    
+    <span class="c1"># change to output directory</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">outputDirectory</span><span class="p">)</span>
+    <span class="n">outputDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    
+    <span class="c1"># change to output dir</span>
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Ready to write: in &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    
+    <span class="c1"># write stuff</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">writeQ</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">job</span> <span class="o">==</span> <span class="s2">&quot;EXIT&quot;</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Exiting!&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="c1"># first change to correct directory (or make it)</span>
+        <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
+            
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
+        
+        <span class="c1"># now write</span>
+        
+        <span class="c1"># if we have an object</span>
+        <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">dataType</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span><span class="p">:</span>
+            
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                
+                <span class="c1"># loop over commands</span>
+                <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">commands</span><span class="p">:</span>
+                    
+                    <span class="n">method</span> <span class="o">=</span> <span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">args</span> <span class="o">=</span> <span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">kwargs</span> <span class="o">=</span> <span class="n">command</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                
+                    <span class="c1"># get the method</span>
+                    <span class="n">objMethod</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">objMethod</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="nb">print</span> <span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;: WARNING: UNKNOWN OBJECT METHOD&quot;</span><span class="p">,</span> <span class="n">method</span>
+                        <span class="nb">print</span> <span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;:        : OBJECT:&quot;</span><span class="p">,</span> <span class="n">obj</span>
+                    
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># run method</span>
+                        <span class="n">objMethod</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            
+        <span class="c1"># data to plot</span>
+        <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">dataType</span> <span class="o">==</span> <span class="s2">&quot;plot&quot;</span><span class="p">:</span>
+            
+            <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">commands</span><span class="p">:</span>
+            
+                <span class="n">method</span> <span class="o">=</span> <span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">kwargs</span> <span class="o">=</span> <span class="n">command</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                
+                <span class="n">plotMethod</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">Plot</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">plotMethod</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="nb">print</span> <span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;: WARNING: UNKNOWN PLOT METHOD&quot;</span><span class="p">,</span> <span class="n">method</span>
+                
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># plot</span>
+                    <span class="n">plotMethod</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        
+        <span class="c1"># change back to output dir</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">outputDir</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

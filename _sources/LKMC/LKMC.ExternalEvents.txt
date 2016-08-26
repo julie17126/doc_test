@@ -1,0 +1,7 @@
+LKMC.ExternalEvents module
+==========================
+
+.. automodule:: LKMC.ExternalEvents
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,7 @@
+LKMC.updateParameters module
+============================
+
+.. automodule:: LKMC.updateParameters
+    :members:
+    :undoc-members:
+    :show-inheritance:

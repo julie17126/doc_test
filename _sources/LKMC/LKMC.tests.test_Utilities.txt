@@ -1,0 +1,7 @@
+LKMC.tests.test_Utilities module
+================================
+
+.. automodule:: LKMC.tests.test_Utilities
+    :members:
+    :undoc-members:
+    :show-inheritance:

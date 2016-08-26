@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.clibs.lattice &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.clibs.lattice</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Wrapper to lattice.c</span>
+
+<span class="sd">Copyright 2013 Chris Scott</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">ctypes</span> <span class="k">import</span> <span class="n">CDLL</span><span class="p">,</span> <span class="n">c_double</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">,</span> <span class="n">c_int</span>
+
+<span class="kn">from</span> <span class="nn">.numpy_utils</span> <span class="k">import</span> <span class="n">CPtrToDouble</span><span class="p">,</span> <span class="n">CPtrToInt</span>
+
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># load lib</span>
+<span class="n">_lib</span> <span class="o">=</span> <span class="n">CDLL</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s2">&quot;_lattice.so&quot;</span><span class="p">))</span>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># wrapLattice prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">wrapLattice</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">wrapLattice</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># wrapLattice force</span>
+<div class="viewcode-block" id="wrapLattice"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.lattice.html#LKMC.clibs.lattice.wrapLattice">[docs]</a><span class="k">def</span> <span class="nf">wrapLattice</span><span class="p">(</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">PBC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrap atoms into lattice.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">wrapLattice</span><span class="p">(</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">PBC</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># buildSubLattice prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">c_double</span><span class="p">,</span> 
+                                 <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># buildSubLattice force</span>
+<div class="viewcode-block" id="buildSubLattice"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.lattice.html#LKMC.clibs.lattice.buildSubLattice">[docs]</a><span class="k">def</span> <span class="nf">buildSubLattice</span><span class="p">(</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">PBC</span><span class="p">,</span> <span class="n">includeRadius</span><span class="p">,</span> <span class="n">includeIndexes</span><span class="p">,</span> <span class="n">minPos</span><span class="p">,</span> <span class="n">maxPos</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build sub-lattice.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">NAtoms</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span>
+                                <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">PBC</span><span class="p">),</span> <span class="n">includeRadius</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">includeIndexes</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">includeIndexes</span><span class="p">),</span> 
+                                <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">minPos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">maxPos</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># findMovedAtoms prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">findMovedAtoms</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">findMovedAtoms</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_double</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> 
+                                <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># findMovedAtoms force</span>
+<div class="viewcode-block" id="findMovedAtoms"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.lattice.html#LKMC.clibs.lattice.findMovedAtoms">[docs]</a><span class="k">def</span> <span class="nf">findMovedAtoms</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="n">pos_ini</span><span class="p">,</span> <span class="n">pos_fin</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">PBC</span><span class="p">,</span> <span class="n">movedIndexes</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find atoms that have moved</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">findMovedAtoms</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos_ini</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos_fin</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span>
+                               <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">PBC</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">movedIndexes</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># findAtomsNeighbours prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">findAtomsNeighbours</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">findAtomsNeighbours</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">c_double</span><span class="p">,</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span>
+                                     <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">]</span>
+
+<span class="c1"># findAtomsNeighbours force</span>
+<div class="viewcode-block" id="findAtomsNeighbours"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.lattice.html#LKMC.clibs.lattice.findAtomsNeighbours">[docs]</a><span class="k">def</span> <span class="nf">findAtomsNeighbours</span><span class="p">(</span><span class="n">atomIndex</span><span class="p">,</span> <span class="n">maxSep</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">minPos</span><span class="p">,</span> <span class="n">maxPos</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">PBC</span><span class="p">,</span> <span class="n">neighbours</span><span class="p">,</span> <span class="n">neighbourSeps</span><span class="p">,</span> <span class="n">sortNeighbours</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find atoms neighbours</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">findAtomsNeighbours</span><span class="p">(</span><span class="n">atomIndex</span><span class="p">,</span> <span class="n">maxSep</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">minPos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">maxPos</span><span class="p">),</span> 
+                                    <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">PBC</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">neighbours</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">neighbourSeps</span><span class="p">),</span>
+                                    <span class="n">sortNeighbours</span><span class="p">)</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># findMinSepPosList prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">findMinSepPosList</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">findMinSepPosList</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span>
+                                   <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_double</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">)]</span>
+
+<span class="c1"># findMinSepPosList force</span>
+<div class="viewcode-block" id="findMinSepPosList"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.lattice.html#LKMC.clibs.lattice.findMinSepPosList">[docs]</a><span class="k">def</span> <span class="nf">findMinSepPosList</span><span class="p">(</span><span class="n">indicesSize</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">inputPos</span><span class="p">,</span> <span class="n">PBC</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">minPos</span><span class="p">,</span> <span class="n">maxPos</span><span class="p">,</span> <span class="n">maxSpacing</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find min sep to atoms in list</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">findMinSepPosList</span><span class="p">(</span><span class="n">indicesSize</span><span class="p">,</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">inputPos</span><span class="p">),</span> <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">PBC</span><span class="p">),</span>
+                                  <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">minPos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">maxPos</span><span class="p">),</span> <span class="n">maxSpacing</span><span class="p">,</span>
+                                  <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">result</span><span class="p">))</span></div>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># getIndicesFromPositions prototype</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">getIndicesFromPositions</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">c_int</span>
+<span class="n">_lib</span><span class="o">.</span><span class="n">getIndicesFromPositions</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_int</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">c_double</span><span class="p">,</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">),</span>
+                                         <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_double</span><span class="p">),</span> <span class="n">POINTER</span><span class="p">(</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># getIndicesFromPositions force</span>
+<div class="viewcode-block" id="getIndicesFromPositions"><a class="viewcode-back" href="../../../LKMC/LKMC.clibs.lattice.html#LKMC.clibs.lattice.getIndicesFromPositions">[docs]</a><span class="k">def</span> <span class="nf">getIndicesFromPositions</span><span class="p">(</span><span class="n">inputPos</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">maxSep</span><span class="p">,</span> <span class="n">pbc</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">minPos</span><span class="p">,</span> <span class="n">maxPos</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Finds the atoms that correspond to the input positions</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_lib</span><span class="o">.</span><span class="n">getIndicesFromPositions</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inputPos</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">inputPos</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">maxSep</span><span class="p">,</span>
+                                        <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">pbc</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">cellDims</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">minPos</span><span class="p">),</span> <span class="n">CPtrToDouble</span><span class="p">(</span><span class="n">maxPos</span><span class="p">),</span>
+                                        <span class="n">CPtrToInt</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,55 @@
+
+Contributing to the documentation
+=================================
+
+Introduction
+------------
+
+Documentation will be written using 'numpydoc' and 'sphinx'. We will write the documentation into 
+the docstrings_ and use sphinx/numpydoc to convert 
+this to html.
+
+Requirements
+------------
+
+* Sphinx_ can be installed using MacPorts:
+  
+  .. code:: sh
+  
+    sudo port install py27-sphinx
+    sudo port select --set sphinx py27-sphinx
+
+* numpydoc_ can be installed using pip_:
+  
+  .. code:: sh
+  
+    pip install --user numpydoc
+  
+  **Note**: 'pip' may be named 'pip-2.7' if using MacPorts and you haven't ``port selected`` pip2.7. 
+  If you don't specify '--user' you may need to 'sudo' (unless installing within a virtualenv).
+
+Guidelines
+----------
+
+To ensure the documentation is consistent we should all follow the guide_ to NumPy/SciPy documentation, 
+in particular the names and order of sections within the docstrings. Note, the layout is different 
+for module, class and method docstrings. Lines should be kept within 80 characters so it displays 
+properly when viewed from a terminal.
+
+Building the documentation
+--------------------------
+
+This is also described in the README.md file.  In the main directory run:
+
+````````````````````````````
+python setup.py build_sphinx
+````````````````````````````
+
+and the html documentation should be placed in 'build/sphinx/html' (open 'build/sphinx/html/index.html' 
+in your browser).
+
+.. _docstrings: http://en.wikipedia.org/wiki/Docstring#Python
+.. _Sphinx: http://sphinx-doc.org/
+.. _numpydoc: https://pypi.python.org/pypi/numpydoc
+.. _pip: http://pip.readthedocs.org/en/latest/reference/pip_install.html
+.. _guide: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt

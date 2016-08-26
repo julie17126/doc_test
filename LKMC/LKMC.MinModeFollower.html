@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.MinModeFollower module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Minimise module" href="LKMC.Minimise.html" />
+    <link rel="prev" title="LKMC.Lbomd module" href="LKMC.Lbomd.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Minimise.html" title="LKMC.Minimise module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Lbomd.html" title="LKMC.Lbomd module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.MinModeFollower">
+<span id="lkmc-minmodefollower-module"></span><h1>LKMC.MinModeFollower module<a class="headerlink" href="#module-LKMC.MinModeFollower" title="Permalink to this headline">¶</a></h1>
+<p>Minimum mode following method.</p>
+<p>SIAM JOURNAL ON SCIENTIFIC COMPUTING  Volume: 33   Issue: 2   Pages: 633-652   DOI: 10.1137/100792743   Published: 2011</p>
+<ol class="loweralpha simple" start="3">
+<li>Tomas Lazauskas, 2013</li>
+</ol>
+<dl class="class">
+<dt id="LKMC.MinModeFollower.MinModeFollower">
+<em class="property">class </em><code class="descclassname">LKMC.MinModeFollower.</code><code class="descname">MinModeFollower</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/MinModeFollower.html#MinModeFollower"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.MinModeFollower.MinModeFollower" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Minimums mode following method.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.MinModeFollower.MinModeFollower.evaluateCorrectTE">
+<code class="descname">evaluateCorrectTE</code><span class="sig-paren">(</span><em>lattice</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/MinModeFollower.html#MinModeFollower.evaluateCorrectTE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.MinModeFollower.MinModeFollower.evaluateCorrectTE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates forces and TE of the whole system.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.MinModeFollower.MinModeFollower.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>inputState</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/MinModeFollower.html#MinModeFollower.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.MinModeFollower.MinModeFollower.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the minimum mode method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.MinModeFollower.MinModeFollower.runMinMode">
+<code class="descname">runMinMode</code><span class="sig-paren">(</span><em>inputStateIni</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/MinModeFollower.html#MinModeFollower.runMinMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.MinModeFollower.MinModeFollower.runMinMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main procedure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.MinModeFollower.MinModeFollower.setParams">
+<code class="descname">setParams</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/MinModeFollower.html#MinModeFollower.setParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.MinModeFollower.MinModeFollower.setParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set params object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.MinModeFollower.MinModeFollower.setupMinMode">
+<code class="descname">setupMinMode</code><span class="sig-paren">(</span><em>initialState</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/MinModeFollower.html#MinModeFollower.setupMinMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.MinModeFollower.MinModeFollower.setupMinMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setups the object for seaching.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.MinModeFollower.MinModeLattice">
+<em class="property">class </em><code class="descclassname">LKMC.MinModeFollower.</code><code class="descname">MinModeLattice</code><span class="sig-paren">(</span><em>NAtoms</em>, <em>storeEnergies=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/MinModeFollower.html#MinModeLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.MinModeFollower.MinModeLattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="LKMC.Lattice.html#LKMC.Lattice.Lattice" title="LKMC.Lattice.Lattice"><code class="xref py py-class docutils literal"><span class="pre">LKMC.Lattice.Lattice</span></code></a></p>
+<p>Lattice object for minimum mode following method.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.MinModeFollower.MinModeLattice.calcForce">
+<code class="descname">calcForce</code><span class="sig-paren">(</span><em>MDPath=None</em>, <em>defectFlag=0</em>, <em>correctTE=0</em>, <em>includeAtoms=array([]</em>, <em>dtype=int32)</em>, <em>mainIndexes=array([]</em>, <em>dtype=int32)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/MinModeFollower.html#MinModeLattice.calcForce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.MinModeFollower.MinModeLattice.calcForce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates forces using lattice method and modifies</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.MinModeFollower.checkSaddleRank">
+<code class="descclassname">LKMC.MinModeFollower.</code><code class="descname">checkSaddleRank</code><span class="sig-paren">(</span><em>params</em>, <em>saddle</em>, <em>conv2Rank1Md=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/MinModeFollower.html#checkSaddleRank"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.MinModeFollower.checkSaddleRank" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the number of negative eigenvalues (saddle&#8217;s rank). If it greater than 2, returns an error. If it is equal to 
+2, tries to converge to rank 1 saddle with min mode following method.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.MinModeFollower.convertLattice2MinModeLattice">
+<code class="descclassname">LKMC.MinModeFollower.</code><code class="descname">convertLattice2MinModeLattice</code><span class="sig-paren">(</span><em>lattice</em>, <em>params</em>, <em>mainIndexes</em>, <em>includeAtoms</em>, <em>rVector</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/MinModeFollower.html#convertLattice2MinModeLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.MinModeFollower.convertLattice2MinModeLattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copies all attributes from a lattice object to a minimum mode lattice object.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.MinModeFollower.dealWithRank2Saddle">
+<code class="descclassname">LKMC.MinModeFollower.</code><code class="descname">dealWithRank2Saddle</code><span class="sig-paren">(</span><em>params</em>, <em>initial</em>, <em>saddle</em>, <em>mainIndexes</em>, <em>includeAtoms</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/MinModeFollower.html#dealWithRank2Saddle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.MinModeFollower.dealWithRank2Saddle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.MinModeFollower.initialiseMinModeParams">
+<code class="descclassname">LKMC.MinModeFollower.</code><code class="descname">initialiseMinModeParams</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/MinModeFollower.html#initialiseMinModeParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.MinModeFollower.initialiseMinModeParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes parameters for minimum mode following method.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Lbomd.html"
+                        title="previous chapter">LKMC.Lbomd module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Minimise.html"
+                        title="next chapter">LKMC.Minimise module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.MinModeFollower.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Minimise.html" title="LKMC.Minimise module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Lbomd.html" title="LKMC.Lbomd module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

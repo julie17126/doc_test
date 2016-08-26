@@ -1,0 +1,18 @@
+Hooks
+=====
+
+Parameters for "hooks" (i.e. custom filters):
+
+postSuccessTransHooks
+^^^^^^^^^^^^^^^^^^^^^
+
+String
+
+Comma separated list of hooks to run after a transition has been found.
+
+postSelectEventHooks
+^^^^^^^^^^^^^^^^^^^^
+
+String
+
+Comma separated list of hooks to run after an event has been selected.

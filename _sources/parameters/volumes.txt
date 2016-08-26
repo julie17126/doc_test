@@ -1,0 +1,59 @@
+Volumes
+=======
+
+Parameters regarding defect volumes
+
+searchInitialRadius
+^^^^^^^^^^^^^^^^^^^
+
+Real
+
+Atoms within this distance of a defect form part of the initial search
+vector, from which an atom is picked for the
+initial displacement. Only atoms within this vector can be given an
+initial displacement.
+
+Typical value is 2NN.
+
+localiseSearchRadius
+^^^^^^^^^^^^^^^^^^^^
+
+Real
+
+Once an atom has been randomly chosen, only
+atoms that are within both *localiseSearchRadius* of the chosen atom and
+*searchInitialRadius* of a defect are given an initial displacement.
+
+searchMoveRadius
+^^^^^^^^^^^^^^^^
+
+Real
+
+Atoms within this distance of a defect can move
+during the search (eg. Dimer) before switching to the convergence
+algorithm.
+
+searchConvergeRadius
+^^^^^^^^^^^^^^^^^^^^
+
+Real
+
+This is a skin on top of the searchMoveRadius.
+Atoms within (*searchMoveRadius* + *searchConvergenceRadius*) can move
+during the convergence to the saddle point (eg. Lanczos).
+
+graphRadius
+^^^^^^^^^^^
+
+Real
+
+Radius to use when building the graph key.
+
+volumesConstructNew
+^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+Treat nearby volumes differently. Instead of fusing into one
+volume, keep as individual and have a combined volume. Don't use unless
+you know what it does.

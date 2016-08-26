@@ -1,0 +1,113 @@
+
+Running the program
+*******************
+
+The only script that should ever be called directly is "lkmc.py", which should be in your PATH if
+you installed the code as suggested. Examples:
+
+* Print the version:
+
+  .. code-block:: sh
+  
+     lkmc.py -v
+
+* To run a minimisation you would run:
+
+  .. code-block:: sh
+  
+     lkmc.py Minimise [OPTIONS] [ARGS]
+
+  where a list of options/args can be printed by running:
+
+  .. code-block:: sh
+  
+     lkmc.py Minimise -h
+
+* To run a KMC simulation:
+
+  .. code-block:: sh
+
+     lkmc.py KMC [OPTIONS] [ARGS]
+
+  where a list of options/args can be printed by running:
+
+  .. code-block:: sh
+
+     lkmc.py KMC -h
+
+* All available options to the lkmc.py wrapper script are available by running:
+
+  .. code-block:: sh
+
+     lkmc.py -h
+
+.. _nodes-file:
+
+Nodes file
+----------
+
+If you're planning to run a KMC simulation (instead of just do a minimisation, for example) you
+need to create a nodes file, to tell the code where to run.  Each line of the file should contain a
+hostname for each process to run on (similar to an MPI machinefile).  Blank lines and lines
+beginning with '#' are ignored. For example, a file containing only the lines:
+
+.. code-block:: sh
+
+   localhost
+   localhost
+   localhost
+   localhost
+
+will run on 4 processors on your machine.
+
+In order to automatically generate such a file on hydra (PBS) or hera (slurm) you could add the 
+following lines to your init scripts:
+
+.. code-block:: sh
+
+   cp -f $PBS_NODEFILE nodes.IN
+
+for hydra (PBS), or:
+
+.. code-block:: sh
+
+   srun /bin/hostname | sort > nodes.IN
+
+for hera (slurm).
+
+**Note**: with the above nodes file the code will actually run on 4+2 processors.  The lines in the
+nodes file are for worker processes.  In addition to those we have the main (server) process and
+also a writer process, which handles IO intensive tasks (writing files, zipping files, plotting
+stuff, rendering images) that are carried out asynchronously. That being said, you should set the
+number of lines in the nodes file to the number of available processors; the additional 2 processes
+are not CPU intensive.
+
+**Important**: you must ensure that you can SSH into any node that you specify in the nodes file
+without requiring a password (public key login must be configured for those nodes).
+
+Input files
+-----------
+
+If you're planning to run a KMC simulation (instead of just doing a minimisation, for example) you
+need to ensure the input files exist and are named correctly.  When running other types of
+simulations (minimisations, etc.) the input files are specified as command line arguments.  
+
+The input directory specified in the input file (parameter name 'inputDirectory'; defaults to
+'input') must exist.  A reference lattice file named 'ref.dat' and the initial lattice file named
+'launch.dat' must exist in the input directory.  
+
+In addition you have a directory containing any input files that are required by the MD library you
+are using. The name of this directory is set in the input file and defaults to 'md'.
+
+Your directory structure should look something like this for running a KMC simulation:
+
+.. code-block:: sh
+
+   runDir/
+   runDir/lkmcInput.IN
+   runDir/nodes.IN
+   runDir/input/
+   runDir/input/ref.dat
+   runDir/input/launch.dat
+   runDir/md/
+   runDir/md/*MDInputFiles*

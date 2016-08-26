@@ -1,0 +1,17 @@
+LKMC.lapack package
+===================
+
+Submodules
+----------
+
+.. toctree::
+
+   LKMC.lapack.setup
+
+Module contents
+---------------
+
+.. automodule:: LKMC.lapack
+    :members:
+    :undoc-members:
+    :show-inheritance:

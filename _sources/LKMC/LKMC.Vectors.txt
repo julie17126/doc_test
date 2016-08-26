@@ -1,0 +1,7 @@
+LKMC.Vectors module
+===================
+
+.. automodule:: LKMC.Vectors
+    :members:
+    :undoc-members:
+    :show-inheritance:

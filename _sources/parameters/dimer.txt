@@ -1,0 +1,347 @@
+Dimer
+=====
+
+Parameters for the Dimer method.
+
+dimerInitialOffset
+^^^^^^^^^^^^^^^^^^
+
+Real
+
+Iinitial offset of defect atoms from minimum.
+
+Default: 0.01
+
+dimerSeparation
+^^^^^^^^^^^^^^^
+
+Real
+
+Separation between each unit of the dimer.
+
+Default: 0.05
+
+dimerRotationalMinimiser
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+'CG'
+
+Minimisation method for rotation in dimer. 
+
+- CG: conjugate gradient
+
+Default: 'CG' Note: this should be left as CG, probably nothing else
+will work!
+
+dimerLineSearch
+^^^^^^^^^^^^^^^
+
+'modNewton'
+
+Line search.
+
+- modNewton: modified Newton method (only for
+use within Dimer method)
+
+Default: 'modNewton' Note: this has to be set
+to modNewton, nothing else will work!
+
+dimerDeltaTheta
+^^^^^^^^^^^^^^^
+
+Real
+
+Angular step for rotation.
+
+Default: 0.01
+
+dimerTranslator
+^^^^^^^^^^^^^^^
+
+'quickmin'
+
+Method for translating the dimer.
+
+- quickmin: Dimer quick minimisation
+
+Default: 'quickmin'
+
+dimerDeltaT
+^^^^^^^^^^^
+
+Real
+
+Translation step size.
+
+Default: 0.1
+
+dimerStepDirectionMode
+^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+- 0: uses effective force direction
+- 1: uses conjugate direction (DOI10.1137/100792743 eq. 2.3)
+
+Default: 0
+
+dimerUseVarStepSize
+^^^^^^^^^^^^^^^^^^^
+
+Integer
+
+Calculates step sizes within translation
+
+- 0: dimerDeltaT
+- 1: Newton's formula (DOI10.1137/100792743
+- 2: exponential scaling (dimerDeltaT*EXP(curvature)/4.0)
+- else: linear scaling (dimerDeltaT*\ curvature/2.0) Default: 3
+
+dimerMaxStepSize
+^^^^^^^^^^^^^^^^
+
+Real
+
+Maximum step size, when variable step size algorithm is used.
+
+Default: 0.1
+
+dimerMinStepSize
+^^^^^^^^^^^^^^^^
+
+Real
+
+Minimum step size, when variable step size algorithm is used.
+
+Default: 0.005
+
+dimerTolR
+^^^^^^^^^
+
+Real
+
+Rotational force tolerance.
+
+Default: 0.01
+
+dimerTolT
+^^^^^^^^^
+
+Real
+
+Translational force tolerance.
+
+Default: 0.01
+
+dimerMaxSteps
+^^^^^^^^^^^^^
+
+Integer
+
+Maximum number of Dimer translation steps.
+
+Default: 100
+
+dimerMaxMoveCriteria
+^^^^^^^^^^^^^^^^^^^^
+
+Real
+
+Minimum value of maximum move of an atom when saddle is found (Does
+not apply when Lanczos minimisation emplyed).
+
+Default: 0.3
+
+dimerMinBarrier
+^^^^^^^^^^^^^^^
+
+Real
+
+Minimum barrier allowed by the Dimer method.
+
+Default: 0.0
+
+dimerMaxBarrier
+^^^^^^^^^^^^^^^
+
+Real
+
+Maximum barrier allowed by the Dimer method.
+
+Default: 5.0
+
+dimerMaxMoveDistance
+^^^^^^^^^^^^^^^^^^^^
+
+Real
+
+Maximum movement of an atom allowed during the Dimer method.
+
+Default: 10.0
+
+dimerMaxFuncEval
+^^^^^^^^^^^^^^^^
+
+Integer
+
+Maximum number of force evaluations within the Dimer method.
+
+Default: 200
+
+dimerSmallSearchSteps
+^^^^^^^^^^^^^^^^^^^^^
+
+Integer
+
+Number of step within Dimer method using only initial
+displacement subsystem.
+
+Default: 2
+
+dimerUseLanczos
+^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1, uses Lanczos minimisation to converge to the saddle point.
+
+Default: 1
+
+dimerMinStepBeforeLanczos
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Integer
+
+Forces Dimer method to do at least this amount of translation
+steps before running Lanczos.
+
+Default: 0
+
+dimerNegCurv
+^^^^^^^^^^^^
+
+Real
+
+Used for two purposes:
+
+- when *dimerLookForNegEigenValue* = 0: launches Lanczos minimisation when curvature is lower or equal to
+*dimerNegCurv* in *dimerNumStepsNegBeforeLanczos* translation steps in a
+row.
+- when *dimerLookForNegEigenValue* = 1: checks the lowest eigenvalue when curvature is lower or equal to *dimerNegCurv* Default:
+-0.1
+
+dimerLookForNegEigenValue
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+Option to check eigenvalues.
+
+- 0: If system has lowest eigenvalue lower or equal to *dimerMaxNegEigenValue* in
+*dimerNumStepsNegBeforeLanczos* translation steps in a row, it launches
+Lanczos minimisation.
+
+Default: 1
+
+dimerMaxNegEigenValue
+^^^^^^^^^^^^^^^^^^^^^
+
+Real
+
+Highest negative eigenvalue value to be recognised as negative.
+
+Default: -0.1
+
+dimerNumStepsNegBeforeLanczos
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Integer
+
+Number of steps in a row to be checked for the negative
+eigenvalues.
+
+Default: 2
+
+dimerUseSubLattLanczos
+^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1, uses sub-lattice Lanczos minimisation.
+
+Default: 1
+
+dimerUseWholeLattLanczos
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1, uses whole-lattice Lanczos minimisation (NOT IMPLEMENTED
+YET!).
+
+Default: 0
+
+dimerConv2Rank1Saddle
+^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1, uses Minimum mode follower to converge to rank 1 saddle.
+
+Default: 1
+
+dimerDoStepBackTest
+^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1, perform step backwards test on the found saddle.
+
+Default: 0
+
+dimerStepBackBarrCriteria
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Real
+
+Maximum barrier of the saddle on which step backwards test will be
+performed.
+
+Default: 0.2
+
+dimerStepBackCheckTol
+^^^^^^^^^^^^^^^^^^^^^
+
+Real
+
+Maximum separation criteria between initial state and the state
+found by stepbackwards test.
+
+Default: 0.1
+
+debugDimerRotation
+^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: debugs dimer's rotation.
+
+Default: 0
+
+debugDimer
+^^^^^^^^^^
+
+0 or 1
+
+If 1: returns debugging info for LKMC.
+
+Default: 0
+
+timeDimer
+^^^^^^^^^
+
+0 or 1
+
+If 1: times Dimer method within LKMC.
+
+Default: 1

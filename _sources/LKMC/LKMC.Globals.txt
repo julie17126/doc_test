@@ -1,0 +1,7 @@
+LKMC.Globals module
+===================
+
+.. automodule:: LKMC.Globals
+    :members:
+    :undoc-members:
+    :show-inheritance:

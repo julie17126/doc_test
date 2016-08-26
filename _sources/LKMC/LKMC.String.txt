@@ -1,0 +1,7 @@
+LKMC.String module
+==================
+
+.. automodule:: LKMC.String
+    :members:
+    :undoc-members:
+    :show-inheritance:

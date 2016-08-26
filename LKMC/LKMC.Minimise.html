@@ -1,0 +1,588 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Minimise module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.NEB module" href="LKMC.NEB.html" />
+    <link rel="prev" title="LKMC.MinModeFollower module" href="LKMC.MinModeFollower.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.NEB.html" title="LKMC.NEB module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.MinModeFollower.html" title="LKMC.MinModeFollower module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Minimise">
+<span id="lkmc-minimise-module"></span><h1>LKMC.Minimise module<a class="headerlink" href="#module-LKMC.Minimise" title="Permalink to this headline">¶</a></h1>
+<p>Minimisation module.</p>
+<dl class="class">
+<dt id="LKMC.Minimise.BaseMinimiser">
+<em class="property">class </em><code class="descclassname">LKMC.Minimise.</code><code class="descname">BaseMinimiser</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#BaseMinimiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.BaseMinimiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Base minimiser class to be subclassed to create specific minimisers.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>params</td>
+<td>(<cite>Input.InputParams</cite>) The parameters instance.</td>
+</tr>
+<tr class="row-even"><td>jobID</td>
+<td>(<cite>uuid</cite>) The job ID that this minimiser is running under.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Minimise.BaseMinimiser.calcForce">
+<code class="descname">calcForce</code><span class="sig-paren">(</span><em>obj</em>, <em>excl</em>, <em>params</em>, <em>includeAtoms=None</em>, <em>mainIndexes=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#BaseMinimiser.calcForce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.BaseMinimiser.calcForce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Force calculation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>obj :</strong></p>
+<blockquote>
+<div><p>The object being minimised.</p>
+</div></blockquote>
+<p><strong>excl</strong> : {0, 1, 2}</p>
+<blockquote>
+<div><p>The defect flag to set when calling <cite>calcForce</cite> on <cite>obj</cite>.</p>
+</div></blockquote>
+<p><strong>params</strong> : <cite>Input.InputParams</cite></p>
+<blockquote>
+<div><p>The parameters instance.</p>
+</div></blockquote>
+<p><strong>mainIndexes</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>An array containing the indexes of the atoms that we need to 
+accurately determine the forces for.</p>
+</div></blockquote>
+<p><strong>includeAtoms</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>An array containing the indexes of the atoms to include during
+the force calculation (for a sub-lattice force calculation). 
+The forces on these atoms will not be correct but including 
+them ensures the forces on the <cite>mainIndexes</cite> atoms are.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>status</strong> : integer</p>
+<blockquote class="last">
+<div><p>0 mean success, anything else means a failure.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Minimise.BaseMinimiser.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#BaseMinimiser.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.BaseMinimiser.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the minimiser.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>obj :</strong></p>
+<blockquote>
+<div><p>An object that can be minimised, eg. <cite>Lattice.Lattice</cite> or 
+<cite>NEB.NEB</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>status</strong> : integer</p>
+<blockquote class="last">
+<div><p>0 means success, anything else is a failure.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Minimise.BaseMinimiser.runMain">
+<code class="descname">runMain</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#BaseMinimiser.runMain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.BaseMinimiser.runMain" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is where the actual minimisation is carried out.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Minimise.BaseMinimiser.setJobID">
+<code class="descname">setJobID</code><span class="sig-paren">(</span><em>jobID</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#BaseMinimiser.setJobID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.BaseMinimiser.setJobID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the job ID.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>jobID</strong> : <cite>uuid</cite></p>
+<blockquote class="last">
+<div><p>Unique identifier to be passed to the minimiser. Used for stopping
+repeating jobs on clients.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Minimise.BaseMinimiser.setParams">
+<code class="descname">setParams</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#BaseMinimiser.setParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.BaseMinimiser.setParams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>params</strong> : <cite>Input.InputParams</cite></p>
+<blockquote class="last">
+<div><p>The parameters instance.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Minimise.ConjugateGradientMinimiser">
+<em class="property">class </em><code class="descclassname">LKMC.Minimise.</code><code class="descname">ConjugateGradientMinimiser</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#ConjugateGradientMinimiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.ConjugateGradientMinimiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#LKMC.Minimise.BaseMinimiser" title="LKMC.Minimise.BaseMinimiser"><code class="xref py py-class docutils literal"><span class="pre">LKMC.Minimise.BaseMinimiser</span></code></a></p>
+<p>Conjugate gradient minimiser.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Minimise.ConjugateGradientMinimiser.runMain">
+<code class="descname">runMain</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#ConjugateGradientMinimiser.runMain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.ConjugateGradientMinimiser.runMain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run minimiser: minimises &#8220;obj&#8221; in place.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Minimise.ConjugateGradientSciPyMinimiser">
+<em class="property">class </em><code class="descclassname">LKMC.Minimise.</code><code class="descname">ConjugateGradientSciPyMinimiser</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#ConjugateGradientSciPyMinimiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.ConjugateGradientSciPyMinimiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#LKMC.Minimise.BaseMinimiser" title="LKMC.Minimise.BaseMinimiser"><code class="xref py py-class docutils literal"><span class="pre">LKMC.Minimise.BaseMinimiser</span></code></a></p>
+<p>Conjugate gradient minimiser from SciPy</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Minimise.ConjugateGradientSciPyMinimiser.calcForceCG">
+<code class="descname">calcForceCG</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#ConjugateGradientSciPyMinimiser.calcForceCG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.ConjugateGradientSciPyMinimiser.calcForceCG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do force calculation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Minimise.ConjugateGradientSciPyMinimiser.f">
+<code class="descname">f</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#ConjugateGradientSciPyMinimiser.f"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.ConjugateGradientSciPyMinimiser.f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function evaluation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Minimise.ConjugateGradientSciPyMinimiser.fprime">
+<code class="descname">fprime</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#ConjugateGradientSciPyMinimiser.fprime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.ConjugateGradientSciPyMinimiser.fprime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gradient evaluation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Minimise.ConjugateGradientSciPyMinimiser.postIterationCallback">
+<code class="descname">postIterationCallback</code><span class="sig-paren">(</span><em>xk</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#ConjugateGradientSciPyMinimiser.postIterationCallback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.ConjugateGradientSciPyMinimiser.postIterationCallback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Post iteration callback</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Minimise.ConjugateGradientSciPyMinimiser.runMain">
+<code class="descname">runMain</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#ConjugateGradientSciPyMinimiser.runMain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.ConjugateGradientSciPyMinimiser.runMain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run minimiser</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Minimise.LBFGSMinimiser">
+<em class="property">class </em><code class="descclassname">LKMC.Minimise.</code><code class="descname">LBFGSMinimiser</code><span class="sig-paren">(</span><em>params</em>, <em>noFallback=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#LBFGSMinimiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.LBFGSMinimiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#LKMC.Minimise.BaseMinimiser" title="LKMC.Minimise.BaseMinimiser"><code class="xref py py-class docutils literal"><span class="pre">LKMC.Minimise.BaseMinimiser</span></code></a></p>
+<p>Limited memory BFGS minimiser from SciPy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>params</strong> : <cite>Input.InputParams</cite></p>
+<blockquote>
+<div><p>The parameters object.</p>
+</div></blockquote>
+<p><strong>noFallBack</strong> : bool, optional</p>
+<blockquote class="last">
+<div><p>If &#8216;True&#8217; do not run fall back minimisations.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<ul class="simple">
+<li>C. Zhu, R. H. Byrd and J. Nocedal. L-BFGS-B: Algorithm 778: L-BFGS-B,
+FORTRAN routines for large scale bound constrained optimization (1997),
+ACM Transactions on Mathematical Software, 23, 4, pp. 550 - 560.</li>
+<li><a class="reference external" href="http://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin_l_bfgs_b.html">http://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.fmin_l_bfgs_b.html</a></li>
+</ul>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="89%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>rVector</td>
+<td>(ndarray) The final eigenvector array, corresponding to the lowest eigenvalue.</td>
+</tr>
+<tr class="row-even"><td>mainIndexes</td>
+<td>(ndarray) The indexes of the atoms that have been used in a sub-lattice calculation.</td>
+</tr>
+<tr class="row-odd"><td>includeAtoms</td>
+<td>(ndarray) The indexes of the additional atoms that have been used in a sub-lattice force calculation.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Minimise.LBFGSMinimiser.calcForceLBFGS">
+<code class="descname">calcForceLBFGS</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#LBFGSMinimiser.calcForceLBFGS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.LBFGSMinimiser.calcForceLBFGS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate forces.</p>
+<p>This method should be sub-classed if required.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Minimise.LBFGSMinimiser.fallbackMinimisation">
+<code class="descname">fallbackMinimisation</code><span class="sig-paren">(</span><em>obj</em>, <em>statusIn=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#LBFGSMinimiser.fallbackMinimisation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.LBFGSMinimiser.fallbackMinimisation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fallback if minimisation failed or terminated due to machine 
+precision condition. Either rerun LBFGS or run another 
+method - CG or SD</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Minimise.LBFGSMinimiser.postIterationCallback">
+<code class="descname">postIterationCallback</code><span class="sig-paren">(</span><em>xk</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#LBFGSMinimiser.postIterationCallback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.LBFGSMinimiser.postIterationCallback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Post iteration callback</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Minimise.LBFGSMinimiser.runMain">
+<code class="descname">runMain</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#LBFGSMinimiser.runMain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.LBFGSMinimiser.runMain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the minimisation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>obj :</strong></p>
+<blockquote>
+<div><p>The object to be minimised.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>status</strong> : integer</p>
+<blockquote class="last">
+<div><p>0 means success, anything is a failure.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="LKMC.Minimise.MinimisationTerminated">
+<em class="property">exception </em><code class="descclassname">LKMC.Minimise.</code><code class="descname">MinimisationTerminated</code><a class="reference internal" href="../_modules/LKMC/Minimise.html#MinimisationTerminated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.MinimisationTerminated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/exceptions.html#exceptions.RuntimeError" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">exceptions.RuntimeError</span></code></a></p>
+<p>Exception for when Minimisation is terminated, eg. due to force 
+calculation failing or because of job status.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Minimise.ModifiedNewtonLineSearcher">
+<em class="property">class </em><code class="descclassname">LKMC.Minimise.</code><code class="descname">ModifiedNewtonLineSearcher</code><span class="sig-paren">(</span><em>params</em>, <em>calcForce</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#ModifiedNewtonLineSearcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.ModifiedNewtonLineSearcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Modified Newton line search from Dimer method.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Minimise.ModifiedNewtonLineSearcher.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>obj</em>, <em>direction</em>, <em>step=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#ModifiedNewtonLineSearcher.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.ModifiedNewtonLineSearcher.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run line search.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Minimise.OneStepLineSearcher">
+<em class="property">class </em><code class="descclassname">LKMC.Minimise.</code><code class="descname">OneStepLineSearcher</code><span class="sig-paren">(</span><em>params</em>, <em>calcForce</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#OneStepLineSearcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.OneStepLineSearcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Secant line search.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Minimise.OneStepLineSearcher.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>obj</em>, <em>direction</em>, <em>step=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#OneStepLineSearcher.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.OneStepLineSearcher.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Minimise.ScipyLineSearcher">
+<em class="property">class </em><code class="descclassname">LKMC.Minimise.</code><code class="descname">ScipyLineSearcher</code><span class="sig-paren">(</span><em>params</em>, <em>calcForce</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#ScipyLineSearcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.ScipyLineSearcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>SciPy line search for finding alpha that satisfies strong Wolfe conditions.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Minimise.ScipyLineSearcher.calcForceWrapper">
+<code class="descname">calcForceWrapper</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#ScipyLineSearcher.calcForceWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.ScipyLineSearcher.calcForceWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper around calc force</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Minimise.ScipyLineSearcher.f">
+<code class="descname">f</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#ScipyLineSearcher.f"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.ScipyLineSearcher.f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function evaluation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Minimise.ScipyLineSearcher.fprime">
+<code class="descname">fprime</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#ScipyLineSearcher.fprime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.ScipyLineSearcher.fprime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function derivative evaluation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Minimise.ScipyLineSearcher.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>obj</em>, <em>direction</em>, <em>step=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#ScipyLineSearcher.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.ScipyLineSearcher.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run line minimiser in direction.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Minimise.SecantLineSearcher">
+<em class="property">class </em><code class="descclassname">LKMC.Minimise.</code><code class="descname">SecantLineSearcher</code><span class="sig-paren">(</span><em>params</em>, <em>calcForce</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#SecantLineSearcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.SecantLineSearcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Secant line search.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Minimise.SecantLineSearcher.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>obj</em>, <em>direction</em>, <em>step=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#SecantLineSearcher.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.SecantLineSearcher.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run line minimiser in direction.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Minimise.SteepestDescentMinimiser">
+<em class="property">class </em><code class="descclassname">LKMC.Minimise.</code><code class="descname">SteepestDescentMinimiser</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#SteepestDescentMinimiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.SteepestDescentMinimiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#LKMC.Minimise.BaseMinimiser" title="LKMC.Minimise.BaseMinimiser"><code class="xref py py-class docutils literal"><span class="pre">LKMC.Minimise.BaseMinimiser</span></code></a></p>
+<p>Steepest descent minimiser.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Minimise.SteepestDescentMinimiser.runMain">
+<code class="descname">runMain</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#SteepestDescentMinimiser.runMain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.SteepestDescentMinimiser.runMain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run minimiser: minimises &#8220;obj&#8221; in place.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Minimise.commandLineArgs">
+<code class="descclassname">LKMC.Minimise.</code><code class="descname">commandLineArgs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#commandLineArgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.commandLineArgs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse command line arguments</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Minimise.getLineSearcher">
+<code class="descclassname">LKMC.Minimise.</code><code class="descname">getLineSearcher</code><span class="sig-paren">(</span><em>params</em>, <em>calcForce</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#getLineSearcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.getLineSearcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the line searcher set in the <cite>params</cite> object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>params</strong> : <cite>Input.InputParams</cite></p>
+<blockquote>
+<div><p>Parameters instance.</p>
+</div></blockquote>
+<p><strong>calcForce</strong> : callable</p>
+<blockquote>
+<div><p>The method the line searcher should use to calculate forces,
+for example <cite>BaseMinimiser.calcForce</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">lineSearcher :</p>
+<blockquote>
+<div><p>The selected line searcher object.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>NotImplementedError</strong></p>
+<blockquote class="last">
+<div><p>If the requested line searcher is not recognised.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Minimise.getMinimiser">
+<code class="descclassname">LKMC.Minimise.</code><code class="descname">getMinimiser</code><span class="sig-paren">(</span><em>params</em>, <em>jobID=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#getMinimiser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.getMinimiser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the minimiser set in the <cite>params</cite> object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>params</strong> : <cite>Input.InputParams</cite></p>
+<blockquote>
+<div><p>Parameters instance.</p>
+</div></blockquote>
+<p><strong>jobID</strong> : <cite>uuid</cite></p>
+<blockquote>
+<div><p>Unique identifier to be passed to the minimiser. Used for stopping
+repeating jobs on clients.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">minimiser :</p>
+<blockquote>
+<div><p>The selected minimiser object. A child of <cite>BaseMinimiser</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>NotImplementedError</strong></p>
+<blockquote class="last">
+<div><p>If the requested minimiser is not recognised.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Minimise.main">
+<code class="descclassname">LKMC.Minimise.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Minimise.plotMinStepsEnergy">
+<code class="descclassname">LKMC.Minimise.</code><code class="descname">plotMinStepsEnergy</code><span class="sig-paren">(</span><em>word</em>, <em>stepCount</em>, <em>ymax=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#plotMinStepsEnergy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.plotMinStepsEnergy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Minimise.printMinStepsEnergy">
+<code class="descclassname">LKMC.Minimise.</code><code class="descname">printMinStepsEnergy</code><span class="sig-paren">(</span><em>word</em>, <em>stepCount</em>, <em>ymax=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Minimise.html#printMinStepsEnergy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Minimise.printMinStepsEnergy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.MinModeFollower.html"
+                        title="previous chapter">LKMC.MinModeFollower module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.NEB.html"
+                        title="next chapter">LKMC.NEB module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Minimise.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.NEB.html" title="LKMC.NEB module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.MinModeFollower.html" title="LKMC.MinModeFollower module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

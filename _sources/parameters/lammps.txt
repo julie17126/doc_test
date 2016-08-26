@@ -1,0 +1,65 @@
+LAMMPS
+======
+
+Parameters for using LAMMPS to calculate the forces.
+
+For details of using
+LAMMPS see the `LAMMPS Users
+Manual <http://lammps.sandia.gov/doc/Manual.html>`__.
+
+For information on building the python
+shared library see the `Python interface to
+LAMMPS <http://lammps.sandia.gov/doc/Section_python.html>`__.
+
+For brief instructions on compiling LAMMPS see :doc:`here <lammps_short_instruction>` also.
+
+lammpsInFile
+^^^^^^^^^^^^
+
+String
+
+The name of LAMMPS configuration file within the
+*`MDLocation <parameters_main#MDLocation>`__* directory. This file
+should contains the settings of potentials, group region settings (e.g.
+thermal regions) [optional] and other special needs while calculating
+forces (e.g. fixed region) [optional].
+See the `LAMMPS
+Command <http://lammps.sandia.gov/doc/Section_commands.html>`__ for detailed
+usage documentation.
+
+Default: 'in.lammps'
+
+An example::
+
+    # File: in.lammps
+    # The potential to be used: bond order potential for CdTe
+    pair_style bop sigmaoff
+    pair_coeff * * CdTe.bop Cd Te
+    communicate single cutoff 14.70
+
+    # [optional] Fix atoms in the fixed region
+    region fixed block INF INF 0 2.56 INF INF units box
+    group fixed region fixed
+    velocity fixed set 0 0 0 units box
+    fix 1 fixed setforce 0 0 0
+    group rest subtract all fixed
+
+    # [optional] Other pre-defined regions: e.g. thermal region
+    region heated block INF INF 2.56 6.6 INF INF units box
+    group heated region heated
+
+lammpsForceSpecieList
+^^^^^^^^^^^^^^^^^^^^^
+
+String
+
+Comma separated list of symbols.
+
+Forces the species list to be as given.
+Normally, the species list is generated while reading a given lattice
+data file, therefore the order of species in the list is not guaranteed
+to always be the same. (e.g. after reading a CdTe lattice file, the
+species list can either be ``Cd Te`` or ``Te Cd``) This option guarantees
+you always have the same order in the species list. This is useful
+because while using LAMMPS, settings with respect to different species
+are related to the order (not species symbols).

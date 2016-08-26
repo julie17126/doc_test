@@ -1,0 +1,185 @@
+NEB
+===
+
+Parameters for Nudged Elastic Band method (NEB).
+
+NEBNNodes
+^^^^^^^^^
+
+Integer
+
+Number of nodes used in NEB.
+
+Default: 9
+
+NEBClimbingImage
+^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: use the climbing image NEB.
+
+Default: 1
+
+NEBClimbingThreshold
+^^^^^^^^^^^^^^^^^^^^
+
+Integer
+
+Number of minimisation iterations before apply the climbing NEB.
+
+Default: 0
+
+NEBSpringConstant
+^^^^^^^^^^^^^^^^^
+
+Real (eV/A^2)
+
+Spring constant used in NEB method.
+
+Default: 0.1
+
+NEBMinimisationType
+^^^^^^^^^^^^^^^^^^^
+
+'CG', 'CGSCIPY', 'SD' or 'LBFGS'
+
+The minimisation type used for minimisation within the NEB method.
+
+- CG: conjugate gradient
+- CGSCIPY: conjugate gradient minimiser from SciPy
+- SD: Steepest descent
+- LBFGS: limited memory BFGS minimiser from SciPy
+
+Default: 'LBFGS'
+
+NEBMinimisationCriteria
+^^^^^^^^^^^^^^^^^^^^^^^
+
+'force' or 'energy'
+
+The minimisation criteria for minimisation within the NEB method. The stopping
+criteria to be checked is converging by force or energy.
+
+Default: 'energy'
+
+NEBMinimisationTolerance
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Real
+
+The minimisation tolerance for minimisation within the NEB method.
+
+Default: 0.001
+
+NEBMinimisationLineSearch
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+'secant'
+
+The minimisation line search algorithm for minimisation within the NEB method.
+
+- secant: secant method
+
+Default: 'secant'
+
+NEBMinimizationExclusion
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1 or 2
+
+- 0: whole lattice to be minimized
+- 1: atoms exclude defect area to be minimized
+- 2: only atoms from defect area to be minimized
+
+Default: 0
+
+NEBMinimizationExclusionReverseEveryFEval
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+???(refer to
+`minimizationExclusionReverseEveryFEval <minimisation.html#minimizationexclusionreverseeveryfeval>`__)
+
+Default: 0
+
+NEBPlotPathway
+^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: plot image energies.
+
+Default: 0
+
+NEBVisualisePathway
+^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: write files for visualising images.
+
+Default: 0
+
+NEBPerlOutput
+^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: create output which is used in old KMC Perl scripts.
+
+Default: 0
+
+NEBMinimisationMaxIterations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Integer
+
+Maximum number of iterations; the minimisation fails if this is
+exceeded.
+
+Default: 200
+
+NEBMaxRunTime
+^^^^^^^^^^^^^
+
+Integer (seconds)
+
+Maximum run time of NEB minimisation.
+
+Default: 1000
+
+NEBmaxBarrier
+^^^^^^^^^^^^^
+
+Real
+
+Max barrier value used by NEBBarrierCriteria when saddle search
+algorithm does not have defined property MaxBarrier. Use it carefully.
+
+Default: 10.0
+
+NEBBarrierCriteria
+^^^^^^^^^^^^^^^^^^
+
+(Comma separated List of) dash connected Integer and Real list of
+barrier criteria.
+
+Must follow this order: iterationCount-barrierMultiplayer.
+
+It MUST be in ascending order according to iterationCount. (e.g. 10-0.5,20-0.25
+it means after 10 iterations barrier should be less than 0.5 of max barrier defined by
+saddle point search algorithm's property MaxBarrier or by NEBmaxBarrier,
+and after 20 iterations it should not be higher than 25% of it).
+
+Default: '10-0.5,50-0.25,100-0.2'
+
+timeNEB
+^^^^^^^
+
+0 or 1
+
+If 1: turn on NEB time tracking.
+
+Default: 0

@@ -1,0 +1,7 @@
+LKMC.Rates module
+=================
+
+.. automodule:: LKMC.Rates
+    :members:
+    :undoc-members:
+    :show-inheritance:

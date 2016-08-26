@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Dummy &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Dummy</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Dummy Lattice module</span>
+
+<span class="sd">solve circular import error in Defects.py</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="DummyLattice"><a class="viewcode-back" href="../../LKMC/LKMC.Dummy.html#LKMC.Dummy.DummyLattice">[docs]</a><span class="k">class</span> <span class="nc">DummyLattice</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">specieList</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NAtoms</span> <span class="o">=</span> <span class="n">NAtoms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cellDims</span> <span class="o">=</span> <span class="n">cellDims</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specie</span> <span class="o">=</span> <span class="n">specie</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specieList</span> <span class="o">=</span> <span class="n">specieList</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">pos</span></div>
+        
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="DummyLatticeMinimal"><a class="viewcode-back" href="../../LKMC/LKMC.Dummy.html#LKMC.Dummy.DummyLatticeMinimal">[docs]</a><span class="k">class</span> <span class="nc">DummyLatticeMinimal</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cellDims</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cellDims</span> <span class="o">=</span> <span class="n">cellDims</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">pos</span></div>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="DummyLatticeBasin"><a class="viewcode-back" href="../../LKMC/LKMC.Dummy.html#LKMC.Dummy.DummyLatticeBasin">[docs]</a><span class="k">class</span> <span class="nc">DummyLatticeBasin</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trans</span> <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defectVolumes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defectVolumes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DummyDV</span><span class="p">(</span><span class="n">trans</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">trans</span><span class="p">,</span> <span class="s2">&quot;primaryVol&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">defectsObject</span> <span class="o">=</span> <span class="n">DummyDO</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span>
+            
+            <span class="n">Natom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">trans</span><span class="o">.</span><span class="n">primaryVol</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">Natom</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trans</span><span class="o">.</span><span class="n">primaryVol</span><span class="p">)):</span>
+                <span class="n">ii</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">primaryVol</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">dvPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">dvPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">ii</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">dvPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">defectsObject</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="DummyDV"><a class="viewcode-back" href="../../LKMC/LKMC.Dummy.html#LKMC.Dummy.DummyDV">[docs]</a><span class="k">class</span> <span class="nc">DummyDV</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trans</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graphKey</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">finalHashkey</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">com</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">finalCOM</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graphKey</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">hashkey</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">com</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">COM</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">moment</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">moment</span>
+        
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">trans</span><span class="p">,</span> <span class="s2">&quot;primaryVol&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">searchMoveVol</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">primaryVol</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graphVol</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">graphVol</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">searchMoveVol</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graphVol</span> <span class="o">=</span> <span class="kc">None</span></div>
+        
+<div class="viewcode-block" id="DummyDO"><a class="viewcode-back" href="../../LKMC/LKMC.Dummy.html#LKMC.Dummy.DummyDO">[docs]</a><span class="k">class</span> <span class="nc">DummyDO</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trans</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NVac</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trans</span><span class="o">.</span><span class="n">vacancies</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NInt</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trans</span><span class="o">.</span><span class="n">interstitials</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NAnt</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trans</span><span class="o">.</span><span class="n">antisites</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NDefects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NAnt</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">NInt</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">NVac</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cluster</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NDefects</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">vacancies</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">vacancies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interstitials</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">interstitials</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">antisites</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">antisites</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">onAntisites</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">onAntisites</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">vacPos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">NVac</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intPos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">NInt</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">onAntPos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">NAnt</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NDefects</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">NVac</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vacPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">defectPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vacPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">defectPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vacPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">defectPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">NInt</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">NVac</span><span class="p">:</span>
+                <span class="n">ii</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">NVac</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">intPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">defectPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">intPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">defectPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">intPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">ii</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">defectPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ii</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">NVac</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">NInt</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">onAntPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">defectPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">onAntPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">defectPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">onAntPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">ii</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">defectPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span></div>
+                
+<div class="viewcode-block" id="DummyTrans"><a class="viewcode-back" href="../../LKMC/LKMC.Dummy.html#LKMC.Dummy.DummyTrans">[docs]</a><span class="k">class</span> <span class="nc">DummyTrans</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="c1">#         self.barrier = None</span>
+<span class="c1">#         self.reverseBarrier = None</span>
+<span class="c1">#         self.rate = None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finalHashkey</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finalCOM</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="c1">#         self.finalAtomPos = None</span>
+<span class="c1">#         self.flag = None</span>
+<span class="c1">#         self.finalDV = None</span>
+<span class="c1">#         self.currentVolIndex = None</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">primaryVol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graphVol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dvPos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vacancies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interstitials</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">antisites</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">onAntisites</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defectPos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NDefects</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">moment</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dupHashkey</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dupCOM</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dupMoment</span> <span class="o">=</span> <span class="p">[]</span></div>
+        
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

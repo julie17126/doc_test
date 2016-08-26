@@ -1,0 +1,867 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Input &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Input</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Input module.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Constants</span> <span class="k">as</span> <span class="n">const</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Utilities</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">updateParameters</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># LKMC input parameter class to store values of parameters</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="InputParams"><a class="viewcode-back" href="../../LKMC/LKMC.Input.html#LKMC.Input.InputParams">[docs]</a><span class="k">class</span> <span class="nc">InputParams</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># BEGIN or CNTIN -- very important not to confuse these</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobStatus</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        
+        <span class="c1"># Main parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lkmcInputFile</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">MDType</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">MDLocation</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">fullPathToNodesFile</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        
+<span class="c1">#        self.simulationName = &quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verboseLevel</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="c1">#        self.timeScript = 0</span>
+<span class="c1">#        self.timeMainLoop = 0</span>
+<span class="c1">#        self.numberOfJobs = 0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputDirectory</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputDirectory</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">systemTemperature</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">useSubLatticeForceCalc</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">useBasin</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noStoreVolumes</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for KMC </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">KMCMaxSteps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">KMCMaxTime</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kmcNoSearch</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extraJobs</span> <span class="o">=</span> <span class="mf">10.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">KMCLookFrom</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="c1">#        self.kmcSaddleSearcher = &quot;&quot;</span>
+<span class="c1">#        self.kmcMinimisator = &quot;&quot;</span>
+<span class="c1">#        self.kmcBarrierEstimator = &quot;&quot;</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for BARRIER SEARCH:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrInitRandomType</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrMinInitial</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrSearchAlgorithm</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrStepBackwards</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrStepForward</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrRefinePathway</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrRefinePathwayTol</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrRefinePathwayMaxIter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrMinFinal</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrMinFinalMinimiser</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrEstimator</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrUniqueMinSep</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrOutputTiming</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrDebugMode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerSmallSearchSteps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrCompareSaddles</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">searchCombinedVolumes</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combinedVolStoreIndividual</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reuseCombinedVolumes</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrUniqueUseMaxMove</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrUniqueMaxMoveVal</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrUniqueDoubleCheck</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrUniqueDoubleDiffBarr</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrUniqueDoubleMinSep</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrUniqueDoubleMaxMove</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrMinMaxMove</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrMinFracMaxMoveToPush</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrMinMaxMoveToSaddle</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrMinSepToSaddle</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrPushUsingEigenvector</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrStepForwardMethod</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrDebugTotalRates</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrDebugSearches</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrOutputSearchStats</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrConvergeToRank1Saddle</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrIgnoreVolKeys</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for filtering transitions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterByDefectMovement</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterMinimumBarrier</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for transition filters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filtersForSearch</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filtersForReuse</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for rate calculation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fixedPrefactor</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fixedPrefactorVal</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefactorRadius</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefactorDebug</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for server</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serverMinPort</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serverMaxPort</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debugServer</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numberOfWriterProcesses</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clientIndividualOutput</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxIdleTime</span> <span class="o">=</span> <span class="mf">1800.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keepOldClientFiles</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusUpdateInterval</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputSaddles</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputFinals</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputBarrierDistribution</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visualisePathways</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plotPathways</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputPathwayCSVs</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderDefectVolumes</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flushSTDOUT</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderPOVVolumesChosen</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">povrayPath</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for minimization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimizationType</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimizationCriteria</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimizationTolerance</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimizationExclusion</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimizationExclusionReverseEveryFEval</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimizationLineSearch</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimisationLineSearchStep</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimisationMaxIterations</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimisationPlotEnergies</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writePOVDefectsAll</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writePOVDefectsChosen</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderPOVDefectsAll</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderPOVDefectsChosen</span> <span class="o">=</span> <span class="mi">0</span>
+                
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimisationMaxRunTime</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimisationDebug</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimisationNoOutput</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeMinimization</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># second tolerance criteria</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimizationCriteria2</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimizationTolerance2</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimisationRequestFinal</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimisationResetCGInterval</span> <span class="o">=</span> <span class="mi">100</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters specific to L-BFGS-B minimisation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSTolerance</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSMemory</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSNEBTolerance</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSNEBMemory</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSMaxFuncEvals</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSMaxIter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSSuppressOutput</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSFallbackMinimisers</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSFailOnMachinePrecision</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for NEB</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBNNodes</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBClimbingImage</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBClimbingThreshold</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBSpringConstant</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBMinimisationType</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBMinimisationCriteria</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBMinimisationTolerance</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBMinimisationLineSearch</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBMinimizationExclusion</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBMinimizationExclusionReverseEveryFEval</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBPlotPathway</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBVisualisePathway</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBPerlOutput</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBMinimisationMaxIterations</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBMaxRunTime</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBmaxBarrier</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBBarrierCriteria</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBUseBarrierCriteria</span> <span class="o">=</span> <span class="mi">0</span>      <span class="c1"># we don&#39;t define it in input file!</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBInterpolationMethod</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBSkinThicknessIDPP</span> <span class="o">=</span> <span class="mf">2.0</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBMinimisationToleranceIDPP</span> <span class="o">=</span> <span class="mf">0.1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBMinimisationMaxIterationsIDPP</span> <span class="o">=</span> <span class="mi">20</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBUseLinearInterpWhenIDPPFails</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeNEB</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># second tolerance criteria for minimisation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBMinimisationCriteria2</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEBMinimisationTolerance2</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for the string method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stringNImages</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stringMinStepSize</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stringEnergTol</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stringMaxSteps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stringMaxRunTimeSecs</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stringClimbCriteria</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stringClimbImageValue</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stringPlotPathway</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stringVisualisePathway</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stringSaveImages</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stringFixInitialAndFinal</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stringDebugMode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeString</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stringInterpolateStep</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for defect subsystem search</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defectMethod</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vacancyRadius</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debugDefects</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debugSearch</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeDefectSearch</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">antisiteDefects</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interstitialDefects</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vacancyDefects</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forceSpecieDefect</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">excludeSpecieDefect</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speciesCoordMax</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coordMaxDefault</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for defect volumes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">searchInitialRadius</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">searchMoveRadius</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saddleConvergeRadius</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graphRadius</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">localiseSearchRadius</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">volumeDirectory</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">volumesConstructNew</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for ART method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artAplha</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artMaxBarrier</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artMaxMoveDistance</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artMaxFuncEval</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artRadius</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artTranslationStep</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artFdotRPvalue</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artMaxMoveCriteria</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artDebugMode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artUseLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artMinStepBeforeLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artNegEVThreshold</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artNumNegBeforeLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeArt</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for RAT method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratAplha</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratMaxBarrier</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratMaxMoveDistance</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratMaxFuncEval</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratMaxSteps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratRelaxationStep</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratFdotRPvalue</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratMaxMoveCriteria</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratMaxRelaxSteps</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratDebugMode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratUseLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratMinStepBeforeLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratNegEVThreshold</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratNumNegBeforeLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeRat</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratStepBackTestBeforeLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratStepBackTestCriteria</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratCheckBarrierInterval</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratMinOuterAtomsInterval</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for Dimer method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerInitialOffset</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerSeparation</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerRotationalMinimiser</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerLineSearch</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerDeltaTheta</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerTranslator</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerDeltaT</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerUseVarStepSize</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerMinStepSize</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerMaxStepSize</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerStepDirectionMode</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerTolR</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerTolT</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerMaxMoveCriteria</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerMinBarrier</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerMaxBarrier</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerMaxMoveDistance</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerMaxFuncEval</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerMaxSteps</span> <span class="o">=</span> <span class="mi">1000</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerUseLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerMinStepBeforeLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerStepBackTestBeforeLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerNegCurv</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerLookForNegEigenValue</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerMaxNegEigenValue</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerUseSubLattLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerUseWholeLattLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerDoStepBackTest</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerStepBackBarrCriteria</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerStepBackCheckTol</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerCheckStatusStep</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerKDimRotFlag</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">debugDimerRotation</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debugDimer</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debugDimerLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimerNumStepsNegBeforeLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeDimer</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for the Lanczos method and minimum mode following</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosConvByEigenVNo</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosConvTol</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosMinIter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hessianDispl</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hessianApproxMode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosMaxIter</span> <span class="o">=</span> <span class="mi">0</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosReuseNegExtCrit</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosSearchNegExtCrit</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosDownHillAlpha</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosLocaliseHessian</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosMinOuterFirst</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosMinOuterType</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosMinOuterCriteria</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosMinOuterTol</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosMinOuterLBFGSTol</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">debugLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters that are assigned while running the code</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosMinMode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosNegExtCrit</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for Lanczos and L-BFGS-B as a minimum mode methid:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSLanczosRestart</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSLanczosMemory</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSLanczosTolerance</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSLanczosMaxIter</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSLanczosSubTolerance</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSLanczosLooseSubTolerance</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSLanczosLooseSubMaxIter</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSLanczosConvgOnlyByTolerance</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSLanczosFixEigenVectorForStep</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSRestartMode</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBFGSOutputMethod</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineSuccessFracForStorage</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineSavedFracForStorage</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineMinTransSavedForStorage</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineBarrierEstimator</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineFailedUseNEB</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineFinal</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineFinalUseInclMin</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineFinalInclMinTol</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineFinalUseExclMin</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineFinalExclMinTol</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineFinalMinTol</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineSaddleLBFGSLanczosRestart</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineLBFGSLanczosMaxIter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineLBFGSLanczosLooseMaxIter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineSaddleMinTol</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineDimerMinTolR</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineUseSubLattLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineUseWholeLattLanczos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineMaxBarrier</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineLBFGSLanczosMaxIter</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">refineConv2Rank1Saddle</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeRefinement</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for minimum mode following algorithm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minModeInitialDispl</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minModeDimerMinTolR</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minModeMinimiser</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minModeMinimiserLineSearch</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minModeStepSize</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minModeCGdisplMax</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minModeInitialMinNoSteps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minModeMinTol</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minModeMaxIterations</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">minModeEigVMethod</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">minModeLBFGSMin</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for external events</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascOn</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depoOn</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eventStoreMDOutput</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for cascades</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascThermalise</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascThermoTimeWhole</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascThermoTimeLayer</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascThermoType</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascDuration</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascPKASpecies</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascMinimiseAtEnd</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascUseProbEnergies</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascPKAEnergy</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascPKAProbFile</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascUseRandPKAVector</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascPKAVector</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascMinAfterCasc</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascMinUseLAMMPS</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascMinFailUseLAMMPS</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascMinStyle</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascMinMaxEval</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cascRate</span> <span class="o">=</span> <span class="mf">0.0</span>
+         
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for deposition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depoThermalise</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depoThermoTimeWhole</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depoThermoTimeLayer</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depoThermoType</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depoTime</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depoAtFirstStep</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depoMinAfterDepo</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depoMinUseLAMMPS</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depoMinFailUseLAMMPS</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depoMinStyle</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depoMinMaxEval</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depoCutoff</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depoRate</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for basin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basinReset</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basinCOMTol</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basinLowBarrier</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basinSubLowBarrier</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debugBasin</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basinSepTol</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basinTransSep</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basinMomentTol</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for hooks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">postFoundTransitionHooks</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">postSelectEventHooks</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        
+        <span class="c1"># =====================================================================</span>
+        <span class="c1"># Parameters for lammps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lammpsInFile</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lammpsForceSpecieList</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lammpsUnits</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lammpsMinDt</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lammpsMaxDt</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lammpsUpdateDtSteps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lammpsMaxAtomMoveDt</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+<div class="viewcode-block" id="InputParams.printInputParameters"><a class="viewcode-back" href="../../LKMC/LKMC.Input.html#LKMC.Input.InputParams.printInputParameters">[docs]</a>    <span class="k">def</span> <span class="nf">printInputParameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span> <span class="s2">&quot;&gt;&gt; Input parameters:&quot;</span>
+        
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;    &quot;</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="s2">&quot; = &quot;</span> <span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="readGlobals"><a class="viewcode-back" href="../../LKMC/LKMC.Input.html#LKMC.Input.readGlobals">[docs]</a><span class="k">def</span> <span class="nf">readGlobals</span><span class="p">(</span><span class="n">inputFile</span><span class="o">=</span><span class="s2">&quot;lkmcInput.IN&quot;</span><span class="p">,</span> <span class="n">inputParams</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read globals if they haven&#39;t already been read.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">globalsSet</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputParams</span><span class="p">,</span> <span class="n">InputParams</span><span class="p">):</span>
+            <span class="n">inputParams</span> <span class="o">=</span> <span class="n">getLKMCParams</span><span class="p">(</span><span class="n">inputFile</span><span class="o">=</span><span class="n">inputFile</span><span class="p">)</span>
+        
+        <span class="c1"># assume this method is called while in original working directory</span>
+        <span class="n">Globals</span><span class="o">.</span><span class="n">origWorkDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        
+        <span class="n">Globals</span><span class="o">.</span><span class="n">MDType</span> <span class="o">=</span> <span class="n">inputParams</span><span class="o">.</span><span class="n">MDType</span>
+        <span class="n">Globals</span><span class="o">.</span><span class="n">verboseLevel</span> <span class="o">=</span> <span class="n">inputParams</span><span class="o">.</span><span class="n">verboseLevel</span>
+        <span class="n">Globals</span><span class="o">.</span><span class="n">systemTemperature</span> <span class="o">=</span> <span class="n">inputParams</span><span class="o">.</span><span class="n">systemTemperature</span>
+        
+        <span class="c1"># Store absolute path so works if we have changed from original working dir.</span>
+        <span class="c1"># If the path in the input file is absolute that is used instead (os.path.join)</span>
+        <span class="c1"># handles that.</span>
+        <span class="n">Globals</span><span class="o">.</span><span class="n">MDLocation</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">origWorkDir</span><span class="p">,</span> <span class="n">inputParams</span><span class="o">.</span><span class="n">MDLocation</span><span class="p">)</span>
+        
+        <span class="c1"># read boundary conditions</span>
+        <span class="n">readBoundaryConditions</span><span class="p">()</span>
+        
+        <span class="c1"># sub lattice force calc</span>
+        <span class="n">Globals</span><span class="o">.</span><span class="n">useSubLatticeForceCalc</span> <span class="o">=</span> <span class="n">inputParams</span><span class="o">.</span><span class="n">useSubLatticeForceCalc</span>
+        <span class="n">Globals</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span> <span class="o">=</span> <span class="n">inputParams</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span>
+        
+        <span class="c1"># lammps stuff</span>
+        <span class="n">specstr</span> <span class="o">=</span> <span class="n">inputParams</span><span class="o">.</span><span class="n">lammpsForceSpecieList</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">specstr</span><span class="p">):</span>
+            <span class="n">Globals</span><span class="o">.</span><span class="n">lammpsForceSpecieList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Globals</span><span class="o">.</span><span class="n">lammpsForceSpecieList</span> <span class="o">=</span> <span class="n">specstr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="n">Globals</span><span class="o">.</span><span class="n">lammpsInFile</span> <span class="o">=</span> <span class="n">inputParams</span><span class="o">.</span><span class="n">lammpsInFile</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">lammpsInFile</span><span class="p">):</span>
+            <span class="n">Globals</span><span class="o">.</span><span class="n">lammpsInFile</span> <span class="o">=</span> <span class="s2">&quot;in.lammps&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputParams</span><span class="o">.</span><span class="n">lammpsUnits</span><span class="p">):</span>
+            <span class="n">Globals</span><span class="o">.</span><span class="n">lammpsUnits</span> <span class="o">=</span> <span class="n">inputParams</span><span class="o">.</span><span class="n">lammpsUnits</span>
+        
+        <span class="c1"># test if either povray path exists and is executable or is in our path</span>
+        <span class="n">pov</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="n">inputParams</span><span class="o">.</span><span class="n">povrayPath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pov</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">Globals</span><span class="o">.</span><span class="n">povrayPath</span> <span class="o">=</span> <span class="n">pov</span>
+            <span class="n">Utilities</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Using POV-Ray: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">pov</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pov</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">povrayPath</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pov</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">Utilities</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;WARNING: cannot locate povray; switching off rendering&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">Globals</span><span class="o">.</span><span class="n">povrayPath</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Utilities</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;WARNING: povrayPath &#39;</span><span class="si">%s</span><span class="s2">&#39; does not exist; assuming default value &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">inputParams</span><span class="o">.</span><span class="n">povrayPath</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">povrayPath</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="n">Globals</span><span class="o">.</span><span class="n">globalsSet</span> <span class="o">=</span> <span class="mi">1</span></div>
+    
+
+<span class="c1">################################################################################</span>
+<span class="c1"># Read boundary conditions</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="readBoundaryConditions"><a class="viewcode-back" href="../../LKMC/LKMC.Input.html#LKMC.Input.readBoundaryConditions">[docs]</a><span class="k">def</span> <span class="nf">readBoundaryConditions</span><span class="p">():</span>
+    
+    <span class="c1"># MD type (temporary, should be read from Input module)</span>
+    <span class="n">MDType</span> <span class="o">=</span> <span class="n">Globals</span><span class="o">.</span><span class="n">MDType</span>
+    
+    <span class="k">if</span> <span class="n">MDType</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;LBOMD&quot;</span><span class="p">:</span>
+        <span class="n">_readBoundaryConditionsLBOMD</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># trying to read PBC from a separate file PBC.IN</span>
+        <span class="n">filePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">MDLocation</span><span class="p">,</span> <span class="s2">&quot;PBC.IN&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">checkForFile</span><span class="p">(</span><span class="n">filePath</span><span class="p">):</span>
+            <span class="n">_readBoundaryConditionsLAMMPS</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span>
+        <span class="c1"># otherwise read PBC from lbomd.IN</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;WARNING: assuming lbomd.IN is present in md directory for now&quot;</span>
+            <span class="n">_readBoundaryConditionsLBOMD</span><span class="p">()</span></div>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># For LAMMPS boundary conditions are read from PBC.IN in MDLocation</span>
+<span class="c1">################################################################################</span>
+<span class="k">def</span> <span class="nf">_readBoundaryConditionsLAMMPS</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+    
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+    
+    <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">array</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    
+    <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    
+    <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># For LBOMD boundary conditions are read from lbomd.IN in MDLocation</span>
+<span class="c1">################################################################################</span>
+<span class="k">def</span> <span class="nf">_readBoundaryConditionsLBOMD</span><span class="p">():</span>
+    
+<span class="c1">#    if len(Globals.PBC):</span>
+<span class="c1">#        return</span>
+    
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;lbomd.IN&quot;</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">MDLocation</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+        <span class="k">pass</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">name</span>
+        
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+            <span class="k">pass</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;WARNING: could not open </span><span class="si">%s</span><span class="s2"> to read PBCs. Continuing anyway&quot;</span> <span class="o">%</span> <span class="n">filepath</span>
+            <span class="k">return</span>
+    
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+    
+    <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+        
+    <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">array</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    
+    <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    
+    <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+<span class="c1">#    print __name__, &quot;: PBCs are %d %d %d&quot; % (Globals.PBC[0], Globals.PBC[1], Globals.PBC[0])</span>
+
+    
+<span class="c1">################################################################################ </span>
+<span class="c1"># creates input parameters object</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="createLKMCInputObject"><a class="viewcode-back" href="../../LKMC/LKMC.Input.html#LKMC.Input.createLKMCInputObject">[docs]</a><span class="k">def</span> <span class="nf">createLKMCInputObject</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">InputParams</span><span class="p">();</span></div>
+
+<div class="viewcode-block" id="checkParamFile"><a class="viewcode-back" href="../../LKMC/LKMC.Input.html#LKMC.Input.checkParamFile">[docs]</a><span class="k">def</span> <span class="nf">checkParamFile</span><span class="p">(</span><span class="n">inputFile</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compare input parameter file with default one</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># the default param file</span>
+    <span class="n">inputFile_new</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">)),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="s2">&quot;lkmcInput.IN&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># count number of deleted/new_added/different params between two file</span>
+    <span class="n">NoDel</span><span class="p">,</span> <span class="n">NoNew</span><span class="p">,</span> <span class="n">NoDiff</span> <span class="o">=</span> <span class="n">updateParameters</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inputFile_new</span><span class="p">,</span> <span class="n">inputFile</span><span class="p">,</span> <span class="n">return_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">NoDel</span> <span class="ow">or</span> <span class="n">NoNew</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;WARNING: input parameter file is outdated. </span><span class="se">\n</span><span class="s2">    There are </span><span class="si">%d</span><span class="s2"> params be deleted and </span><span class="si">%d</span><span class="s2"> new params in the latest version.&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">NoDel</span><span class="p">,</span> <span class="n">NoNew</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="s2">&quot;    Run &#39;lkmc.py updateParameters&#39; to update input file, with &#39;-h&#39; for detailed usage.&quot;</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: Simulation terminated due to input file is outdated.    Run &#39;lkmc.py updateParameters&#39; to update input file, with &#39;-h&#39; for detailed usage.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="mi">0</span></div>
+
+<span class="c1">################################################################################ </span>
+<span class="c1"># Gets the parameters from an input file</span>
+<span class="c1">#     allMode - If 1 reads all parameters from all the sections</span>
+<span class="c1">#     sectionName - If allMode is not equal to 1 section name from which </span>
+<span class="c1">#        parameters will be read.</span>
+<span class="c1">#     inputFile - (Optional) Just in case user wants to read parameters from a </span>
+<span class="c1">#        different file</span>
+<span class="c1">################################################################################ </span>
+<div class="viewcode-block" id="getLKMCParams"><a class="viewcode-back" href="../../LKMC/LKMC.Input.html#LKMC.Input.getLKMCParams">[docs]</a><span class="k">def</span> <span class="nf">getLKMCParams</span><span class="p">(</span><span class="n">allMode</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sectionName</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">inputFile</span><span class="o">=</span><span class="s2">&quot;lkmcInput.IN&quot;</span><span class="p">):</span>
+    <span class="c1"># Check whether the inputFile is outdated</span>
+    <span class="n">checkParamFile</span><span class="p">(</span><span class="n">inputFile</span><span class="p">)</span>
+    
+    <span class="n">inputParamFile</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sectionName</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">allMode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: section name is not defined!&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputFile</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">inputParamFile</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">lkmcInput</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">inputParamFile</span> <span class="o">=</span> <span class="n">inputFile</span>
+        
+    <span class="k">if</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">checkForFile</span><span class="p">(</span><span class="n">inputParamFile</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: could not locate file: &quot;</span> <span class="o">+</span> <span class="n">inputParamFile</span><span class="p">)</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">inputParamFile</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: could not open file: &quot;</span> <span class="o">+</span> <span class="n">inputParamFile</span><span class="p">)</span>
+    
+    <span class="n">inputParamObject</span> <span class="o">=</span> <span class="n">createLKMCInputObject</span><span class="p">()</span>
+    
+    <span class="k">if</span> <span class="n">allMode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">sectionStart</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">sectionStartMark</span> <span class="o">+</span> <span class="n">sectionName</span> <span class="o">+</span> <span class="n">const</span><span class="o">.</span><span class="n">newLineSign</span>
+        <span class="n">sectionEnd</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">sectionEndMark</span> <span class="o">+</span> <span class="n">sectionName</span> <span class="o">+</span> <span class="n">const</span><span class="o">.</span><span class="n">newLineSign</span>
+    
+        <span class="n">sectionStartFound</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">sectionEndFound</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="n">lookForName</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">lookForValue</span> <span class="o">=</span> <span class="mi">0</span>
+        
+    <span class="n">lineIter</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">lineIter</span> <span class="o">=</span> <span class="n">lineIter</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">const</span><span class="o">.</span><span class="n">ignorLineSign</span><span class="p">:</span>
+            <span class="k">continue</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="n">allMode</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">sectionStartMark</span><span class="p">)]</span> <span class="o">==</span> <span class="n">const</span><span class="o">.</span><span class="n">sectionStartMark</span> <span class="ow">or</span> 
+                              <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span> <span class="n">const</span><span class="o">.</span><span class="n">sectionEndMark</span><span class="p">)]</span> <span class="o">==</span> <span class="n">const</span><span class="o">.</span><span class="n">sectionEndMark</span><span class="p">)):</span>
+            <span class="k">continue</span>
+            
+        <span class="k">if</span> <span class="n">allMode</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">line</span> <span class="o">==</span> <span class="n">sectionEnd</span><span class="p">:</span>
+            <span class="n">sectionEndFound</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        <span class="k">if</span> <span class="n">allMode</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="p">(</span><span class="n">sectionStartFound</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">sectionEndFound</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            
+            <span class="n">paramValueStr</span> <span class="o">=</span> <span class="kc">None</span>
+            
+            <span class="k">if</span> <span class="p">(</span><span class="n">lookForName</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;%&quot;</span><span class="p">:</span> 
+                    <span class="nb">print</span> <span class="n">line</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: something is wrong with the input file: &quot;</span> <span class="o">+</span> <span class="n">inputParamFile</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">lineLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">paramName</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">lineLen</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                                        
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">inputParamObject</span><span class="p">,</span> <span class="n">paramName</span><span class="p">):</span>
+                        <span class="n">paramType</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">inputParamObject</span><span class="p">,</span> <span class="n">paramName</span><span class="p">))</span><span class="o">.</span><span class="n">__name__</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: unexpected parameter:&quot;</span> <span class="o">+</span> <span class="n">paramName</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="n">inputParamFile</span><span class="p">)</span>
+                    
+                    <span class="n">lookForName</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">lookForValue</span> <span class="o">=</span> <span class="mi">1</span>
+                    
+            <span class="k">elif</span> <span class="p">(</span><span class="n">lookForValue</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">lineLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="n">paramValueStr</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">lineLen</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                                
+                <span class="n">paramValue</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">convertStrToType</span><span class="p">(</span><span class="n">paramValueStr</span><span class="p">,</span> <span class="n">paramType</span><span class="p">)</span>
+                
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">inputParamObject</span><span class="p">,</span> <span class="n">paramName</span><span class="p">,</span> <span class="n">paramValue</span><span class="p">)</span>
+                                
+                <span class="n">lookForName</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">lookForValue</span> <span class="o">=</span> <span class="mi">0</span>            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: undefined action while reading the input file: &quot;</span> <span class="o">+</span> <span class="n">inputParamFile</span><span class="p">)</span>
+                    
+        <span class="k">if</span> <span class="n">allMode</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">line</span> <span class="o">==</span> <span class="n">sectionStart</span><span class="p">:</span>
+            <span class="n">sectionStartFound</span> <span class="o">=</span> <span class="mi">1</span>
+        
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="n">inputParamObject</span><span class="o">.</span><span class="n">lkmcInputFile</span> <span class="o">=</span> <span class="n">inputFile</span>
+    
+    <span class="k">return</span> <span class="n">inputParamObject</span></div>
+    
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

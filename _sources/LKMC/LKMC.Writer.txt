@@ -1,0 +1,7 @@
+LKMC.Writer module
+==================
+
+.. automodule:: LKMC.Writer
+    :members:
+    :undoc-members:
+    :show-inheritance:

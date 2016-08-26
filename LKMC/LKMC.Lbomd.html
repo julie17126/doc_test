@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Lbomd module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.MinModeFollower module" href="LKMC.MinModeFollower.html" />
+    <link rel="prev" title="LKMC.Lattice module" href="LKMC.Lattice.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.MinModeFollower.html" title="LKMC.MinModeFollower module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Lattice.html" title="LKMC.Lattice module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Lbomd">
+<span id="lkmc-lbomd-module"></span><h1>LKMC.Lbomd module<a class="headerlink" href="#module-LKMC.Lbomd" title="Permalink to this headline">¶</a></h1>
+<p>Utility and input/output routines for LBOMD.</p>
+<p>&#64;author: Chris Scott</p>
+<dl class="class">
+<dt id="LKMC.Lbomd.CascadeCallbackDefault">
+<em class="property">class </em><code class="descclassname">LKMC.Lbomd.</code><code class="descname">CascadeCallbackDefault</code><a class="reference internal" href="../_modules/LKMC/Lbomd.html#CascadeCallbackDefault"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lbomd.CascadeCallbackDefault" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Default callback object: does nothing</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Lbomd.CascadeCallbackDefault.callback">
+<code class="descname">callback</code><span class="sig-paren">(</span><em>simTime</em>, <em>currentPos</em>, <em>currentTemperature</em>, <em>numAtoms</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lbomd.html#CascadeCallbackDefault.callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lbomd.CascadeCallbackDefault.callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback method</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Lbomd.CascadeCallbackDefects">
+<em class="property">class </em><code class="descclassname">LKMC.Lbomd.</code><code class="descname">CascadeCallbackDefects</code><span class="sig-paren">(</span><em>simulationID</em>, <em>lattice</em>, <em>ref</em>, <em>params</em>, <em>resultQ=None</em>, <em>filename=None</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lbomd.html#CascadeCallbackDefects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lbomd.CascadeCallbackDefects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Default callback object: does nothing</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Lbomd.CascadeCallbackDefects.callback">
+<code class="descname">callback</code><span class="sig-paren">(</span><em>simTime</em>, <em>currentPos</em>, <em>currentTemperature</em>, <em>numAtoms</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lbomd.html#CascadeCallbackDefects.callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lbomd.CascadeCallbackDefects.callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback method</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Lbomd.CascadeCallbackDisplacement">
+<em class="property">class </em><code class="descclassname">LKMC.Lbomd.</code><code class="descname">CascadeCallbackDisplacement</code><span class="sig-paren">(</span><em>lattice</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lbomd.html#CascadeCallbackDisplacement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lbomd.CascadeCallbackDisplacement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Object with callback method.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Lbomd.CascadeCallbackDisplacement.callback">
+<code class="descname">callback</code><span class="sig-paren">(</span><em>simTime</em>, <em>currentPos</em>, <em>currentTemperature</em>, <em>numAtoms</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lbomd.html#CascadeCallbackDisplacement.callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lbomd.CascadeCallbackDisplacement.callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback method</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lbomd.addPKA">
+<code class="descclassname">LKMC.Lbomd.</code><code class="descname">addPKA</code><span class="sig-paren">(</span><em>lattice</em>, <em>energy</em>, <em>pkaDirection</em>, <em>approxPosition=None</em>, <em>approxPositionRadius=None</em>, <em>pkaIndex=None</em>, <em>inputVelocity=None</em>, <em>pkaSymbol=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lbomd.html#addPKA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lbomd.addPKA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add PKA near given coordinates or at atom index.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lbomd.findFinalXYZ">
+<code class="descclassname">LKMC.Lbomd.</code><code class="descname">findFinalXYZ</code><span class="sig-paren">(</span><em>identity</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lbomd.html#findFinalXYZ"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lbomd.findFinalXYZ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the final XYZ file and index
+corresponding to given identity.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lbomd.getInterfaceVersion">
+<code class="descclassname">LKMC.Lbomd.</code><code class="descname">getInterfaceVersion</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lbomd.html#getInterfaceVersion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lbomd.getInterfaceVersion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return LBOMD python interface version</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lbomd.getLBOMDIdentity">
+<code class="descclassname">LKMC.Lbomd.</code><code class="descname">getLBOMDIdentity</code><span class="sig-paren">(</span><em>index=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lbomd.html#getLBOMDIdentity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lbomd.getLBOMDIdentity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempts to find the LBOMD XYZ identity associated with 
+the xyz file with index: ie xxxxxINDEX.xyz</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lbomd.getPKAVelocity">
+<code class="descclassname">LKMC.Lbomd.</code><code class="descname">getPKAVelocity</code><span class="sig-paren">(</span><em>pkaSym</em>, <em>energy</em>, <em>pkaDirection</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lbomd.html#getPKAVelocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lbomd.getPKAVelocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return PKA velocity for given energy and direction</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lbomd.readLBOMDRef">
+<code class="descclassname">LKMC.Lbomd.</code><code class="descname">readLBOMDRef</code><span class="sig-paren">(</span><em>filename</em>, <em>storeEnergies=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lbomd.html#readLBOMDRef"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lbomd.readLBOMDRef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read LBOMD reference file.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lbomd.readLBOMDXYZ">
+<code class="descclassname">LKMC.Lbomd.</code><code class="descname">readLBOMDXYZ</code><span class="sig-paren">(</span><em>filename</em>, <em>refLattice=None</em>, <em>storeEnergies=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lbomd.html#readLBOMDXYZ"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lbomd.readLBOMDXYZ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read LBOMD XYZ file.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lbomd.runDampedMD">
+<code class="descclassname">LKMC.Lbomd.</code><code class="descname">runDampedMD</code><span class="sig-paren">(</span><em>lattice</em>, <em>mode</em>, <em>runTime</em>, <em>forceTolerance</em>, <em>initialVelocity=None</em>, <em>fileOutput=False</em>, <em>writeReference=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lbomd.html#runDampedMD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lbomd.runDampedMD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run an damped MD simulation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lattice</strong> : Lattice.Lattice</p>
+<blockquote>
+<div><p>The input lattice object to run the simulation on.</p>
+</div></blockquote>
+<p><strong>mode</strong> : 0 or 1</p>
+<blockquote>
+<div><p>Set to 0 to run for a fixed time or 1 to run until the force tolerance is reached.</p>
+</div></blockquote>
+<p><strong>runTime</strong> : float</p>
+<blockquote>
+<div><p>The time to run the simulation for (assuming <cite>mode</cite> is set to 0).</p>
+</div></blockquote>
+<p><strong>forceTolerance</strong> : float</p>
+<blockquote>
+<div><p>The force tolerance defining the top condition of the simulation (assuming <cite>mode</cite> is set to 1).</p>
+</div></blockquote>
+<p><strong>initialVelocity</strong> : np.ndarray, optional</p>
+<blockquote>
+<div><p>Optional. The initial velocities for the simulation. The default is 0.</p>
+</div></blockquote>
+<p><strong>fileOutput</strong> : bool</p>
+<blockquote>
+<div><p>Determines whether lbomd output files are written (xyz, failsafe, cascades, thermalise...).</p>
+</div></blockquote>
+<p><strong>writeReference</strong> : bool</p>
+<blockquote class="last">
+<div><p>Forces a reference file to be written (ignored if <cite>fileOutput</cite> is False).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This interface is likely to change!</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lbomd.runMD">
+<code class="descclassname">LKMC.Lbomd.</code><code class="descname">runMD</code><span class="sig-paren">(</span><em>lattice</em>, <em>runTime</em>, <em>temperature</em>, <em>thermostatType</em>, <em>initialVelocity=None</em>, <em>fileOutput=False</em>, <em>writeReference=True</em>, <em>callbackObj=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lbomd.html#runMD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lbomd.runMD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run an MD simulation.</p>
+<p>&#8216;fileOutput&#8217; determines whether lbomd output files are written (xyz, failsafe, cascades, thermalise...)
+&#8216;writeReference&#8217; forces a reference file to be written (this option is ignored if fileOutput=False)</p>
+<p>If no initial velocity is passed the simulation will run at 0 K.</p>
+<dl class="docutils">
+<dt>NOTES:</dt>
+<dd><ul class="first last simple">
+<li>this interface is likely to change!</li>
+<li>does not read collisions.IN (you need to set initial velocities to run cascade)</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Lbomd.runThermalisation">
+<code class="descclassname">LKMC.Lbomd.</code><code class="descname">runThermalisation</code><span class="sig-paren">(</span><em>lattice</em>, <em>fullSystemTime</em>, <em>constrainedSystemTime</em>, <em>temperature</em>, <em>thermostatType</em>, <em>fileOutput=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Lbomd.html#runThermalisation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Lbomd.runThermalisation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Thermalise a lattice using the LBOMD interface</p>
+<p>&#8216;fileOutput&#8217; determines whether lbomd output files are written (xyz, failsafe, cascades, thermalise...)</p>
+<p>NOTE: this interface is likely to change!</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Lattice.html"
+                        title="previous chapter">LKMC.Lattice module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.MinModeFollower.html"
+                        title="next chapter">LKMC.MinModeFollower module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Lbomd.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.MinModeFollower.html" title="LKMC.MinModeFollower module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Lattice.html" title="LKMC.Lattice module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

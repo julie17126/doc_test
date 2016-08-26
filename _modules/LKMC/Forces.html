@@ -1,0 +1,765 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Forces &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Forces</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module handles all force evaluations.</span>
+
+<span class="sd">The calcForce function in this module is usually called from</span>
+<span class="sd">a wrapper function on the Lattice, etc. objects.</span>
+
+<span class="sd">Copyright Chris Scott 2012</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">ctypes</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Vectors</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Atoms</span>
+<span class="kn">from</span> <span class="nn">.clibs</span> <span class="k">import</span> <span class="n">io_module</span> <span class="k">as</span> <span class="n">c_io</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">LBOMD</span>
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;LBOMD Python interface loaded (Version </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">LBOMD</span><span class="o">.</span><span class="n">python_interface</span><span class="o">.</span><span class="n">interface_version</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">lbomdLoaded</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Warning: could not load LBOMD Python interface&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">lbomdLoaded</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">lammps</span>
+    <span class="n">lammps</span><span class="o">.</span><span class="n">lammps</span><span class="p">(</span><span class="n">cmdargs</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;-log&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">lammpsImported</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;LAMMPS Python interface loaded&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">lammpsImported</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># Wrapper function</span>
+<span class="c1"># Calculate forces and energies of Lattice or Images objects</span>
+<span class="c1"># MDPath is the path to directory containing MD files (defaults to &quot;md&quot; dir)</span>
+<span class="c1"># Image is used to determine offset of array indexes (eg. for use with Images object):</span>
+<span class="c1">#    NOTE offset is not applied to sym and charge arrays as assumed the same</span>
+<span class="c1">#    Object must contain imageNAtoms =&gt; number of atoms in each image</span>
+<span class="c1">################################################################################</span>
+<div class="viewcode-block" id="calcForce"><a class="viewcode-back" href="../../LKMC/LKMC.Forces.html#LKMC.Forces.calcForce">[docs]</a><span class="k">def</span> <span class="nf">calcForce</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">MDPath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">defectFlag</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">correctTE</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+              <span class="n">includeAtoms</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">mainIndexes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)):</span>
+    <span class="c1"># the path to the directory that contains the MD code files</span>
+    <span class="c1"># if not passed as argument we assume if to be in the &quot;md&quot; dir in current dir</span>
+    <span class="k">if</span> <span class="n">MDPath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">MDPath</span> <span class="o">=</span> <span class="n">Globals</span><span class="o">.</span><span class="n">MDLocation</span>
+    
+    <span class="c1"># if exclusion and use sublattice build sublattice (unless it&#39;s already been built)</span>
+    <span class="n">forceConstructSub</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">defectFlag</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">Globals</span><span class="o">.</span><span class="n">useSubLatticeForceCalc</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">includeAtoms</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">correctTE</span><span class="p">:</span>
+        <span class="n">includeAtoms</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span><span class="p">)</span>
+        <span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span>
+        <span class="n">forceConstructSub</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="k">if</span> <span class="n">defectFlag</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">includeAtoms</span><span class="p">):</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;WARNING: defectFlag==1 and includeAtoms is set; resetting to zero&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">includeAtoms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    
+    <span class="c1"># call correct function for MDType</span>
+    <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">MDType</span> <span class="o">==</span> <span class="s2">&quot;LBOMDDIRECT&quot;</span> <span class="ow">or</span> <span class="n">Globals</span><span class="o">.</span><span class="n">MDType</span> <span class="o">==</span> <span class="s2">&quot;LBOMD&quot;</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">_calcForceLBOMDDirect</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">MDPath</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">)</span>  
+        
+    <span class="k">elif</span> <span class="n">Globals</span><span class="o">.</span><span class="n">MDType</span> <span class="o">==</span> <span class="s2">&quot;LAMMPS&quot;</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">_calcForceLAMMPS</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">MDPath</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">)</span>
+    
+    <span class="k">elif</span> <span class="n">Globals</span><span class="o">.</span><span class="n">MDType</span> <span class="o">==</span> <span class="s2">&quot;SIESTA&quot;</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">_calcForceSiesta</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">MDPath</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">)</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: unrecognised MDType: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">MDType</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
+        <span class="c1"># handle inclusion/exclusion of defects here</span>
+        <span class="k">if</span> <span class="n">defectFlag</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">_excludeDefects</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">defectFlag</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">includeAtoms</span><span class="p">)</span> <span class="ow">or</span> <span class="n">forceConstructSub</span><span class="p">):</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">_includeDefects</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">status</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1"># Calculate forces and energies using LBOMD direct interface</span>
+<span class="c1">################################################################################</span>
+<span class="k">def</span> <span class="nf">_calcForceLBOMDDirect</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">MDPath</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">):</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">lbomdLoaded</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: LBOMD not imported&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># we work in the MD code dir, then change back to wherever we were originally</span>
+    <span class="c1"># so store current working dir</span>
+    <span class="n">OWD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    
+    <span class="c1"># and change to MD dir</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">MDPath</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: could not change to dir: &quot;</span><span class="o">+</span><span class="n">MDPath</span><span class="p">)</span>
+    
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;calculating force (LBOMDDIRECT)&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+    <span class="c1"># which image</span>
+    <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">imageFor</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">imageFor</span> <span class="o">=</span> <span class="n">image</span>
+    
+    <span class="c1"># create specie string containing specie list to pass to fortran</span>
+    <span class="n">specieList</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span>
+    <span class="n">specieString</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">specieList</span><span class="p">)</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">lattice</span><span class="o">.</span><span class="n">totalEnergy</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">maxForce</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">maxForceAtomNo</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">LBOMD</span><span class="o">.</span><span class="n">python_interface</span><span class="o">.</span><span class="n">calc_force</span><span class="p">(</span><span class="n">imageFor</span><span class="p">,</span> <span class="n">specieString</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> 
+                                                                                                                  <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> 
+                                                                                                                  <span class="n">lattice</span><span class="o">.</span><span class="n">KE</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">PE</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> 
+                                                                                                                  <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> 
+                                                                                                                  <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;LBOMDDirect failed&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    
+    <span class="c1"># check status</span>
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;LBOMDDirect failed&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;total energy is </span><span class="si">%f</span><span class="s2"> eV&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">totalEnergy</span><span class="p">),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;max force is </span><span class="si">%f</span><span class="s2"> eV/A (atom </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">maxForce</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">maxForceAtomNo</span><span class="p">),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    
+    <span class="c1"># finally, change back to original working directory</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">OWD</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: could not change to dir: &quot;</span><span class="o">+</span><span class="n">OWD</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">status</span>
+
+<span class="c1">################################################################################</span>
+
+<span class="c1"># current instance of lammps</span>
+<span class="n">lmp</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1">################################################################################</span>
+
+<span class="k">def</span> <span class="nf">_calcForceLAMMPS</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">MDPath</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate forces using LAMMPS.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">lmp</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">lammpsImported</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: lammps not imported&quot;</span><span class="p">)</span>
+    
+<span class="c1">#    if image is not None or len(includeAtoms) or len(mainIndexes):</span>
+<span class="c1">#        print &quot;WARNING: LAMMPS does not have full support (or it has not been properly tested) for image/includeAtoms/mainIndexes yet&quot;</span>
+    
+    <span class="n">forceCallTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    
+    <span class="c1"># Warp atom?</span>
+<span class="c1">#    if  hasattr(obj,&quot;wrapAtoms&quot;):</span>
+<span class="c1">#        print &quot;Wrap Atoms ...&quot;</span>
+<span class="c1">#        obj.wrapAtoms()</span>
+    
+    <span class="c1"># we work in the MD code dir, then change back to wherever we were originally</span>
+    <span class="c1"># so store current working dir</span>
+    <span class="n">OWD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    
+    <span class="c1"># and change to MD dir</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">MDPath</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: could not change to dir: &quot;</span><span class="o">+</span><span class="n">MDPath</span><span class="p">)</span>
+    
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;calculating force (LAMMPS)&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># current position</span>
+        <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">currentPos</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">pos</span>
+            <span class="n">NAtoms</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">NAtoms</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">NAtoms</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">imageNAtoms</span>
+            <span class="n">currentPos</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">image</span><span class="o">*</span><span class="n">NAtoms</span><span class="p">:</span><span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">image</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">NAtoms</span><span class="p">]</span>
+        
+        <span class="c1"># check if system has changed or this is first run</span>
+        <span class="n">lmpSetupTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lmp</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">NAtoms</span> <span class="o">!=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">get_natoms</span><span class="p">()</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;resetLammps&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Resetting LAMMPS&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">lmp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">lmp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;resetLammps&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">resetLammps</span> <span class="o">=</span> <span class="mi">0</span>
+            
+            <span class="c1"># new instance of lammps</span>
+            <span class="n">lmp</span> <span class="o">=</span> <span class="n">lammps</span><span class="o">.</span><span class="n">lammps</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;-log&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;-screen&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">])</span>
+<span class="c1">#             lmp = lammps.lammps(&quot;&quot;, [&quot;-log&quot;,&quot;none&quot;])</span>
+            
+            <span class="c1"># BCs - this needs to be changed</span>
+            <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">pbcx</span> <span class="o">=</span> <span class="s2">&quot;p&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pbcx</span> <span class="o">=</span> <span class="s2">&quot;f&quot;</span>
+            <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">pbcy</span> <span class="o">=</span> <span class="s2">&quot;p&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pbcy</span> <span class="o">=</span> <span class="s2">&quot;f&quot;</span>
+            <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                <span class="n">pbcz</span> <span class="o">=</span> <span class="s2">&quot;p&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pbcz</span> <span class="o">=</span> <span class="s2">&quot;f&quot;</span>
+            
+            <span class="c1"># check LAMMPS units parameter</span>
+            <span class="n">knownValues</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;metal&#39;</span><span class="p">,)</span>
+            <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">lammpsUnits</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">knownValues</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported choice for LAMMPS units: &#39;</span><span class="si">%s</span><span class="s2">&#39;. Must be one of </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">lammpsUnits</span><span class="p">,</span>
+                                                                                                   <span class="n">knownValues</span><span class="p">))</span>
+            
+            <span class="c1"># initialise</span>
+            <span class="n">lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;units </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">Globals</span><span class="o">.</span><span class="n">lammpsUnits</span><span class="p">)</span>
+            <span class="n">lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;dimension 3&quot;</span><span class="p">)</span>
+            <span class="n">lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;boundary </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pbcx</span><span class="p">,</span> <span class="n">pbcy</span><span class="p">,</span> <span class="n">pbcz</span><span class="p">))</span>
+            <span class="n">lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;atom_style charge&quot;</span><span class="p">)</span>
+            <span class="n">lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;atom_modify sort 0 0&quot;</span><span class="p">)</span> <span class="c1"># not sure if this effects performance, makes PE&#39;s come out in right order</span>
+            <span class="n">lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;atom_modify map array&quot;</span><span class="p">)</span>
+            
+    <span class="c1">#        # check for atom number and positions</span>
+    <span class="c1">#        if (NAtoms != len(currentPos)/3):</span>
+    <span class="c1">#            obj.totalEnergy = 0.0</span>
+    <span class="c1">#            for i in xrange(len(obj.force)):</span>
+    <span class="c1">#                obj.force[i] = 0.0</span>
+    <span class="c1">#            log(__name__,&quot;Force Calculation FAILED due to NAtoms not match positions!&quot;,2,2)</span>
+    <span class="c1">#            return 1</span>
+            
+            <span class="c1"># write LAMMPS atom file        </span>
+            <span class="n">fd</span><span class="p">,</span> <span class="n">fn</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">()</span>
+            
+            <span class="c1">#check out-of-boundary atoms</span>
+            <span class="n">tmp_obj</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+<span class="c1">#             if hasattr(tmp_obj,&quot;removeOutBoundary&quot;) and Globals.JOBTYPE == &quot;GROWTH&quot;:</span>
+<span class="c1">#                 tmp_obj.removeOutBoundary()</span>
+<span class="c1">#                 if tmp_obj.NAtoms != obj.NAtoms:</span>
+<span class="c1">#                     obj.totalEnergy = 0.0</span>
+<span class="c1">#                     for i in xrange(len(obj.force)):</span>
+<span class="c1">#                         obj.force[i] = 0.0</span>
+<span class="c1">#                     log(__name__,&quot;Force Calculation FAILED due to Atoms Position Wrong! (might lost atoms)&quot;,2,2)</span>
+<span class="c1">#     #                sys.exit(__name__+&quot;: ERROR: Atoms Lost in LAMMPS calcForce!&quot;)</span>
+<span class="c1">#                     os.close(fd)</span>
+<span class="c1">#                     os.unlink(fn)</span>
+<span class="c1">#                     return 1</span>
+        
+            <span class="c1"># write atom data file</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># if no AMU info stored, calculate AMU</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">specieMassAMU</span><span class="p">):</span>
+                    <span class="n">obj</span><span class="o">.</span><span class="n">specieMassAMU</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">specieList</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">specieList</span><span class="p">)):</span>
+                        <span class="n">obj</span><span class="o">.</span><span class="n">specieMassAMU</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Atoms</span><span class="o">.</span><span class="n">atomicMassAMU</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">specieList</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                
+                <span class="n">obj</span><span class="o">.</span><span class="n">specie</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+                
+                <span class="n">c_io</span><span class="o">.</span><span class="n">writeLammpsAtomDataFile</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">specieList</span><span class="p">),</span> <span class="n">currentPos</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">specieMassAMU</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">cellDims</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                
+    <span class="c1">#             os.system(&quot;cp -f %s lammps.data&quot; % fn)</span>
+                
+                <span class="c1"># now get lammps to read data</span>
+    <span class="c1">#            print fn</span>
+    <span class="c1">#            print &quot;-------------read data&quot;</span>
+                <span class="n">lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;read_data </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fn</span><span class="p">,))</span>
+            
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+            
+            <span class="c1"># tell lammps about potential</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">lammpsInFile</span><span class="p">):</span>
+                <span class="nb">print</span> <span class="s2">&quot;ERROR: lammps in file does not exists: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">Globals</span><span class="o">.</span><span class="n">lammpsInFile</span>
+                <span class="k">return</span> <span class="mi">88</span>
+            
+            <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">lammpsInFile</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            
+            <span class="c1"># atom lost warn</span>
+            <span class="n">lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;thermo_modify lost warn&quot;</span><span class="p">)</span>
+            
+            <span class="n">lmpSetupTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">lmpSetupTime</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># make sure lammps positions are same as ours</span>
+            <span class="n">c_double_p</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_double</span><span class="p">)</span>
+            <span class="n">lmp</span><span class="o">.</span><span class="n">scatter_atoms</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">currentPos</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data_as</span><span class="p">(</span><span class="n">c_double_p</span><span class="p">))</span>
+            
+            <span class="n">lmpSetupTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">lmpSetupTime</span>
+        
+        <span class="c1"># set up compute for atom PE&#39;s</span>
+        <span class="n">storeEnergies</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;storeEnergies&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">lmp</span><span class="p">,</span> <span class="s2">&quot;storeEnergies&quot;</span><span class="p">):</span>
+            <span class="n">lmp</span><span class="o">.</span><span class="n">storeEnergies</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="k">if</span> <span class="n">storeEnergies</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">lmp</span><span class="o">.</span><span class="n">storeEnergies</span><span class="p">:</span>
+            <span class="n">lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;compute atompe all pe/atom&quot;</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">storeEnergies</span> <span class="ow">and</span> <span class="n">lmp</span><span class="o">.</span><span class="n">storeEnergies</span><span class="p">:</span>
+            <span class="n">lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;uncompute atompe&quot;</span><span class="p">)</span>
+        
+    <span class="c1">#     lmp.command(&quot;dump dumppe all custom 1 pe.out id c_atompe&quot;)</span>
+        
+        <span class="n">lmp</span><span class="o">.</span><span class="n">storeEnergies</span> <span class="o">=</span> <span class="n">storeEnergies</span>
+        
+        <span class="c1"># now run lammps</span>
+        <span class="n">lmpRunTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;run 0 post no&quot;</span><span class="p">)</span>
+        <span class="n">lmpRunTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">lmpRunTime</span>
+        
+        <span class="c1"># check for atom lost</span>
+        <span class="k">if</span> <span class="n">NAtoms</span> <span class="o">!=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">get_natoms</span><span class="p">():</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">force</span><span class="p">)):</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">force</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span><span class="s2">&quot;Force Calculation FAILED due to Atoms Lost! (</span><span class="si">%d</span><span class="s2">-&gt;</span><span class="si">%d</span><span class="s2">)&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">lmp</span><span class="o">.</span><span class="n">get_natoms</span><span class="p">()),</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+    <span class="c1">#        sys.exit(__name__+&quot;: ERROR: Atoms Lost in LAMMPS calcForce!&quot;)</span>
+            
+            <span class="n">lmp_ids</span> <span class="o">=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">extract_atom</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">atomid</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">NAtoms</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">lmp_ids</span><span class="p">[</span><span class="n">atomid</span><span class="p">]</span> <span class="o">!=</span> <span class="n">atomid</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Atom No. </span><span class="si">%d</span><span class="s2"> Lost! (</span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2">)&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">atomid</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">currentPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">atomid</span><span class="p">],</span><span class="n">currentPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">atomid</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span><span class="n">currentPos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">atomid</span><span class="o">+</span><span class="mi">2</span><span class="p">]),</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+                    <span class="k">break</span>
+            
+            <span class="k">return</span> <span class="mi">1</span>
+        
+        <span class="c1"># total energy</span>
+        <span class="n">lmpExtractTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">extract_compute</span><span class="p">(</span><span class="s2">&quot;thermo_pe&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;TOTAL ENERGY: </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">totalEnergy</span><span class="p">,),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c1"># atom pe</span>
+        <span class="k">if</span> <span class="n">storeEnergies</span><span class="p">:</span>
+            <span class="n">atompe</span> <span class="o">=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">extract_compute</span><span class="p">(</span><span class="s2">&quot;atompe&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            
+            <span class="n">lmp_ids</span> <span class="o">=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">extract_atom</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            
+            <span class="n">ordered</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">lmp_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="s2">&quot;HANDLING LAMMPS DISORDER&quot;</span>
+                <span class="n">ordered</span> <span class="o">=</span> <span class="kc">False</span>
+            
+            <span class="c1">#TODO: must be better way of doing this!</span>
+            <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ordered</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">lmp</span><span class="o">.</span><span class="n">get_natoms</span><span class="p">()):</span>
+                        <span class="n">obj</span><span class="o">.</span><span class="n">PE</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">atompe</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        
+    <span class="c1">#                     print &quot;******* %d -- %f&quot; % (lmp_ids[i], obj.PE[i])</span>
+                
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">lmp</span><span class="o">.</span><span class="n">get_natoms</span><span class="p">()):</span>
+                        <span class="n">index</span> <span class="o">=</span> <span class="n">lmp_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+                        <span class="n">obj</span><span class="o">.</span><span class="n">PE</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">atompe</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="s2">&quot;STORE ENERGIES NOT IMPLEMENTED FOR IMAGES (LAMMPS)&quot;</span>
+        
+        <span class="n">lmpExtractTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">lmpExtractTime</span>
+        
+        <span class="c1"># forces</span>
+        <span class="n">lmpGetForceTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">lmpforce</span> <span class="o">=</span> <span class="n">lmp</span><span class="o">.</span><span class="n">gather_atoms</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># should be a better way than this</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">force</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">lmpforce</span><span class="p">[:]</span>
+            
+    <span class="c1">#        obj.force = np.ctypeslib.as_array(lmpforce, shape=(len(lmpforce,)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#obj.force[3*image*NAtoms:3*(image+1)*NAtoms] = np.ctypeslib.as_array(lmpforce)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lmpforce</span><span class="p">)):</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">force</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">image</span><span class="o">*</span><span class="n">NAtoms</span><span class="o">+</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">lmpforce</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        
+        <span class="n">lmpGetForceTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">lmpGetForceTime</span>
+        
+        <span class="c1"># temporary</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">maxForce</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">maxForceAtomNo</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">calcForceInfNorm</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+        
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="c1"># finally, change back to original working directory</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">OWD</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: could not change to dir: &quot;</span><span class="o">+</span><span class="n">OWD</span><span class="p">)</span>
+    
+    <span class="n">forceCallTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">forceCallTime</span>
+    
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;LAMMPS force call time: </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">forceCallTime</span><span class="p">,),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;LAMMPS setup time: </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lmpSetupTime</span><span class="p">,),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;LAMMPS &#39;run 0&#39; time: </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lmpRunTime</span><span class="p">,),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;LAMMPS extract PE time: </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lmpExtractTime</span><span class="p">,),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;LAMMPS get force time: </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lmpGetForceTime</span><span class="p">,),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="mi">0</span>
+
+<span class="c1">################################################################################</span>
+
+<span class="k">def</span> <span class="nf">_calcForceSiesta</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">MDPath</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate forces using SIESTA.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    obj : {`Lattice.Lattice`, `NEB.NEB`}</span>
+<span class="sd">        The object we are calculating the forces on.</span>
+<span class="sd">    MDPAth : str</span>
+<span class="sd">        Path to directory containing files needed for the MD calculation.</span>
+<span class="sd">    image : int or None</span>
+<span class="sd">        If object is a subclass of `Images.Images` then pass the image we are </span>
+<span class="sd">        working on; otherwise pass None.</span>
+<span class="sd">    includeAtoms : </span>
+<span class="sd">        Not used!</span>
+<span class="sd">    mainIndexes : </span>
+<span class="sd">        Not used!</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    status : int</span>
+<span class="sd">        &#39;0&#39; means success, anything else is a failure.</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    We make a temporary directory and copy everything from `MDPath` into it. We </span>
+<span class="sd">    change to the temporary directory and create an input file for Siesta by:</span>
+<span class="sd">    </span>
+<span class="sd">    * writing header containing atom types, cell vectors, atoms positions</span>
+<span class="sd">    * appending the &quot;siesta.append&quot; file that must be in the `MDPath` directory</span>
+<span class="sd">      to the end</span>
+<span class="sd">    </span>
+<span class="sd">    We then run &#39;siesta&#39; (it must be in your PATH) and send the output</span>
+<span class="sd">    to a file, which is then parsed for the total energy. The forces are read in</span>
+<span class="sd">    from the forces output file (lkmc.FA).</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Calculating force (SIESTA)&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    
+    <span class="c1"># we work in the MD code dir, then change back to wherever we were originally</span>
+    <span class="c1"># so store current working dir</span>
+    <span class="n">OWD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    
+    <span class="c1"># and change to MD dir</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">MDPath</span><span class="p">)</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># check siesta in file exists</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">siestaInFile</span><span class="p">):</span>
+            <span class="nb">print</span> <span class="s2">&quot;ERROR: SIESTA in file does not exist: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">Globals</span><span class="o">.</span><span class="n">siestaInFile</span>
+            <span class="k">return</span> <span class="mi">88</span>
+        
+        <span class="c1"># current position</span>
+        <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">currentPos</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">pos</span>
+            <span class="n">NAtoms</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">NAtoms</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">NAtoms</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">imageNAtoms</span>
+            <span class="n">currentPos</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">image</span><span class="o">*</span><span class="n">NAtoms</span><span class="p">:</span><span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">image</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">NAtoms</span><span class="p">]</span>
+        
+        <span class="c1"># temporary directory</span>
+        <span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+        
+        <span class="c1"># write SIESTA input file</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># make sure specie if right type</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">specie</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            
+            <span class="c1"># copy everything to tmp directory</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;cp * </span><span class="si">%s</span><span class="s2">/&quot;</span> <span class="o">%</span> <span class="n">tempdir</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="s2">&quot;Error: could not copy Siesta files to temp directory&quot;</span>
+                <span class="k">return</span> <span class="mi">55</span>
+            
+            <span class="c1"># change to temp dir</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">tempdir</span><span class="p">)</span>
+            
+            <span class="c1"># write the file</span>
+            <span class="c1">#TODO: this should be written in C</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="s2">&quot;lkmc.fdf&quot;</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="c1"># header</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# Auto-generated by LKMC</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;SystemLabel lkmc</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;NumberOfAtoms </span><span class="si">%d</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">NAtoms</span><span class="p">)</span>
+                
+                <span class="c1"># species</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;NumberOfSpecies </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">specieList</span><span class="p">))</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;%block ChemicalSpeciesLabel</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sym</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">specieList</span><span class="p">):</span>
+                    <span class="c1"># atomic number </span>
+                    <span class="n">anum</span> <span class="o">=</span> <span class="n">Atoms</span><span class="o">.</span><span class="n">atomicNumber</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span>
+                    
+                    <span class="c1"># we add underscores to end of single char symbols (H =&gt; H_, O =&gt; O_), </span>
+                    <span class="c1"># it looks like SIESTA does not.</span>
+                    <span class="k">if</span> <span class="n">sym</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+                        <span class="n">sym</span> <span class="o">=</span> <span class="n">sym</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
+                    
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">anum</span><span class="p">,</span> <span class="n">sym</span><span class="p">))</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%e</span><span class="s2">ndblock ChemicalSpeciesLabel</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                
+                <span class="c1"># lattice vectors</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;LatticeConstant 1.0 Ang</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># does this ever change???</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;%block LatticeVectors</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">obj</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">obj</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">obj</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">obj</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">5</span><span class="p">]))</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">obj</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">obj</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">8</span><span class="p">]))</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%e</span><span class="s2">ndblock LatticeVectors</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                
+                <span class="c1"># atom coordinates</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;AtomicCoordinatesFormat Fractional</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># is there an option to specify absolute???</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;%block AtomicCoordinatesAndAtomicSpecies</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">NAtoms</span><span class="p">):</span>
+                    <span class="n">i3</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">i</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%.12f</span><span class="s2"> </span><span class="si">%.12f</span><span class="s2"> </span><span class="si">%.12f</span><span class="s2"> </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">currentPos</span><span class="p">[</span><span class="n">i3</span><span class="p">]</span> <span class="o">/</span> <span class="n">obj</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">currentPos</span><span class="p">[</span><span class="n">i3</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">obj</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> 
+                                                        <span class="n">currentPos</span><span class="p">[</span><span class="n">i3</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">obj</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="n">obj</span><span class="o">.</span><span class="n">specie</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%e</span><span class="s2">ndblock AtomicCoordinatesAndAtomicSpecies</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># append custom section to end of file</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;cat </span><span class="si">%s</span><span class="s2"> &gt;&gt; </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">siestaInFile</span><span class="p">,</span> <span class="n">fn</span><span class="p">)</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Running: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">cmd</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="s2">&quot;ERROR: cat cmd failed&quot;</span>
+                <span class="k">return</span> <span class="mi">77</span>
+            
+            <span class="c1"># we should now run the siesta code</span>
+            <span class="n">outfn</span> <span class="o">=</span> <span class="s2">&quot;siesta.out&quot;</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">outfn</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s2">&quot;siesta&quot;</span><span class="p">],</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">fin</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">fout</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span> <span class="n">close_fds</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Siesta force calc failed: </span><span class="si">%d</span><span class="s2"> (storing output in MDPath)&quot;</span> <span class="o">%</span> <span class="n">status</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">outfn</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">OWD</span><span class="p">,</span> <span class="n">MDPath</span><span class="p">,</span> <span class="n">outfn</span><span class="p">))</span>
+                <span class="k">return</span> <span class="mi">33</span>
+            
+            <span class="c1"># parse the output to get total energy</span>
+            <span class="n">foundTotalEnergy</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outfn</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">while</span> <span class="ow">not</span> <span class="n">foundTotalEnergy</span><span class="p">:</span>
+                    <span class="c1"># read line</span>
+                    <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    
+                    <span class="c1"># look for start of section containing total energy</span>
+                    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;siesta: Final energy (eV)&quot;</span><span class="p">):</span>
+                        <span class="k">while</span> <span class="ow">not</span> <span class="n">foundTotalEnergy</span><span class="p">:</span>
+                            <span class="c1"># read line</span>
+                            <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+                                <span class="k">break</span>
+                            
+                            <span class="c1"># check if this line contains total energy</span>
+                            <span class="k">if</span> <span class="s2">&quot;Total =&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                                <span class="n">array</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+                                <span class="n">obj</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                                <span class="n">foundTotalEnergy</span> <span class="o">=</span> <span class="kc">True</span>
+            
+            <span class="c1"># check we found energy</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">foundTotalEnergy</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="s2">&quot;Error: could not locate total energy in output file&quot;</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">outfn</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">OWD</span><span class="p">,</span> <span class="n">MDPath</span><span class="p">,</span> <span class="n">outfn</span><span class="p">))</span>
+                <span class="k">return</span> <span class="mi">39</span>
+            
+            <span class="c1"># read in forces</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;lkmc.FA&quot;</span><span class="p">):</span>
+                <span class="nb">print</span> <span class="s2">&quot;Error: forces file does not exist&quot;</span>
+                <span class="k">return</span> <span class="mi">53</span>
+            
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;lkmc.FA&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">())</span>
+                <span class="k">assert</span> <span class="n">num</span> <span class="o">==</span> <span class="n">NAtoms</span>
+                
+                <span class="k">for</span> <span class="n">count</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+                    <span class="n">array</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                    <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+                    
+                    <span class="c1"># correct index</span>
+                    <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">i3</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">index</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">i3</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="n">image</span> <span class="o">*</span> <span class="n">num</span> <span class="o">+</span> <span class="n">index</span><span class="p">)</span>
+                    
+                    <span class="c1"># store forces</span>
+                    <span class="n">obj</span><span class="o">.</span><span class="n">force</span><span class="p">[</span><span class="n">i3</span>  <span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">obj</span><span class="o">.</span><span class="n">force</span><span class="p">[</span><span class="n">i3</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">obj</span><span class="o">.</span><span class="n">force</span><span class="p">[</span><span class="n">i3</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+                    
+                <span class="k">if</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">!=</span> <span class="n">num</span><span class="p">:</span>
+                    <span class="nb">print</span> <span class="s2">&quot;Error: forces missing (</span><span class="si">%d</span><span class="s2"> != </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">num</span><span class="p">)</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s2">&quot;lkmc.FA&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">OWD</span><span class="p">,</span> <span class="n">MDPath</span><span class="p">,</span> <span class="s2">&quot;lkmc.FA&quot;</span><span class="p">))</span>
+                    <span class="k">return</span> <span class="mi">56</span>
+        
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">OWD</span><span class="p">,</span> <span class="n">MDPath</span><span class="p">))</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">tempdir</span><span class="p">)</span>
+        
+        <span class="c1"># max force atom (may be in SIESTA output???)</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">maxForce</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">maxForceAtomNo</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">calcForceInfNorm</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+        
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="c1"># finally, change back to original working directory</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">OWD</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="mi">0</span>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1"># include only defect sub system atoms</span>
+<span class="c1">################################################################################</span>
+<span class="k">def</span> <span class="nf">_includeDefects</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Include forces on defect subsystem atoms, zero everything else</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Including defects&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    
+    <span class="c1"># remove forces on all atoms except those in sub-system</span>
+    <span class="n">oldForce</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">force</span>
+    
+    <span class="k">if</span> <span class="n">mainIndexes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="n">mainIndexes</span>
+    
+    <span class="n">lattice</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">includeSubVector3</span><span class="p">(</span><span class="n">indexes</span><span class="p">,</span> <span class="n">oldForce</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">lattice</span><span class="o">.</span><span class="n">force</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;ERROR: _includeDefects failed!&quot;</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    
+<span class="c1">################################################################################</span>
+<span class="c1"># exclude defect sub system atoms</span>
+<span class="c1">################################################################################</span>
+<span class="k">def</span> <span class="nf">_excludeDefects</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Forces on defect subsystem atoms are zeroed</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Excluding defects&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    
+    <span class="c1"># remove forces acting on defects</span>
+    <span class="k">if</span> <span class="n">mainIndexes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="n">mainIndexes</span>
+    
+    <span class="n">status</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">excludeSubVector3</span><span class="p">(</span><span class="n">indexes</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;ERROR: _excludeDefects failed! (</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">status</span>
+    
+    <span class="k">return</span> <span class="n">status</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Plot module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Prefactor module" href="LKMC.Prefactor.html" />
+    <link rel="prev" title="LKMC.NEB module" href="LKMC.NEB.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Prefactor.html" title="LKMC.Prefactor module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.NEB.html" title="LKMC.NEB module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Plot">
+<span id="lkmc-plot-module"></span><h1>LKMC.Plot module<a class="headerlink" href="#module-LKMC.Plot" title="Permalink to this headline">¶</a></h1>
+<p>Module for plotting.</p>
+<p>Copyright Chris Scott 2012</p>
+<dl class="function">
+<dt id="LKMC.Plot.barPlot">
+<code class="descclassname">LKMC.Plot.</code><code class="descname">barPlot</code><span class="sig-paren">(</span><em>filename</em>, <em>xvals</em>, <em>xlabel</em>, <em>yvals</em>, <em>ylabel</em>, <em>title=None</em>, <em>grid=1</em>, <em>textsize=20</em>, <em>align='edge'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Plot.html#barPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Plot.barPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bar chart</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Plot.histogram">
+<code class="descclassname">LKMC.Plot.</code><code class="descname">histogram</code><span class="sig-paren">(</span><em>filename</em>, <em>data</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title=None</em>, <em>grid=0</em>, <em>textsize=24</em>, <em>binWidth=0.05</em>, <em>ymax=None</em>, <em>xmax=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Plot.html#histogram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Plot.histogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot distribution of barriers.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Plot.linePlot">
+<code class="descclassname">LKMC.Plot.</code><code class="descname">linePlot</code><span class="sig-paren">(</span><em>filename</em>, <em>xvals</em>, <em>xlabel</em>, <em>yvals</em>, <em>ylabel</em>, <em>title=None</em>, <em>label=None</em>, <em>grid=1</em>, <em>textsize=20</em>, <em>useInterp=1</em>, <em>yerror=None</em>, <em>xlimmin=None</em>, <em>xlimmax=None</em>, <em>ylimmin=None</em>, <em>ylimmax=None</em>, <em>ymax=None</em>, <em>tight=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Plot.html#linePlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Plot.linePlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do a line plot of data using stineman interpolation.
+&#8216;ymax&#8217; should be specified as the index in the arrays of the maximum</p>
+<blockquote>
+<div>(so that interpolation doesn&#8217;t change it).</div></blockquote>
+<p>&#8216;label&#8217; goes in the legend if you specify it.
+Saves graph in &#8216;filename&#8217;.pdf.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Plot.multiLinePlot">
+<code class="descclassname">LKMC.Plot.</code><code class="descname">multiLinePlot</code><span class="sig-paren">(</span><em>filename</em>, <em>xvalsList</em>, <em>xlabel</em>, <em>yvalsList</em>, <em>ylabel</em>, <em>labels</em>, <em>ymax=0</em>, <em>ymin=0</em>, <em>title=None</em>, <em>grid=1</em>, <em>textsize=20</em>, <em>colours=None</em>, <em>useInterp=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Plot.html#multiLinePlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Plot.multiLinePlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do a line plot of multiple sets of data.
+Data is interpolated using Stineman interpolation
+&#8216;xvalsList&#8217;: list of arrays containing xvals for each set of data
+&#8216;yvalsList&#8217;: corresponding list of arrays containing y values
+&#8216;labels&#8217;: list containing a label for each set of data
+&#8216;ymax&#8217;: boolean, if true will interpolate up to and down</p>
+<blockquote>
+<div>from the max value</div></blockquote>
+<p>&#8216;ymin&#8217;: boolean, equivalent to ymax
+Saves graph in &#8216;filename&#8217;.pdf.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Plot.stackedBarChart">
+<code class="descclassname">LKMC.Plot.</code><code class="descname">stackedBarChart</code><span class="sig-paren">(</span><em>filename</em>, <em>xvals</em>, <em>y1avals</em>, <em>y1bvals</em>, <em>y2vals</em>, <em>y1label=''</em>, <em>y2label=''</em>, <em>y1aleg=''</em>, <em>y1bleg=''</em>, <em>y2leg=''</em>, <em>title=None</em>, <em>grid=1</em>, <em>textsize=20</em>, <em>align='edge'</em>, <em>width=0.35</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Plot.html#stackedBarChart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Plot.stackedBarChart" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.NEB.html"
+                        title="previous chapter">LKMC.NEB module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Prefactor.html"
+                        title="next chapter">LKMC.Prefactor module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Plot.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Prefactor.html" title="LKMC.Prefactor module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.NEB.html" title="LKMC.NEB module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

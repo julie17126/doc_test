@@ -1,0 +1,559 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Lammps &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.Lammps</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Interface to LAMMPS.</span>
+
+<span class="sd">@author: Chris Scott</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">ctypes</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">lammps</span>
+    <span class="n">lammps</span><span class="o">.</span><span class="n">lammps</span><span class="p">(</span><span class="n">cmdargs</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;-log&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;-screen&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">LAMMPS_IMPORTED</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">LAMMPS_IMPORTED</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Atoms</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Vectors</span>
+<span class="kn">from</span> <span class="nn">.clibs</span> <span class="k">import</span> <span class="n">io_module</span> <span class="k">as</span> <span class="n">c_io</span>
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+
+
+<div class="viewcode-block" id="LammpsNotInstalled"><a class="viewcode-back" href="../../LKMC/LKMC.Lammps.html#LKMC.Lammps.LammpsNotInstalled">[docs]</a><span class="k">class</span> <span class="nc">LammpsNotInstalled</span><span class="p">(</span><span class="ne">BaseException</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;LAMMPS is not installed on the system.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="LammpsUnitsNotSupported"><a class="viewcode-back" href="../../LKMC/LKMC.Lammps.html#LKMC.Lammps.LammpsUnitsNotSupported">[docs]</a><span class="k">class</span> <span class="nc">LammpsUnitsNotSupported</span><span class="p">(</span><span class="ne">BaseException</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;LAMMPS units value is not supported.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="LammpsInterface"><a class="viewcode-back" href="../../LKMC/LKMC.Lammps.html#LKMC.Lammps.LammpsInterface">[docs]</a><span class="k">class</span> <span class="nc">LammpsInterface</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    LAMMPS interface object.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">LAMMPS_IMPORTED</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">LammpsNotInstalled</span><span class="p">(</span><span class="s2">&quot;Could not import the LAMMPS Python wrapper&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_storeEnergies</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span> <span class="o">=</span> <span class="n">debug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_params</span> <span class="o">=</span> <span class="n">params</span>
+    
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">_initialiseLammps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">numAtoms</span><span class="p">,</span> <span class="n">currentPos</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">screenOutput</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">logOutput</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise the LAMMPS interface.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        obj : `Lattice.Lattice`-like object</span>
+<span class="sd">            The object that is going to be used with LAMMPS. Must be like the `Lattice.Lattice` object.</span>
+<span class="sd">        numAtoms : int</span>
+<span class="sd">            The number of atoms.</span>
+<span class="sd">        currentPos : `numpy.ndarray`</span>
+<span class="sd">            The positions of the atoms.</span>
+<span class="sd">        velocity : `numpy.ndarray`, optional</span>
+<span class="sd">            If specified then initialise the atoms with the given velocities.</span>
+<span class="sd">        screenOutput : `True` or `False`, optional</span>
+<span class="sd">            If False (the default) then disable LAMMPS screen output. This will be overriden by the `debug` argument to</span>
+<span class="sd">            the initialiser.</span>
+<span class="sd">        logOutput : `True` or `False`, optional</span>
+<span class="sd">            If False (the default) then disable LAMMPS log file output.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        LammpsUnitsNotSupported</span>
+<span class="sd">            If the value of the lammpsUnits parameter is not supported.</span>
+<span class="sd">        IOError</span>
+<span class="sd">            If the LAMMPS input file cannot be opened.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># first close the current instance</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        
+        <span class="c1"># create a new instance</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">screenOutput</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-screen&quot;</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">logOutput</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-log&quot;</span><span class="p">)</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span> <span class="o">=</span> <span class="n">lammps</span><span class="o">.</span><span class="n">lammps</span><span class="p">(</span><span class="n">cmdargs</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+        
+        <span class="c1"># boundary conditions</span>
+        <span class="n">pbcx</span> <span class="o">=</span> <span class="s2">&quot;p&quot;</span> <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;f&quot;</span>
+        <span class="n">pbcy</span> <span class="o">=</span> <span class="s2">&quot;p&quot;</span> <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;f&quot;</span>
+        <span class="n">pbcz</span> <span class="o">=</span> <span class="s2">&quot;p&quot;</span> <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;f&quot;</span>
+        
+        <span class="c1"># check LAMMPS units parameter</span>
+        <span class="n">knownValues</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;metal&#39;</span><span class="p">,)</span>
+        <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">lammpsUnits</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">knownValues</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">LammpsUnitsNotSupported</span><span class="p">(</span><span class="s2">&quot;LAMMPS units are &#39;</span><span class="si">%s</span><span class="s2">&#39;; should be one of </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">lammpsUnits</span><span class="p">,</span>
+                                                                                          <span class="n">knownValues</span><span class="p">))</span>
+        
+        <span class="c1"># initialise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;units </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">Globals</span><span class="o">.</span><span class="n">lammpsUnits</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;dimension 3&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;boundary </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pbcx</span><span class="p">,</span> <span class="n">pbcy</span><span class="p">,</span> <span class="n">pbcz</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;atom_style charge&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;atom_modify sort 0 0&quot;</span><span class="p">)</span>  <span class="c1"># makes PE&#39;s come out in right order</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;atom_modify map array&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># if no AMU info stored, calculate AMU</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">specieMassAMU</span><span class="p">):</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">specieMassAMU</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">specieList</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">specieList</span><span class="p">)):</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">specieMassAMU</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Atoms</span><span class="o">.</span><span class="n">atomicMassAMU</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">specieList</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        
+        <span class="c1"># ensure the specie array is the correct type</span>
+        <span class="c1"># TODO: is this still necessary?</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">specie</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        
+        <span class="c1"># temporary file for atom data</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpf</span><span class="p">:</span>
+            <span class="c1"># the name of the temporary file</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="n">tmpf</span><span class="o">.</span><span class="n">name</span>
+            
+            <span class="c1"># write the data file</span>
+            <span class="n">c_io</span><span class="o">.</span><span class="n">writeLammpsAtomDataFile</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">numAtoms</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">specieList</span><span class="p">),</span> <span class="n">currentPos</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span>
+                                         <span class="n">obj</span><span class="o">.</span><span class="n">specieMassAMU</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">cellDims</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">velocity</span><span class="p">)</span>
+            
+            <span class="c1"># tell lammps to read the data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;read_data </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
+        
+        <span class="c1"># we need to be in Globals.MDLocation for this part</span>
+        <span class="n">_cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">MDLocation</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># tell LAMMPS about the potential</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">lammpsInFile</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Could not locate LAMMPS input file: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">Globals</span><span class="o">.</span><span class="n">lammpsInFile</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">Globals</span><span class="o">.</span><span class="n">lammpsInFile</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">_cwd</span><span class="p">)</span>
+        
+        <span class="c1"># warn about lost atoms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;thermo_modify lost warn&quot;</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">_checkForAtomsLost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numAtoms</span><span class="p">,</span> <span class="n">currentPos</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if atoms have been lost.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">numAtoms</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">get_natoms</span><span class="p">():</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">force</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Lammps calcForce failed due to atoms lost! (</span><span class="si">%d</span><span class="s2">-&gt;</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">numAtoms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">get_natoms</span><span class="p">()),</span>
+                <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            
+            <span class="n">lmp_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">extract_atom</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">atomid</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">numAtoms</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">lmp_ids</span><span class="p">[</span><span class="n">atomid</span><span class="p">]</span> <span class="o">!=</span> <span class="n">atomid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Atom No. </span><span class="si">%d</span><span class="s2"> Lost! (</span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">atomid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">currentPos</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">atomid</span><span class="p">],</span>
+                                                                    <span class="n">currentPos</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">atomid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                                                                    <span class="n">currentPos</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">atomid</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                    <span class="k">break</span>
+            
+            <span class="k">return</span> <span class="mi">1</span>
+    
+<div class="viewcode-block" id="LammpsInterface.thermalise"><a class="viewcode-back" href="../../LKMC/LKMC.Lammps.html#LKMC.Lammps.LammpsInterface.thermalise">[docs]</a>    <span class="k">def</span> <span class="nf">thermalise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">fullTime</span><span class="p">,</span> <span class="n">layerTime</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Thermalise the given lattice.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># initialse lammps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialiseLammps</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">screenOutput</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="c1"># initialize lattice with velocity at desired temperature</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;velocity moving create </span><span class="si">%f</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> dist gaussian&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">999999</span><span class="p">)))</span>
+        
+        <span class="c1"># thermalize whole system</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;fix 2 moving temp/berendsen </span><span class="si">{0}</span><span class="s2"> </span><span class="si">{0}</span><span class="s2"> 1&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">temperature</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;run </span><span class="si">%d</span><span class="s2"> post no&quot;</span> <span class="o">%</span> <span class="n">fullTime</span><span class="p">)</span>
+        
+        <span class="c1"># then thermalize the thermal region only</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;unfix 2&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;fix 4 thermal temp/berendsen </span><span class="si">{0}</span><span class="s2"> </span><span class="si">{0}</span><span class="s2"> 1&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">temperature</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;run </span><span class="si">%d</span><span class="s2"> post no&quot;</span> <span class="o">%</span> <span class="n">layerTime</span><span class="p">)</span>
+        
+        <span class="c1"># get data back from LAMMPS and store in the lattice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extractData</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+        
+        <span class="c1"># extract the velocities too</span>
+        <span class="n">lmpvel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">gather_atoms</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ctypeslib</span><span class="o">.</span><span class="n">as_array</span><span class="p">(</span><span class="n">lmpvel</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">velocity</span></div>
+    
+<div class="viewcode-block" id="LammpsInterface.minimise"><a class="viewcode-back" href="../../LKMC/LKMC.Lammps.html#LKMC.Lammps.LammpsInterface.minimise">[docs]</a>    <span class="k">def</span> <span class="nf">minimise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">initialise</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run a minimisation using LAMMPS.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lattice : `Lattice.Lattice`</span>
+<span class="sd">            The lattice object to be minimised.</span>
+<span class="sd">        initialise : `True` or `False`, optional</span>
+<span class="sd">            If `True` (default) then initialise LAMMPS before running the minimisation. If the lattice has not been</span>
+<span class="sd">            modified since the last time LAMMPS was called then you do not need to initialise.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Minimising lattice using LAMMPS&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">initialise</span><span class="p">:</span>
+            <span class="c1"># initialse lammps</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialiseLammps</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+        
+        <span class="c1"># prepare to minimise</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;min_style </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">params</span><span class="o">.</span><span class="n">depoMinStyle</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">minimizationCriteria</span> <span class="o">==</span> <span class="s2">&quot;force&quot;</span> <span class="ow">or</span> <span class="n">params</span><span class="o">.</span><span class="n">minimizationCriteria</span> <span class="o">==</span> <span class="s2">&quot;force_element&quot;</span><span class="p">:</span>
+            <span class="n">ftol</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">minimizationTolerance</span>
+            <span class="n">etol</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="n">params</span><span class="o">.</span><span class="n">minimizationCriteria</span> <span class="o">==</span> <span class="s2">&quot;energy&quot;</span><span class="p">:</span>
+            <span class="n">ftol</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">etol</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">minimizationTolerance</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unknown minimization criteria: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">params</span><span class="o">.</span><span class="n">minimizationCriteria</span><span class="p">)</span>
+        <span class="n">maxiter</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">minimisationMaxIterations</span>
+        
+        <span class="c1"># run the minimisation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;minimize </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">etol</span><span class="p">,</span> <span class="n">ftol</span><span class="p">,</span> <span class="n">maxiter</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">depoMinMaxEval</span><span class="p">))</span>
+        
+        <span class="c1"># get data back from LAMMPS and store in the lattice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extractData</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LammpsInterface.runMD"><a class="viewcode-back" href="../../LKMC/LKMC.Lammps.html#LKMC.Lammps.LammpsInterface.runMD">[docs]</a>    <span class="k">def</span> <span class="nf">runMD</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">runTime</span><span class="p">,</span> <span class="n">thermostat</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run a molecular dynamics simulation.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Running LAMMPS MD simulation&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params</span>
+        
+        <span class="c1"># initialse lammps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialiseLammps</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="n">velocity</span><span class="p">,</span> <span class="n">screenOutput</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="c1"># finish setting up lammps</span>
+        <span class="c1"># set up compute for temperature of unfixed region</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;compute temperature moving temp&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># choose the ensemble</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;fix 0 all nve&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># thermal layer</span>
+        <span class="k">if</span> <span class="n">thermostat</span> <span class="o">!=</span> <span class="s2">&quot;NO_THERMOSTAT&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;fix 4 thermal temp/berendsen </span><span class="si">{0}</span><span class="s2"> </span><span class="si">{0}</span><span class="s2"> 1&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">systemTemperature</span><span class="p">))</span>
+        
+        <span class="c1"># thermodynamic info (may change it if not need)</span>
+        <span class="n">thermoFreq</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;thermo </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">thermoFreq</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;thermo_style custom step time c_temperature etotal ke pe&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;thermo_modify lost warn&quot;</span><span class="p">)</span>
+        <span class="c1"># dump file</span>
+        <span class="n">dumpFn</span> <span class="o">=</span> <span class="s2">&quot;dump*.dat&quot;</span>
+        <span class="n">dumpFreq</span> <span class="o">=</span> <span class="mi">250</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;dump dumpdat all custom </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> element x y z q&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dumpFreq</span><span class="p">,</span> <span class="n">dumpFn</span><span class="p">))</span>
+        <span class="n">elementString</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;dump_modify dumpdat element </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">elementString</span><span class="p">)</span>
+        
+        <span class="c1"># are we using a variable time step or not</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">lammpsMinDt</span> <span class="o">==</span> <span class="n">params</span><span class="o">.</span><span class="n">lammpsMaxDt</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;fixed dt...&quot;</span>
+            
+            <span class="c1"># set timestep</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">lammpsMinDt</span>
+            <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">lammpsUnits</span> <span class="o">==</span> <span class="s2">&quot;metal&quot;</span><span class="p">:</span>
+                <span class="n">dt</span> <span class="o">*=</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;timestep </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">dt</span><span class="p">)</span>
+            
+            <span class="c1"># run simulation</span>
+            <span class="n">numSteps</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">runTime</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">lammpsMinDt</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;run </span><span class="si">%d</span><span class="s2"> post no&quot;</span> <span class="o">%</span> <span class="n">numSteps</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;variable dt...&quot;</span>
+            <span class="n">minDt</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">lammpsMinDt</span>
+            <span class="n">maxDt</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">lammpsMaxDt</span>
+            <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">lammpsUnits</span> <span class="o">==</span> <span class="s2">&quot;metal&quot;</span><span class="p">:</span>
+                <span class="n">minDt</span> <span class="o">*=</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span>
+                <span class="n">maxDt</span> <span class="o">*=</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;fix vardt all dt/reset </span><span class="si">%d</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> </span><span class="si">%f</span><span class="s2"> units box&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">lammpsUpdateDtSteps</span><span class="p">,</span> <span class="n">minDt</span><span class="p">,</span>
+                                                                                <span class="n">maxDt</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">lammpsMaxAtomMoveDt</span><span class="p">))</span>
+            
+            <span class="c1"># run simulation</span>
+            <span class="n">maxNumSteps</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">runTime</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">lammpsMinDt</span><span class="p">)</span>
+            <span class="n">runTimeLmp</span> <span class="o">=</span> <span class="n">runTime</span>
+            <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">lammpsUnits</span> <span class="o">==</span> <span class="s2">&quot;metal&quot;</span><span class="p">:</span>
+                <span class="n">runTimeLmp</span> <span class="o">*=</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;variable ctim equal time&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;run </span><span class="si">%d</span><span class="s2"> every 10 </span><span class="se">\&quot;</span><span class="s2">if &#39;$</span><span class="si">{ctim}</span><span class="s2"> &gt; </span><span class="si">%f</span><span class="s2">&#39; then &#39;quit&#39;</span><span class="se">\&quot;</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">maxNumSteps</span><span class="p">,</span> <span class="n">runTimeLmp</span><span class="p">))</span>
+        
+        <span class="c1"># get data back from LAMMPS and store in the lattice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extractData</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span></div>
+        
+        <span class="c1"># TODO: write out final lattice incase it wasn&#39;t written!?</span>
+    
+<div class="viewcode-block" id="LammpsInterface.extractData"><a class="viewcode-back" href="../../LKMC/LKMC.Lammps.html#LKMC.Lammps.LammpsInterface.extractData">[docs]</a>    <span class="k">def</span> <span class="nf">extractData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get data back from LAMMPS and store it.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lattice : `Lattice.Lattice`</span>
+<span class="sd">            The `Lattice` object that the LAMMPS data will be stored in.</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        We assume that `lattice` is the `Lattice` that was used to run LAMMPS. If the number of atoms in LAMMPS differs</span>
+<span class="sd">        to the number in `lattice` we remove extra atoms in `lattice`.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># deal with the case where we have lost atoms (LAMMPS removes sputtered atoms completely)</span>
+        <span class="n">iniNumAtoms</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span>
+        <span class="n">currentNumAtoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">get_natoms</span><span class="p">()</span>
+        <span class="n">numLost</span> <span class="o">=</span> <span class="n">currentNumAtoms</span> <span class="o">-</span> <span class="n">iniNumAtoms</span>
+        <span class="k">if</span> <span class="n">currentNumAtoms</span> <span class="o">&lt;</span> <span class="n">iniNumAtoms</span><span class="p">:</span>
+            <span class="c1"># atoms were lost</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> atom(s) lost during LAMMPS MD simulation&quot;</span> <span class="o">%</span> <span class="n">numLost</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            
+            <span class="c1"># resize arrays</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">currentNumAtoms</span><span class="p">,</span> <span class="n">refcheck</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">currentNumAtoms</span><span class="p">,</span> <span class="n">refcheck</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">currentNumAtoms</span><span class="p">,</span> <span class="n">refcheck</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">charge</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">currentNumAtoms</span><span class="p">,</span> <span class="n">refcheck</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            
+            <span class="c1"># copy data</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">gather_atoms</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)[:]</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">gather_atoms</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)[:]</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">specie</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">gather_atoms</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[:]</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">charge</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">gather_atoms</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[:]</span>
+            
+            <span class="c1"># handle species arrays</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;group </span><span class="si">%s</span><span class="s2"> type </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;variable </span><span class="si">%s</span><span class="s2"> equal count(</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                <span class="n">lattice</span><span class="o">.</span><span class="n">specieCount</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">extract_variable</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">lattice</span><span class="o">.</span><span class="n">specieCount</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">lattice</span><span class="o">.</span><span class="n">specieListForced</span><span class="p">:</span>
+                    <span class="n">lattice</span><span class="o">.</span><span class="n">removeSpecie</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            
+            <span class="c1"># set min/max pos</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                <span class="n">lattice</span><span class="o">.</span><span class="n">minPos</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">::</span><span class="mi">3</span><span class="p">])</span>
+                <span class="n">lattice</span><span class="o">.</span><span class="n">maxPos</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">::</span><span class="mi">3</span><span class="p">])</span>
+        
+        <span class="k">elif</span> <span class="n">iniNumAtoms</span> <span class="o">&lt;</span> <span class="n">currentNumAtoms</span><span class="p">:</span>
+            <span class="c1"># this should never happen</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Gained atoms during LAMMPS MD simulation&quot;</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># no atoms lost, just copy data</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">gather_atoms</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)[:]</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">gather_atoms</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)[:]</span>
+            <span class="n">lattice</span><span class="o">.</span><span class="n">charge</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">gather_atoms</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[:]</span>
+        
+        <span class="c1"># total energy and force magnitude</span>
+        <span class="n">lattice</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">extract_compute</span><span class="p">(</span><span class="s2">&quot;thermo_pe&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">lattice</span><span class="o">.</span><span class="n">maxForce</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">maxForceAtomNo</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">calcForceInfNorm</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="LammpsInterface.calcForce"><a class="viewcode-back" href="../../LKMC/LKMC.Lammps.html#LKMC.Lammps.LammpsInterface.calcForce">[docs]</a>    <span class="k">def</span> <span class="nf">calcForce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate forces on the system.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># current position</span>
+        <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">currentPos</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">pos</span>
+            <span class="n">numAtoms</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">NAtoms</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">numAtoms</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">imageNAtoms</span>
+            <span class="n">currentPos</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">3</span> <span class="o">*</span> <span class="n">image</span> <span class="o">*</span> <span class="n">numAtoms</span><span class="p">:</span><span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="n">image</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">numAtoms</span><span class="p">]</span>
+        
+        <span class="c1"># reset lammps if required</span>
+        <span class="n">lmpNone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="n">numAtomsDiffer</span> <span class="o">=</span> <span class="n">numAtoms</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">get_natoms</span><span class="p">()</span>
+        <span class="n">resetLammps</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;resetLammps&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lmpNone</span> <span class="ow">or</span> <span class="n">numAtomsDiffer</span> <span class="ow">or</span> <span class="n">resetLammps</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialiseLammps</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">numAtoms</span><span class="p">,</span> <span class="n">currentPos</span><span class="p">)</span>
+        <span class="c1"># or just update positions</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c_double_p</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_double</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">scatter_atoms</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">currentPos</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data_as</span><span class="p">(</span><span class="n">c_double_p</span><span class="p">))</span>
+        
+        <span class="c1"># set up compute for atom PE&#39;s</span>
+        <span class="n">storeEnergies</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;storeEnergies&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="p">,</span> <span class="s2">&quot;storeEnergies&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">storeEnergies</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">storeEnergies</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">storeEnergies</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;compute atompe all pe/atom&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">storeEnergies</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">storeEnergies</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;uncompute atompe&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">storeEnergies</span> <span class="o">=</span> <span class="n">storeEnergies</span>
+        
+        <span class="c1"># run lammps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;run 0 post no&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># check for atom lost</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checkForAtomsLost</span><span class="p">(</span><span class="n">numAtoms</span><span class="p">,</span> <span class="n">currentPos</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">status</span>
+        
+        <span class="c1"># total energy</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">extract_compute</span><span class="p">(</span><span class="s2">&quot;thermo_pe&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;TOTAL ENERGY: </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">totalEnergy</span><span class="p">,),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c1"># atom pe</span>
+        <span class="k">if</span> <span class="n">storeEnergies</span><span class="p">:</span>
+            <span class="n">atompe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">extract_compute</span><span class="p">(</span><span class="s2">&quot;atompe&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">lmp_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">extract_atom</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            
+            <span class="n">ordered</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">lmp_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="s2">&quot;HANDLING LAMMPS DISORDER&quot;</span>
+                <span class="n">ordered</span> <span class="o">=</span> <span class="kc">False</span>
+            
+            <span class="c1"># TODO: must be better way of doing this!</span>
+            <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ordered</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">get_natoms</span><span class="p">()):</span>
+                        <span class="n">obj</span><span class="o">.</span><span class="n">PE</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">atompe</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">get_natoms</span><span class="p">()):</span>
+                        <span class="n">index</span> <span class="o">=</span> <span class="n">lmp_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+                        <span class="n">obj</span><span class="o">.</span><span class="n">PE</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">atompe</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Store energies not implemented for Images (LAMMPS)&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># forces</span>
+        <span class="n">lmpforce</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">gather_atoms</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># should be a better way than this</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">force</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">lmpforce</span><span class="p">[:]</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">image</span> <span class="o">*</span> <span class="n">numAtoms</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lmpforce</span><span class="p">)):</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">force</span><span class="p">[</span><span class="n">offset</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">lmpforce</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        
+        <span class="c1"># charges</span>
+        <span class="n">lmpcharge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lmp</span><span class="o">.</span><span class="n">gather_atoms</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">charge</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">lmpcharge</span><span class="p">[:]</span>
+        
+        <span class="c1"># temporary</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">maxForce</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">maxForceAtomNo</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">calcForceInfNorm</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="mi">0</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

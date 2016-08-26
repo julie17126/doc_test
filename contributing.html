@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Contributing to the documentation &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="index.html" />
+    <link rel="next" title="License" href="license/license.html" />
+    <link rel="prev" title="LKMC.updateParameters module" href="LKMC/LKMC.updateParameters.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="license/license.html" title="License"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC/LKMC.updateParameters.html" title="LKMC.updateParameters module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="contributing-to-the-documentation">
+<h1>Contributing to the documentation<a class="headerlink" href="#contributing-to-the-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Documentation will be written using &#8216;numpydoc&#8217; and &#8216;sphinx&#8217;. We will write the documentation into
+the <a class="reference external" href="http://en.wikipedia.org/wiki/Docstring#Python">docstrings</a> and use sphinx/numpydoc to convert
+this to html.</p>
+</div>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first"><a class="reference external" href="http://sphinx-doc.org/">Sphinx</a> can be installed using MacPorts:</p>
+<div class="code sh highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">port</span> <span class="n">install</span> <span class="n">py27</span><span class="o">-</span><span class="n">sphinx</span>
+<span class="n">sudo</span> <span class="n">port</span> <span class="n">select</span> <span class="o">--</span><span class="nb">set</span> <span class="n">sphinx</span> <span class="n">py27</span><span class="o">-</span><span class="n">sphinx</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><a class="reference external" href="https://pypi.python.org/pypi/numpydoc">numpydoc</a> can be installed using <a class="reference external" href="http://pip.readthedocs.org/en/latest/reference/pip_install.html">pip</a>:</p>
+<div class="code sh highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">user</span> <span class="n">numpydoc</span>
+</pre></div>
+</div>
+<p><strong>Note</strong>: &#8216;pip&#8217; may be named &#8216;pip-2.7&#8217; if using MacPorts and you haven&#8217;t <code class="docutils literal"><span class="pre">port</span> <span class="pre">selected</span></code> pip2.7.
+If you don&#8217;t specify &#8216;&#8211;user&#8217; you may need to &#8216;sudo&#8217; (unless installing within a virtualenv).</p>
+</li>
+</ul>
+</div>
+<div class="section" id="guidelines">
+<h2>Guidelines<a class="headerlink" href="#guidelines" title="Permalink to this headline">¶</a></h2>
+<p>To ensure the documentation is consistent we should all follow the <a class="reference external" href="https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt">guide</a> to NumPy/SciPy documentation,
+in particular the names and order of sections within the docstrings. Note, the layout is different
+for module, class and method docstrings. Lines should be kept within 80 characters so it displays
+properly when viewed from a terminal.</p>
+</div>
+<div class="section" id="building-the-documentation">
+<h2>Building the documentation<a class="headerlink" href="#building-the-documentation" title="Permalink to this headline">¶</a></h2>
+<p>This is also described in the README.md file.  In the main directory run:</p>
+<div class="section" id="python-setup-py-build-sphinx">
+<h3>python setup.py build_sphinx<a class="headerlink" href="#python-setup-py-build-sphinx" title="Permalink to this headline">¶</a></h3>
+<p>and the html documentation should be placed in &#8216;build/sphinx/html&#8217; (open &#8216;build/sphinx/html/index.html&#8217;
+in your browser).</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Contributing to the documentation</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#guidelines">Guidelines</a></li>
+<li><a class="reference internal" href="#building-the-documentation">Building the documentation</a><ul>
+<li><a class="reference internal" href="#python-setup-py-build-sphinx">python setup.py build_sphinx</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC/LKMC.updateParameters.html"
+                        title="previous chapter">LKMC.updateParameters module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="license/license.html"
+                        title="next chapter">License</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/contributing.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="license/license.html" title="License"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC/LKMC.updateParameters.html" title="LKMC.updateParameters module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

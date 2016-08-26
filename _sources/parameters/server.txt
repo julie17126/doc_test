@@ -1,0 +1,71 @@
+Server
+======
+
+Parameters for the server. These values should probably be left at their defaults
+unless you know what you are doing.
+
+serverMinPort
+^^^^^^^^^^^^^
+
+Integer
+
+Set the minimum port the server can run on. 
+
+If serverMinPort < serverMaxPort a port within the range is randomly chosen.
+
+If set to -1 a port is chosen automatically.
+
+Default is 8888
+
+serverMaxPort
+^^^^^^^^^^^^^
+
+Integer
+
+Set the maximum port the server can run on.
+
+If serverMinPort < serverMaxPort a port within the range is randomly chosen.
+
+If set to -1 a
+port is chosen automatically.
+
+Default is 9999
+
+numberOfWriterProcesses
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Integer >= 1
+
+This is not used currently and setting it has no effect.
+
+clientIndividualOutput
+^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+Each worker process writes to its own standard output and error
+files. Obviously this generates a lot more files (total size will be the
+same) but is very useful when debugging/checking everything is working.
+For production runs it may be better to set to 0 but if you want to be
+able to easily see what the workers are doing leave it as 1.
+
+Default is 1
+
+maxIdleTime
+^^^^^^^^^^^
+
+Real (seconds)
+
+During transition searches if no result is received during this period of time
+the programme will terminate.
+
+Default is 1800.0
+
+debugServer
+^^^^^^^^^^^
+
+0 or 1
+
+Plot load/timings from worker processes at the end of a task.
+
+Default is 0

@@ -1,0 +1,42 @@
+Rates
+=====
+
+Parameters for the rate calculation
+
+fixedPrefactor
+^^^^^^^^^^^^^^
+
+0 or 1
+
+- 1: to use fixed prefactor;
+- 0: to calculate on-the-fly.
+
+Default: 1
+
+fixedPrefactorVal
+^^^^^^^^^^^^^^^^^
+
+Real
+
+The value of prefactor if *fixedPrefactor* is 1.
+
+Default: 1e13
+
+prefactorRadius
+^^^^^^^^^^^^^^^
+
+Float
+
+Atoms within this radius will be used for prefactor calculations.
+
+Default: 5.0
+
+prefactorDebug
+^^^^^^^^^^^^^^
+
+0 or 1
+
+If 1: debug mode for prefactor calculation. This will print out some
+debug information.
+
+Default: 0

@@ -1,0 +1,924 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.RAT &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.RAT</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Relaxation-Activation Technique (RAT) module.</span>
+
+<span class="sd">Implements the RAT method: Louis Vernon doctoral thesis 2010</span>
+
+<span class="sd">Copyright Tomas Lazauskas 2012</span>
+<span class="sd">Convergence to saddle using Lanczos added by Chris Scott 03/2014</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Timer</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Input</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Minimise</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Vectors</span>
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Utilities</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Lanczos</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">ClientServerInterface</span>
+
+
+<span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="RAT"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT">[docs]</a><span class="k">class</span> <span class="nc">RAT</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    RAT class.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialising...</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="o">=</span> <span class="kc">None</span>
+    
+<div class="viewcode-block" id="RAT.setJobID"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.setJobID">[docs]</a>    <span class="k">def</span> <span class="nf">setJobID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jobID</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set job ID.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span> <span class="o">=</span> <span class="n">jobID</span></div>
+    
+<div class="viewcode-block" id="RAT.prepareForConvergence"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.prepareForConvergence">[docs]</a>    <span class="k">def</span> <span class="nf">prepareForConvergence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepares rVector and index lists.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># not sure this is required!</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="c1"># prepare main indexes and initial guess at eigenvector</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">saddleConvergeRadius</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">mainIndexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">saddleConvergeRadius</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">extractVector3</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">le_rVectorFull</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">le_rVector</span>
+        
+        <span class="c1"># prepare include atoms</span>
+        <span class="n">includeAtoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span><span class="p">)</span>
+        
+        <span class="c1"># store main indexes and include atoms on lattice object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">mainIndexes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="o">=</span> <span class="n">includeAtoms</span></div>
+    
+<div class="viewcode-block" id="RAT.convergeToSaddle"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.convergeToSaddle">[docs]</a>    <span class="k">def</span> <span class="nf">convergeToSaddle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converge to saddle point using Lanczos/LBFGS</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">convTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="c1"># prepare for convergence</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepareForConvergence</span><span class="p">()</span>
+        
+        <span class="c1"># converge to saddle</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saddleFinder</span><span class="o">.</span><span class="n">converge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">totalFEvals</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saddleFinder</span><span class="o">.</span><span class="n">forceCalls</span>
+        
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failed (Lanczos-LBFGS saddle finder)&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">saddleFinder</span><span class="o">.</span><span class="n">failReason</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">saddleFinder</span><span class="o">.</span><span class="n">failReason</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;RAT: Lanczos saddle finder failed&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosConvergeTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">convTime</span></div>
+    
+<div class="viewcode-block" id="RAT.checkIfConverged"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.checkIfConverged">[docs]</a>    <span class="k">def</span> <span class="nf">checkIfConverged</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if saddle point is reached or the search went off..</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+        
+        <span class="c1"># Checking the displacement</span>
+        <span class="n">maxMoveAtomIdx</span><span class="p">,</span> <span class="n">maxMove</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">maxMovement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialPos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">FdotRP</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">dotProduct</span><span class="p">(</span><span class="n">Vectors</span><span class="o">.</span><span class="n">normalise</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">),</span> 
+                                         <span class="n">Vectors</span><span class="o">.</span><span class="n">normalise</span><span class="p">(</span><span class="n">Vectors</span><span class="o">.</span><span class="n">separationVector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialPos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> 
+                                                                                    <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">)))</span>
+        
+        <span class="c1"># calculate barrier every few steps...</span>
+        <span class="n">fmag</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">magnitude</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transCount</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratCheckBarrierInterval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">checkBarrierTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">correctTE</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">energyOrig</span>
+            <span class="n">currentBarrier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">checkBarrierTime</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">checkBarrierTime</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Step </span><span class="si">%d</span><span class="s2">: MMAtm </span><span class="si">%d</span><span class="s2">; MM </span><span class="si">%lf</span><span class="s2">; Fmag </span><span class="si">%lf</span><span class="s2">; FdotRP </span><span class="si">%lf</span><span class="s2">; TFeval </span><span class="si">%d</span><span class="s2">; Trans Step </span><span class="si">%f</span><span class="s2">; Barrier </span><span class="si">%lf</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transCount</span><span class="p">,</span> <span class="n">maxMoveAtomIdx</span><span class="p">,</span> <span class="n">maxMove</span><span class="p">,</span>
+                                                                                                                      <span class="n">fmag</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">FdotRP</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalStepCount</span><span class="p">,</span> 
+                                                                                                                      <span class="bp">self</span><span class="o">.</span><span class="n">transStep</span><span class="p">,</span> <span class="n">currentBarrier</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">currentBarrier</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Step </span><span class="si">%d</span><span class="s2">: MMAtm </span><span class="si">%d</span><span class="s2">; MM </span><span class="si">%lf</span><span class="s2">; Fmag </span><span class="si">%lf</span><span class="s2">; FdotRP </span><span class="si">%lf</span><span class="s2">; TFeval </span><span class="si">%d</span><span class="s2">; Trans Step </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transCount</span><span class="p">,</span> <span class="n">maxMoveAtomIdx</span><span class="p">,</span> <span class="n">maxMove</span><span class="p">,</span> 
+                                                                                                         <span class="n">fmag</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">FdotRP</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalStepCount</span><span class="p">,</span> 
+                                                                                                         <span class="bp">self</span><span class="o">.</span><span class="n">transStep</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c1"># first check if run for too long, etc...</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">currentBarrier</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">currentBarrier</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratMaxBarrier</span><span class="p">)</span> <span class="ow">or</span> <span class="n">maxMove</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratMaxMoveDistance</span> <span class="ow">or</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">forceEvals</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratMaxFuncEval</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">transCount</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratMaxSteps</span><span class="p">):</span>
+            
+            <span class="k">if</span> <span class="n">currentBarrier</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">currentBarrier</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratMaxBarrier</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failure: barrier too high (</span><span class="si">%f</span><span class="s2"> &gt; </span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">currentBarrier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratMaxBarrier</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;RAT: Barrier too high&quot;</span>
+            
+            <span class="k">elif</span> <span class="n">maxMove</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratMaxMoveDistance</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failure: max move too high (</span><span class="si">%f</span><span class="s2"> &gt; </span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">maxMove</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratMaxMoveDistance</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;RAT: Max move too high&quot;</span>
+            
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">forceEvals</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratMaxFuncEval</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failure:  too many funcevals (</span><span class="si">%d</span><span class="s2"> &gt; </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forceEvals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratMaxFuncEval</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;RAT: Max function evaluations exceeded&quot;</span>
+            
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">transCount</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratMaxSteps</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failure:  too many steps (</span><span class="si">%d</span><span class="s2"> &gt; </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transCount</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratMaxSteps</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;RAT: Max steps exceeded&quot;</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Failed: unknown reason (this shouldn&#39;t happen)&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;RAT: Unknown (this should not happen)&quot;</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">climb</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">saddleFoundFail</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span>
+        
+        <span class="c1"># checking lowest eigenvalue...</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">ratUseLanczos</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">transCount</span> <span class="o">&gt;</span> <span class="n">params</span><span class="o">.</span><span class="n">ratMinStepBeforeLanczos</span><span class="p">:</span>
+            <span class="n">lancCheckTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            
+            <span class="n">lattice</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">)</span>
+            
+            <span class="n">le_mainIndexes</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span>
+            <span class="n">le_includeAtoms</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">le_mainIndexes</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span><span class="p">)</span>
+            
+            <span class="c1"># fix</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixSearches</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">le_rVector</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Using generated random vector for initial Lanczos vector&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">le_rVector</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">extractVector3</span><span class="p">(</span><span class="n">le_mainIndexes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">le_rVectorFull</span><span class="p">)</span>
+            
+            <span class="n">status</span><span class="p">,</span> <span class="n">lowestEV</span><span class="p">,</span> <span class="n">resultVector</span><span class="p">,</span> <span class="n">FEvalTmp</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Lanczos</span><span class="o">.</span><span class="n">lanczosMethodForASystem</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">le_mainIndexes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">le_rVector</span><span class="p">,</span> 
+                                                                                                      <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">normEigenVec</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
+                                                                                                      <span class="n">includeAtoms</span><span class="o">=</span><span class="n">le_includeAtoms</span><span class="p">,</span> <span class="n">returnMode</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">totalFEvals</span> <span class="o">+=</span> <span class="n">FEvalTmp</span>
+            
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Lanczos failed (looking for lowest eigenvalue)&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;RAT: Lanczos failed (lowest eigenvalue check)&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">climb</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">return</span>
+            
+            <span class="c1"># store eigenvector to use as initial guess at next step</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">le_rVector</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">extractVector3</span><span class="p">(</span><span class="n">le_mainIndexes</span><span class="p">,</span> <span class="n">resultVector</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">le_rVectorFull</span> <span class="o">=</span> <span class="n">resultVector</span>
+            
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Calculated lowest eigenvalue: </span><span class="si">%f</span><span class="s2"> (</span><span class="si">%d</span><span class="s2"> iterations)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lowestEV</span><span class="p">,</span> <span class="n">iterCnt</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">lanczosCheckLowestTime</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">lancCheckTime</span>
+            
+            <span class="c1"># now we decide whether to start lanczos</span>
+            <span class="c1"># is the eigenvalue treally negative</span>
+            <span class="k">if</span> <span class="n">lowestEV</span> <span class="o">&lt;</span> <span class="n">params</span><span class="o">.</span><span class="n">ratNegEVThreshold</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">numConsecNegEVs</span> <span class="o">+=</span> <span class="mi">1</span>
+                
+                <span class="c1"># have we seen enough negative eigenvalues in a row</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numConsecNegEVs</span> <span class="o">&gt;=</span> <span class="n">params</span><span class="o">.</span><span class="n">ratNumNegBeforeLanczos</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">climb</span> <span class="o">=</span> <span class="kc">False</span>
+                    
+                    <span class="c1"># step back test</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratStepBackTestBeforeLanczos</span><span class="p">:</span>
+                        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stepBackTest</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="kc">None</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="kc">None</span>
+                            <span class="k">return</span>
+                    
+                    <span class="c1"># minimise outer atoms</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">lanczosMinOuterFirst</span><span class="p">:</span>
+                        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimiseFixedAtoms</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Min outer atoms before Lanczos failed (</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">status</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;RAT: Minimise outer atoms before Lanczos failed&quot;</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="kc">None</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="kc">None</span>
+                            <span class="k">return</span>
+                    
+                    <span class="c1"># converge to saddle</span>
+                    <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Converging to saddle using Lanczos&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">convergeToSaddle</span><span class="p">()</span>
+                    
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">correctTE</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">forceEvals</span> <span class="o">+=</span> <span class="mi">1</span>
+                        
+                        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;RAT: Final force calculation failed&quot;</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="kc">None</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="kc">None</span>
+                            <span class="k">return</span>
+                        
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">energyOrig</span>
+                            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Success: Saddle point found! Barrier </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                            <span class="k">return</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">numConsecNegEVs</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># Checking for stopping criteria</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratUseLanczos</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">FdotRP</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratFdotRPvalue</span> <span class="ow">and</span> <span class="n">maxMove</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratMaxMoveCriteria</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">climb</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">correctTE</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">forceEvals</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;RAT: Final force calculation failed&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">return</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">energyOrig</span>
+                   
+            <span class="n">finalSep</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialPos</span><span class="p">[</span><span class="n">maxMoveAtomIdx</span><span class="o">*</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">maxMoveAtomIdx</span><span class="o">*</span><span class="mi">3</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> 
+                                 <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialPos</span><span class="p">[</span><span class="n">maxMoveAtomIdx</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">maxMoveAtomIdx</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> 
+                                 <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialPos</span><span class="p">[</span><span class="n">maxMoveAtomIdx</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">maxMoveAtomIdx</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+                
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> 
+                <span class="s2">&quot;SUCCESS: Saddle point found! Barrier </span><span class="si">%f</span><span class="s2">; Steps used </span><span class="si">%d</span><span class="s2">; MaxMoveAtom </span><span class="si">%d</span><span class="s2">; MaxMoveAtomDistance </span><span class="si">%f</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">barrier</span><span class="p">,</span> 
+                                                                                                                     <span class="bp">self</span><span class="o">.</span><span class="n">totalStepCount</span><span class="p">,</span> 
+                                                                                                                     <span class="n">maxMoveAtomIdx</span><span class="p">,</span> <span class="n">finalSep</span><span class="p">),</span> 
+                <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="RAT.minimiseFixedAtoms"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.minimiseFixedAtoms">[docs]</a>    <span class="k">def</span> <span class="nf">minimiseFixedAtoms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Minimise atoms that were held fixed during RAT</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># minimise atoms that are normally held fixed during RAT</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Minimising atoms that were held fixed before Lanczos&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">prms</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">prms</span><span class="o">.</span><span class="n">minimizationType</span> <span class="o">=</span> <span class="n">prms</span><span class="o">.</span><span class="n">lanczosMinOuterType</span>
+        <span class="n">prms</span><span class="o">.</span><span class="n">minimizationCriteria</span> <span class="o">=</span> <span class="n">prms</span><span class="o">.</span><span class="n">lanczosMinOuterCriteria</span>
+        <span class="n">prms</span><span class="o">.</span><span class="n">minimizationTolerance</span> <span class="o">=</span> <span class="n">prms</span><span class="o">.</span><span class="n">lanczosMinOuterTol</span>
+        <span class="n">prms</span><span class="o">.</span><span class="n">minimizationExclusion</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">prms</span><span class="o">.</span><span class="n">LBFGSTolerance</span> <span class="o">=</span> <span class="n">prms</span><span class="o">.</span><span class="n">lanczosMinOuterLBFGSTol</span>
+        
+        <span class="n">inipos</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+        
+        <span class="n">outmin</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">getMinimiser</span><span class="p">(</span><span class="n">prms</span><span class="p">,</span> <span class="n">jobID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">outmin</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">status</span>
+        
+        <span class="n">sep</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">separation</span><span class="p">(</span><span class="n">inipos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">)</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Separation after minimising outer atoms = </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sep</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="RAT.displace"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.displace">[docs]</a>    <span class="k">def</span> <span class="nf">displace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initial displacement</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Step </span><span class="si">%d</span><span class="s2">. Initial displacement&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transCount</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">initiateDefectDisplacement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transStepIni</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">defectFlag</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forceEvals</span> <span class="o">+=</span> <span class="mi">1</span></div>
+        
+<div class="viewcode-block" id="RAT.relax"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.relax">[docs]</a>    <span class="k">def</span> <span class="nf">relax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Relaxation step</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">relaxTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="n">relax</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">relaxCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">relaxStepIter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxStep</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">FdotRP</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">FdotFPrev</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">FPrevdotFPrevPrev</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="c1"># remove parallel component of true force</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removeParallelForceComp</span><span class="p">()</span>
+        
+        <span class="c1"># relaxation loop</span>
+        <span class="k">while</span> <span class="n">relax</span> <span class="ow">and</span> <span class="n">relaxCount</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratMaxRelaxSteps</span><span class="p">:</span>
+            <span class="n">relaxCount</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">totalStepCount</span> <span class="o">+=</span> <span class="mi">1</span>
+                            
+            <span class="c1"># Normalizing force vector</span>
+            <span class="n">normForce</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">normalise</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+                
+            <span class="c1"># Relaxation step to the direction of the force</span>
+            <span class="n">Vectors</span><span class="o">.</span><span class="n">addVectorsInplace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">scaleVector</span><span class="p">(</span><span class="n">normForce</span><span class="p">,</span> <span class="n">relaxStepIter</span><span class="p">))</span>
+
+            <span class="c1"># force calculation (sub-lattice)</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">defectFlag</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">forceEvals</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;RAT: Relaxation force calculation failed&quot;</span>
+                <span class="k">return</span> <span class="mi">4</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+
+            <span class="c1"># leave perpendicular component of true force</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">removeParallelForceComp</span><span class="p">()</span>
+     
+            <span class="n">FdotFPrev</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">dotProduct</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prevForce</span><span class="p">)</span>
+                
+            <span class="c1"># Recalculating relaxation step size</span>
+            <span class="n">absValue</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">FPrevdotFPrevPrev</span> <span class="o">-</span> <span class="n">FdotFPrev</span><span class="p">)</span> <span class="o">/</span> <span class="n">FdotFPrev</span>
+            
+            <span class="k">if</span> <span class="n">absValue</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
+                <span class="n">relaxStepIter</span> <span class="o">*=</span> <span class="mf">1.2</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">relaxStepIter</span> <span class="o">/=</span> <span class="mf">2.0</span>
+                
+            <span class="k">if</span> <span class="n">relaxStepIter</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxStepMax</span><span class="p">:</span>
+                <span class="n">relaxStepIter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxStepMax</span>
+            <span class="k">elif</span> <span class="n">relaxStepIter</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxStepMin</span><span class="p">:</span>
+                <span class="n">relaxStepIter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxStepMin</span>
+                                      
+            <span class="n">FPrevdotFPrevPrev</span> <span class="o">=</span> <span class="n">FdotFPrev</span>
+                
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Step </span><span class="si">%d</span><span class="s2">. RelaxStep </span><span class="si">%d</span><span class="s2">; RelaxStepLen </span><span class="si">%lf</span><span class="s2">; FdotFPrev </span><span class="si">%lf</span><span class="s2">; TFeval </span><span class="si">%d</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transCount</span><span class="p">,</span> <span class="n">relaxCount</span><span class="p">,</span> <span class="n">relaxStepIter</span><span class="p">,</span> <span class="n">FdotFPrev</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalStepCount</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            
+            <span class="c1"># Stop relaxation, as soon as force change its direction</span>
+            <span class="k">if</span> <span class="n">FdotFPrev</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>                   
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Step </span><span class="si">%d</span><span class="s2">. RelaxStep </span><span class="si">%d</span><span class="s2">. Relaxation stopping criteria reached. Returning to translation. TFeval </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transCount</span><span class="p">,</span> <span class="n">relaxCount</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalStepCount</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>                
+                <span class="n">relax</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Reevaluating translation step</span>
+        <span class="k">if</span> <span class="n">relaxCount</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transStep</span> <span class="o">*=</span> <span class="mf">2.0</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transStep</span> <span class="o">/=</span> <span class="mf">2.0</span>
+            
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transStep</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">transStepMax</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transStep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transStepMax</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">transStep</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">transStepMin</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transStep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transStepMin</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">relaxTime</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">relaxTime</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">saddleFoundFail</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>        </div>
+        
+<div class="viewcode-block" id="RAT.remakeDisplVetor"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.remakeDisplVetor">[docs]</a>    <span class="k">def</span> <span class="nf">remakeDisplVetor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Makes new displacement vector</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;New displacement vector&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+     
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">scaleVector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratAplha</span><span class="p">)</span>
+
+        <span class="n">Vectors</span><span class="o">.</span><span class="n">applyPartialDisplacement</span><span class="p">(</span><span class="n">Vectors</span><span class="o">.</span><span class="n">separationVector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prevPos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">),</span> 
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">normalise</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span><span class="p">)</span></div>
+       
+<div class="viewcode-block" id="RAT.removeParallelForceComp"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.removeParallelForceComp">[docs]</a>    <span class="k">def</span> <span class="nf">removeParallelForceComp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes component of the force that is parallel to the translation vector</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">FdotN</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">partialDotProduct</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">)</span>
+        
+        <span class="n">vector</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">scaleVector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">FdotN</span><span class="p">)</span>
+        
+        <span class="n">Vectors</span><span class="o">.</span><span class="n">applyPartialDisplacement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RAT.run"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run RAT.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">timeDimer</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runRATWithTiming</span><span class="p">(</span><span class="n">inputState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runRATWithoutTiming</span><span class="p">(</span><span class="n">inputState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">result</span></div>
+    
+<div class="viewcode-block" id="RAT.checkMinimiseOuterAtoms"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.checkMinimiseOuterAtoms">[docs]</a>    <span class="k">def</span> <span class="nf">checkMinimiseOuterAtoms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if we need to minimise outer atoms</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratMinOuterAtomsInterval</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">transCount</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratMinOuterAtomsInterval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Step </span><span class="si">%d</span><span class="s2">. Minimise outer atoms&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transCount</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            
+            <span class="c1"># minimise outer atoms</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimiseFixedAtoms</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;RAT: Minimise outer atoms during RAT failed&quot;</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Minimise outer atoms during RAT failed&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">return</span> <span class="n">status</span>
+            
+            <span class="c1"># need to force calc</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">defectFlag</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;RAT: calc force after min outer failed&quot;</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Calc force after min outer failed&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">return</span> <span class="n">status</span></div>
+    
+<div class="viewcode-block" id="RAT.runMain"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.runMain">[docs]</a>    <span class="k">def</span> <span class="nf">runMain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The main RAT routine</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">totalTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Running RAT method...&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># not sure if working with whole lattice force calc</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">useSubLatticeForceCalc</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratUseLanczos</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Warning: RAT only tested with subLatticeForceCalc (Please delete this is you confirm it works with wholeLattice!)&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># initial setup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">inputState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="p">)</span>
+        
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span> <span class="ow">is</span> <span class="n">inputState</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ratDebugOutput</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">writeLattice</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;rat.output&quot;</span><span class="p">,</span> <span class="s2">&quot;rat_step</span><span class="si">%d</span><span class="s2">.dat&quot;</span> <span class="o">%</span> <span class="mi">0</span><span class="p">))</span>
+        
+        <span class="c1"># initial displacement</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">displace</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ratDebugOutput</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">writeLattice</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;rat.output&quot;</span><span class="p">,</span> <span class="s2">&quot;rat_step</span><span class="si">%d</span><span class="s2">.dat&quot;</span> <span class="o">%</span> <span class="mi">1</span><span class="p">))</span>
+        
+        <span class="c1"># main loop</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">climb</span><span class="p">:</span>            
+            <span class="c1"># counters </span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transCount</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">totalStepCount</span> <span class="o">+=</span> <span class="mi">1</span>      
+            
+            <span class="c1"># Stores previous positions/forces of atoms</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prevPos</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prevForce</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+            
+            <span class="c1"># translation</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="k">break</span>
+            
+            <span class="c1"># relaxation</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relax</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="k">break</span>
+            
+            <span class="c1"># minimise outer atoms</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkMinimiseOuterAtoms</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="k">break</span>
+            
+            <span class="c1"># new displacement vector</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remakeDisplVetor</span><span class="p">()</span>
+            
+            <span class="c1"># check if converged to saddle point</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">checkIfConverged</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ratDebugOutput</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">writeLattice</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;rat.output&quot;</span><span class="p">,</span> <span class="s2">&quot;rat_step</span><span class="si">%d</span><span class="s2">.dat&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transCount</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,)))</span>
+        
+        <span class="c1"># debugging (probably need separate param)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratDebugMode</span><span class="p">:</span>
+            <span class="n">barrier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span>
+            <span class="k">if</span> <span class="n">barrier</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">barrier</span> <span class="o">=</span> <span class="o">-</span><span class="mi">9999</span>
+            <span class="n">debugInfo</span> <span class="o">=</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">SaddleSearchDebugInfo</span><span class="p">(</span><span class="s2">&quot;RAT&quot;</span><span class="p">,</span> <span class="n">barrier</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">transCount</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">forceEvals</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">debugInfo</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="n">totalTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">totalTime</span>
+        
+        <span class="c1"># number of force calls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">totalFEvals</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forceEvals</span>
+        
+        <span class="c1"># create timing dict</span>
+        <span class="n">ratTimingDict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;RAT total time&quot;</span><span class="p">:</span> <span class="n">totalTime</span><span class="p">,</span>
+            <span class="s2">&quot;RAT translate time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">translateTime</span><span class="p">,</span>
+            <span class="s2">&quot;RAT relax time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxTime</span><span class="p">,</span>
+            <span class="s2">&quot;Lanczos check time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lanczosCheckLowestTime</span><span class="p">,</span>
+            <span class="s2">&quot;Lanczos converge time (incl 0s)&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lanczosConvergeTime</span><span class="p">,</span>
+            <span class="s2">&quot;RAT step count&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">transCount</span><span class="p">,</span>
+            <span class="s2">&quot;RAT total step count&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalStepCount</span><span class="p">,</span>
+            <span class="s2">&quot;RAT total force calls&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">totalFEvals</span><span class="p">,</span>
+            <span class="s2">&quot;RAT check barrier time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkBarrierTime</span><span class="p">,</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># exclude zeros (ie failed before lanczos converge to saddle)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lanczosConvergeTime</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">ratTimingDict</span><span class="p">[</span><span class="s2">&quot;Lanczos converge time (excl 0s)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lanczosConvergeTime</span>
+        
+        <span class="c1"># include time step back if relevant</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratStepBackTestBeforeLanczos</span><span class="p">:</span>
+            <span class="n">ratTimingDict</span><span class="p">[</span><span class="s2">&quot;RAT step back before Lanczos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeStepBack</span>
+        
+        <span class="c1"># release some refs</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span><span class="p">,</span> <span class="n">debugInfo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span><span class="p">,</span> <span class="n">ratTimingDict</span></div>
+    
+    <span class="nd">@Timer</span><span class="o">.</span><span class="n">timerProfile</span>
+<div class="viewcode-block" id="RAT.runRATWithTiming"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.runRATWithTiming">[docs]</a>    <span class="k">def</span> <span class="nf">runRATWithTiming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run RAT with timing.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">runMain</span><span class="p">(</span><span class="n">inputState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="RAT.runRATWithoutTiming"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.runRATWithoutTiming">[docs]</a>    <span class="k">def</span> <span class="nf">runRATWithoutTiming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run RAT without timing.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">runMain</span><span class="p">(</span><span class="n">inputState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="RAT.setup"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialState</span><span class="p">,</span> <span class="n">fixSearchObj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup RAT for saddle search</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># initialise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">climb</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">totalStepCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forceEvals</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">le_rVector</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">le_rVectorFull</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numConsecNegEVs</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fixSearches</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratDebugOutput</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="c1"># stats</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosCheckLowestTime</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lanczosConvergeTime</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">translateTime</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relaxTime</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">totalFEvals</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeStepBack</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkBarrierTime</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="c1"># make a copy of the lattice and initial positions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span> <span class="o">=</span> <span class="n">initialState</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">initialState</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialPos</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">initialState</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+        
+        <span class="c1"># set some params (no sure where *5 came from...)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relaxStep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratRelaxationStep</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relaxStepMin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxStep</span> <span class="c1">#/ 5.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relaxStepMax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxStep</span> <span class="o">*</span> <span class="mf">5.0</span>
+        
+        <span class="c1"># again, not sure where *6 came from</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transStep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxStep</span> <span class="o">*</span> <span class="mf">6.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transStepMin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxStepMin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transStepMax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxStepMax</span> <span class="o">*</span> <span class="mf">6.0</span>
+        
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">fixSearchObj</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Utilities</span><span class="o">.</span><span class="n">TransitionFix</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Fixing search (index </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">fixSearchObj</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span> <span class="o">=</span> <span class="n">fixSearchObj</span><span class="o">.</span><span class="n">displacementVector</span>
+            <span class="k">assert</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">Vectors</span><span class="o">.</span><span class="n">magnitude</span><span class="p">(</span><span class="n">fixSearchObj</span><span class="o">.</span><span class="n">displacementVector</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">7</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transStepIni</span> <span class="o">=</span> <span class="n">fixSearchObj</span><span class="o">.</span><span class="n">stepSize</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fixSearches</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">le_rVectorFull</span> <span class="o">=</span> <span class="n">fixSearchObj</span><span class="o">.</span><span class="n">rVector</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># fix random number if debugging</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratDebugMode</span><span class="p">:</span>
+                <span class="n">randomNumber</span> <span class="o">=</span> <span class="mf">0.5</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">randomNumber</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+            
+            <span class="c1"># initial step size</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transStepIni</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transStep</span> <span class="o">*</span> <span class="n">randomNumber</span> <span class="o">*</span> <span class="mf">2.0</span>
+        
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Initial step size: </span><span class="si">%.10f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">transStepIni</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        
+        <span class="c1"># calc initial energy</span>
+        <span class="n">initialState</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">correctTE</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forceEvals</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energyOrig</span> <span class="o">=</span> <span class="n">initialState</span><span class="o">.</span><span class="n">totalEnergy</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Initial energy: </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">energyOrig</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        
+        <span class="c1"># initialise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prevPos</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prevForce</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saddleFoundFail</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">FdotRP</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="c1"># get Lanczos convergence minimisers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saddleFinder</span> <span class="o">=</span> <span class="n">Lanczos</span><span class="o">.</span><span class="n">LanczosLBFGSSaddleFinder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saddleFinder</span><span class="o">.</span><span class="n">setJobID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;rat.output&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ratDebugOutput</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="RAT.translate"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.translate">[docs]</a>    <span class="k">def</span> <span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Translation</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check job status</span>
+        <span class="k">if</span> <span class="n">ClientServerInterface</span><span class="o">.</span><span class="n">checkJobStatus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">):</span>
+            <span class="k">return</span> <span class="mi">2</span>
+        
+        <span class="n">transTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="c1"># translate</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transCount</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Step </span><span class="si">%d</span><span class="s2">. Translation&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transCount</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            
+            <span class="n">Vectors</span><span class="o">.</span><span class="n">applyPartialDisplacement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">scaleVector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">displacementVector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">transStep</span><span class="p">),</span> 
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">)</span>
+            
+            <span class="c1"># force calculation (sub-lattice)</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">defectFlag</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">forceEvals</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;RAT: Translation force calculation failed&quot;</span>
+                <span class="k">return</span> <span class="mi">3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">force</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">translateTime</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">transTime</span>
+        
+        <span class="k">return</span> <span class="mi">0</span></div>
+    
+<div class="viewcode-block" id="RAT.writeLattice"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.writeLattice">[docs]</a>    <span class="k">def</span> <span class="nf">writeLattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        I am just a dummy...</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="s2">&quot;writeLattice&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">writeLattice</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="RAT.stepBackTest"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.RAT.stepBackTest">[docs]</a>    <span class="k">def</span> <span class="nf">stepBackTest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Step back and check if connected to initial</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Running step back test&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">timeStepBack</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="n">initialBackwards</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">pushSystem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">initialBackwards</span><span class="o">.</span><span class="n">currentDefectVolume</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">currentDefectVolume</span><span class="p">)</span>
+        <span class="n">initialBackwards</span><span class="o">.</span><span class="n">defectSubSystemFull</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">defectSubSystemFull</span><span class="p">)</span>
+        <span class="n">initialBackwards</span><span class="o">.</span><span class="n">defectSubSystem</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">)</span>
+        <span class="n">initialBackwards</span><span class="o">.</span><span class="n">defectSubSystemSmall</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">defectSubSystemSmall</span><span class="p">)</span>
+        
+        <span class="n">stepBackParams</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+<span class="c1">#         stepBackParams.minimizationExclusion = 2</span>
+        
+        <span class="n">normalMinimiser</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">getMinimiser</span><span class="p">(</span><span class="n">stepBackParams</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobID</span><span class="p">)</span>
+        <span class="n">minStatus</span> <span class="o">=</span> <span class="n">normalMinimiser</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">initialBackwards</span><span class="p">)</span>
+        
+        <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">minStatus</span><span class="p">:</span>
+            <span class="n">sep</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">separation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialPos</span><span class="p">,</span> <span class="n">initialBackwards</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialState</span><span class="o">.</span><span class="n">cellDims</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">sep</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratStepBackTestCriteria</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Step back test failed: separation too big (</span><span class="si">%f</span><span class="s2"> &gt; </span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratStepBackTestCriteria</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failReason</span> <span class="o">=</span> <span class="s2">&quot;RAT: Step back test failed: separation too big&quot;</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Step back test passed (</span><span class="si">%f</span><span class="s2"> &lt; </span><span class="si">%f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ratStepBackTestCriteria</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Minimisation failed during step back test (</span><span class="si">%d</span><span class="s2">); skipping test&quot;</span> <span class="o">%</span> <span class="n">minStatus</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeStepBack</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">timeStepBack</span>
+        
+        <span class="k">return</span> <span class="n">status</span></div></div>
+
+<span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="commandLineArgs"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.commandLineArgs">[docs]</a><span class="k">def</span> <span class="nf">commandLineArgs</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse command line arguments</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">argparse</span>
+    
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Run the RAT method.&quot;</span><span class="p">)</span>
+    
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;inputFile&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The input lattice file.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;refFile&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The reference lattice file.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;paramFile&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;lkmcInput.IN&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;LKMC input file (default=lkmcInput.IN)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-P&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;profileCode&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Profile the code using the hotshot module (not for production) (default=False)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;statsFile&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;profile.dat&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;File for dumping profiling stats to (default=profile.dat)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-V&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;visProf&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Visualise the profiling of the code&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
+
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../LKMC/LKMC.RAT.html#LKMC.RAT.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    
+    <span class="c1"># get command line args</span>
+    <span class="n">progargs</span> <span class="o">=</span> <span class="n">commandLineArgs</span><span class="p">()</span>
+    
+    <span class="c1"># read parameters</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">Input</span><span class="o">.</span><span class="n">getLKMCParams</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">progargs</span><span class="o">.</span><span class="n">paramFile</span><span class="p">)</span>
+    <span class="n">Input</span><span class="o">.</span><span class="n">readGlobals</span><span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">paramFile</span><span class="p">)</span>
+    
+    <span class="c1"># read lattices</span>
+    <span class="n">inputLattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">inputFile</span><span class="p">)</span>
+    <span class="n">refLattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">refFile</span><span class="p">)</span>
+    
+    <span class="c1"># check input lattice is minimised</span>
+    <span class="nb">print</span> <span class="s2">&quot;---------- MINIMISING INPUT LATTICE ----------&quot;</span>
+    <span class="n">minimiser</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">getMinimiser</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">minimiser</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inputLattice</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;MIN FAILED...&quot;</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">46</span><span class="p">)</span>
+    
+    <span class="c1"># find defects</span>
+    <span class="nb">print</span> <span class="s2">&quot;---------- FINDING DEFECTS ----------&quot;</span>
+    <span class="n">inputLattice</span><span class="o">.</span><span class="n">findDefects</span><span class="p">(</span><span class="n">refLattice</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+    
+    <span class="c1"># select current defect volume</span>
+    <span class="n">inputLattice</span><span class="o">.</span><span class="n">currentDefectVolume</span> <span class="o">=</span> <span class="n">inputLattice</span><span class="o">.</span><span class="n">defectVolumes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">inputLattice</span><span class="o">.</span><span class="n">currentVolumeIndex</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="n">inputLatticeCpy</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">inputLattice</span><span class="p">)</span>
+    <span class="c1"># run Dimer</span>
+    <span class="nb">print</span> <span class="s2">&quot;---------- RUNNING RAT ----------&quot;</span>
+    <span class="n">rat</span> <span class="o">=</span> <span class="n">RAT</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">progargs</span><span class="o">.</span><span class="n">profileCode</span> <span class="ow">or</span> <span class="n">progargs</span><span class="o">.</span><span class="n">visPerform</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">Profiling</span>
+        
+        <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">inputLattice</span><span class="p">,)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">Profiling</span><span class="o">.</span><span class="n">profileMethod</span><span class="p">(</span><span class="n">rat</span><span class="o">.</span><span class="n">run</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">printStats</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">statsFile</span><span class="o">=</span><span class="n">progargs</span><span class="o">.</span><span class="n">statsFile</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">progargs</span><span class="o">.</span><span class="n">visProf</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">statsFile</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;gprof2dot.py -f pstats </span><span class="si">%s</span><span class="s2"> | dot -Tpng -o output.png&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">statsFile</span><span class="p">))</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">progargs</span><span class="o">.</span><span class="n">profileCode</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">progargs</span><span class="o">.</span><span class="n">statsFile</span><span class="p">)</span>
+        
+        <span class="n">barrier</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="nb">print</span> <span class="s2">&quot;BARRIER&quot;</span><span class="p">,</span> <span class="n">barrier</span>
+    
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">rat</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inputLatticeCpy</span><span class="p">)</span>
+        
+        <span class="n">saddle</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">barrier</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="nb">print</span> <span class="s2">&quot;BARRIER&quot;</span><span class="p">,</span> <span class="n">barrier</span>
+        
+        <span class="k">if</span> <span class="n">saddle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">saddle</span><span class="o">.</span><span class="n">writeLattice</span><span class="p">(</span><span class="s2">&quot;saddle.dat&quot;</span><span class="p">)</span>
+            
+            <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Search</span>
+        
+            <span class="n">searcher</span> <span class="o">=</span> <span class="n">Search</span><span class="o">.</span><span class="n">TransitionSearcher</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">searcher</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+            
+            <span class="n">final</span> <span class="o">=</span> <span class="n">searcher</span><span class="o">.</span><span class="n">stepForwards</span><span class="p">(</span><span class="n">inputLattice</span><span class="p">,</span> <span class="n">saddle</span><span class="p">)</span>
+            <span class="n">sep</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">separation</span><span class="p">(</span><span class="n">inputLattice</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">final</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">final</span><span class="o">.</span><span class="n">cellDims</span><span class="p">)</span>
+            
+            <span class="nb">print</span> <span class="s2">&quot;Step forward sep = </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sep</span><span class="p">)</span>
+            
+            <span class="n">final</span><span class="o">.</span><span class="n">writeLattice</span><span class="p">(</span><span class="s2">&quot;final.dat&quot;</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+LKMC.Lanczos module
+===================
+
+.. automodule:: LKMC.Lanczos
+    :members:
+    :undoc-members:
+    :show-inheritance:

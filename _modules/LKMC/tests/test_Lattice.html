@@ -1,0 +1,412 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.tests.test_Lattice &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.tests.test_Lattice</h1><div class="highlight"><pre>
+<span></span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Unit tests for the Lattice module</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="n">BaseTestClass</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">Input</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">Atoms</span>
+<span class="kn">from</span> <span class="nn">..</span> <span class="k">import</span> <span class="n">Globals</span>
+
+
+<div class="viewcode-block" id="TestLatticeSimpleMethods"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods">[docs]</a><span class="k">class</span> <span class="nc">TestLatticeSimpleMethods</span><span class="p">(</span><span class="n">BaseTestClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test Lattice object simple methods</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TestLatticeSimpleMethods.setUp"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">Lattice</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">addAtom</span><span class="p">(</span><span class="s2">&quot;Pu&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">addAtom</span><span class="p">(</span><span class="s2">&quot;Pu&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">addAtom</span><span class="p">(</span><span class="s2">&quot;Ga&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">addAtom</span><span class="p">(</span><span class="s2">&quot;Mg&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">addAtom</span><span class="p">(</span><span class="s2">&quot;O_&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">],</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">addAtom</span><span class="p">(</span><span class="s2">&quot;He&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">99</span><span class="p">,</span><span class="mi">99</span><span class="p">,</span><span class="mi">99</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">addAtom</span><span class="p">(</span><span class="s2">&quot;Hf&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">15</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestLatticeSimpleMethods.tearDown"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.tearDown">[docs]</a>    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">=</span> <span class="kc">None</span></div>
+    
+<div class="viewcode-block" id="TestLatticeSimpleMethods.test_getMinSepList"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.test_getMinSepList">[docs]</a>    <span class="k">def</span> <span class="nf">test_getMinSepList</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice getMinSepList</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># input position</span>
+        <span class="n">inputPos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        
+        <span class="c1"># atom list</span>
+        <span class="n">atomList</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        
+        <span class="c1"># call with full list</span>
+        <span class="n">minSep</span><span class="p">,</span> <span class="n">minSepIndex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">getMinSepList</span><span class="p">(</span><span class="n">inputPos</span><span class="p">,</span> <span class="n">atomList</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">minSepIndex</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">minSep</span><span class="p">,</span> <span class="mf">5.477225575051661</span><span class="p">)</span>
+        
+        <span class="c1"># call with partial list</span>
+        <span class="n">minSep</span><span class="p">,</span> <span class="n">minSepIndex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">getMinSepList</span><span class="p">(</span><span class="n">inputPos</span><span class="p">,</span> <span class="n">atomList</span><span class="p">,</span> <span class="n">atomListSize</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">minSepIndex</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">minSep</span><span class="p">,</span> <span class="mf">8.94427190999916</span><span class="p">)</span>
+        
+        <span class="c1"># max spacing smaller than closest separation</span>
+        <span class="n">minSep</span><span class="p">,</span> <span class="n">minSepIndex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">getMinSepList</span><span class="p">(</span><span class="n">inputPos</span><span class="p">,</span> <span class="n">atomList</span><span class="p">,</span> <span class="n">maxSpacing</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">minSepIndex</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">minSep</span><span class="p">)</span>
+        <span class="n">minSep</span><span class="p">,</span> <span class="n">minSepIndex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">getMinSepList</span><span class="p">(</span><span class="n">inputPos</span><span class="p">,</span> <span class="n">atomList</span><span class="p">,</span> <span class="n">maxSpacing</span><span class="o">=</span><span class="mf">5.45</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">minSepIndex</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">minSep</span><span class="p">)</span>
+        
+        <span class="c1"># check raises exception</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">getMinSepList</span><span class="p">(</span><span class="n">inputPos</span><span class="p">,</span> <span class="n">atomList</span><span class="p">,</span> <span class="n">atomListSize</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">getMinSepList</span><span class="p">(</span><span class="n">inputPos</span><span class="p">,</span> <span class="n">atomList</span><span class="p">,</span> <span class="n">atomListSize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestLatticeSimpleMethods.test_getIndicesFromPositions"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.test_getIndicesFromPositions">[docs]</a>    <span class="k">def</span> <span class="nf">test_getIndicesFromPositions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice getIndicesFromPositions</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">[:]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">minPos</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">maxPos</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">100.0</span>
+        
+        <span class="c1"># input positions (0-0.05, -, 6-0.05, 4-0.15, 2-0.01)</span>
+        <span class="n">inputPos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="mf">14.95</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mf">8.15</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.01</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        
+        <span class="c1"># call</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">getIndicesFromPositions</span><span class="p">(</span><span class="n">inputPos</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputPos</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c1"># call again with a large maxSep</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">getIndicesFromPositions</span><span class="p">(</span><span class="n">inputPos</span><span class="p">,</span> <span class="n">maxSep</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputPos</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+        
+        <span class="c1"># check raises error</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">getIndicesFromPositions</span><span class="p">(</span><span class="n">inputPos</span><span class="p">,</span> <span class="n">maxSep</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestLatticeSimpleMethods.test_latticeVolume"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.test_latticeVolume">[docs]</a>    <span class="k">def</span> <span class="nf">test_latticeVolume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice volume</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vol1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">volume</span><span class="p">()</span>
+        <span class="n">vol2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">vol1</span><span class="p">,</span> <span class="n">vol2</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestLatticeSimpleMethods.test_latticeAddAtom"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.test_latticeAddAtom">[docs]</a>    <span class="k">def</span> <span class="nf">test_latticeAddAtom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice add atom</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">prelen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">addAtom</span><span class="p">(</span><span class="s2">&quot;Pu&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">80</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">prelen</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">specie</span><span class="p">[</span><span class="n">index</span><span class="p">]],</span> <span class="s2">&quot;Pu&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">index</span><span class="p">:</span><span class="mi">3</span><span class="o">*</span><span class="n">index</span><span class="o">+</span><span class="mi">3</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">80</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">80</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieCount</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestLatticeSimpleMethods.test_latticeRemoveAtomException"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.test_latticeRemoveAtomException">[docs]</a>    <span class="k">def</span> <span class="nf">test_latticeRemoveAtomException</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice remove atom exception</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">removeAtom</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestLatticeSimpleMethods.test_latticeRemoveAtom"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.test_latticeRemoveAtom">[docs]</a>    <span class="k">def</span> <span class="nf">test_latticeRemoveAtom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice remove atom</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">prelen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">removeAtom</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">prelen</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="mi">2</span><span class="p">:</span><span class="mi">3</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="mi">3</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieCount</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestLatticeSimpleMethods.test_addSpecie"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.test_addSpecie">[docs]</a>    <span class="k">def</span> <span class="nf">test_addSpecie</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice add specie</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">Lattice</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="n">lattice</span><span class="o">.</span><span class="n">addSpecie</span><span class="p">(</span><span class="s2">&quot;Pu&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;Pu&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieCount</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieMass</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Atoms</span><span class="o">.</span><span class="n">atomicMass</span><span class="p">(</span><span class="s2">&quot;Pu&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieMassAMU</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Atoms</span><span class="o">.</span><span class="n">atomicMassAMU</span><span class="p">(</span><span class="s2">&quot;Pu&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieCovalentRadius</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Atoms</span><span class="o">.</span><span class="n">covalentRadius</span><span class="p">(</span><span class="s2">&quot;Pu&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieRGB</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Atoms</span><span class="o">.</span><span class="n">RGB</span><span class="p">(</span><span class="s2">&quot;Pu&quot;</span><span class="p">)))</span>
+        
+        <span class="n">lattice</span><span class="o">.</span><span class="n">addSpecie</span><span class="p">(</span><span class="s2">&quot;Ga&quot;</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">88</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;Ga&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieCount</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">88</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieMass</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">Atoms</span><span class="o">.</span><span class="n">atomicMass</span><span class="p">(</span><span class="s2">&quot;Ga&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieMassAMU</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">Atoms</span><span class="o">.</span><span class="n">atomicMassAMU</span><span class="p">(</span><span class="s2">&quot;Ga&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieCovalentRadius</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">Atoms</span><span class="o">.</span><span class="n">covalentRadius</span><span class="p">(</span><span class="s2">&quot;Ga&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieRGB</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">Atoms</span><span class="o">.</span><span class="n">RGB</span><span class="p">(</span><span class="s2">&quot;Ga&quot;</span><span class="p">)))</span></div>
+    
+<div class="viewcode-block" id="TestLatticeSimpleMethods.test_atomPosException"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.test_atomPosException">[docs]</a>    <span class="k">def</span> <span class="nf">test_atomPosException</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice atom pos exception</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">atomPos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestLatticeSimpleMethods.test_atomPos"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.test_atomPos">[docs]</a>    <span class="k">def</span> <span class="nf">test_atomPos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice atom pos</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">atomPos</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="mi">2</span><span class="p">:</span><span class="mi">3</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="mi">3</span><span class="p">],</span> <span class="n">pos</span><span class="p">))</span></div>
+    
+<div class="viewcode-block" id="TestLatticeSimpleMethods.test_changeAtomSpecieException"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.test_changeAtomSpecieException">[docs]</a>    <span class="k">def</span> <span class="nf">test_changeAtomSpecieException</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice change atom specie exception</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">changeAtomSpecie</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="s2">&quot;Fe&quot;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestLatticeSimpleMethods.test_changeAtomSpecie"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.test_changeAtomSpecie">[docs]</a>    <span class="k">def</span> <span class="nf">test_changeAtomSpecie</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice change atom specie</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cur_spec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">specie</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">curspeccnt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieCount</span><span class="p">[</span><span class="n">cur_spec</span><span class="p">]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">changeAtomSpecie</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Fe&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieCount</span><span class="p">[</span><span class="n">cur_spec</span><span class="p">],</span> <span class="n">curspeccnt</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;Fe&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieCount</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestLatticeSimpleMethods.test_atomSymException"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.test_atomSymException">[docs]</a>    <span class="k">def</span> <span class="nf">test_atomSymException</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice atom sym exception</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">atomSym</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestLatticeSimpleMethods.test_atomSym"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.test_atomSym">[docs]</a>    <span class="k">def</span> <span class="nf">test_atomSym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice atom sym</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sym</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">atomSym</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s2">&quot;Ga&quot;</span><span class="p">,</span> <span class="n">sym</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestLatticeSimpleMethods.test_wrapAtoms"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.test_wrapAtoms">[docs]</a>    <span class="k">def</span> <span class="nf">test_wrapAtoms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice wrap atoms</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Globals</span><span class="o">.</span><span class="n">PBC</span><span class="p">[:]</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">Lattice</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">lattice</span><span class="o">.</span><span class="n">setCellDims</span><span class="p">([</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+        <span class="n">lattice</span><span class="o">.</span><span class="n">addAtom</span><span class="p">(</span><span class="s2">&quot;Pu&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">21</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="n">lattice</span><span class="o">.</span><span class="n">wrapAtoms</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">pos</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)))</span></div>
+    
+<div class="viewcode-block" id="TestLatticeSimpleMethods.test_findNeighbours"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestLatticeSimpleMethods.test_findNeighbours">[docs]</a>    <span class="k">def</span> <span class="nf">test_findNeighbours</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice find atoms neighbours</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nebs</span><span class="p">,</span> <span class="n">nebSeps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">findNeighbours</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">nebs</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">nebSeps</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1.73205081</span><span class="p">,</span>  <span class="mf">4.24264069</span><span class="p">])))</span>
+        
+        <span class="n">nebs</span><span class="p">,</span> <span class="n">nebSeps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">findNeighbours</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">nebs</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">nebSeps</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1.73205081</span><span class="p">,</span>  <span class="mf">5.0</span><span class="p">,</span> <span class="mf">4.24264069</span><span class="p">])))</span>
+        
+        <span class="n">nebs</span><span class="p">,</span> <span class="n">nebSeps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">findNeighbours</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">nebs</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">nebSeps</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1.73205081</span><span class="p">,</span> <span class="mf">4.24264069</span><span class="p">,</span>  <span class="mf">5.0</span><span class="p">])))</span>
+        
+        <span class="n">nebs</span><span class="p">,</span> <span class="n">nebSeps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">findNeighbours</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">nebs</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">nebSeps</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">5.74456265</span><span class="p">,</span>  <span class="mf">4.24264069</span><span class="p">,</span>  <span class="mf">3.60555128</span><span class="p">])))</span>
+        
+        <span class="n">nebs</span><span class="p">,</span> <span class="n">nebSeps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">findNeighbours</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">nebs</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">nebSeps</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">3.60555128</span><span class="p">,</span>  <span class="mf">4.24264069</span><span class="p">,</span>  <span class="mf">5.74456265</span><span class="p">])))</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">findNeighbours</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">findNeighbours</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="TestReadLattice"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestReadLattice">[docs]</a><span class="k">class</span> <span class="nc">TestReadLattice</span><span class="p">(</span><span class="n">BaseTestClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read lattice</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TestReadLattice.setUp"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestReadLattice.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pathToData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pathToInputFile</span><span class="p">())</span>
+        <span class="n">Input</span><span class="o">.</span><span class="n">readGlobals</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestReadLattice.test_readLattice_type"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestReadLattice.test_readLattice_type">[docs]</a>    <span class="k">def</span> <span class="nf">test_readLattice_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read lattice type</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pathToData</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="s2">&quot;lbomd&quot;</span><span class="p">,</span> <span class="s2">&quot;puga_864.dat&quot;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">Lattice</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestReadLattice.test_readLattice_NAtoms"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestReadLattice.test_readLattice_NAtoms">[docs]</a>    <span class="k">def</span> <span class="nf">test_readLattice_NAtoms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read lattice NAtoms</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pathToData</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="s2">&quot;lbomd&quot;</span><span class="p">,</span> <span class="s2">&quot;puga_864.dat&quot;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="mi">864</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestReadLattice.test_readLattice_cellDims"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestReadLattice.test_readLattice_cellDims">[docs]</a>    <span class="k">def</span> <span class="nf">test_readLattice_cellDims</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read lattice cellDims</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pathToData</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="s2">&quot;lbomd&quot;</span><span class="p">,</span> <span class="s2">&quot;puga_864.dat&quot;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">27.84</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="mf">27.84</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">cellDims</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="mf">27.84</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestReadLattice.test_readLattice_specieList"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestReadLattice.test_readLattice_specieList">[docs]</a>    <span class="k">def</span> <span class="nf">test_readLattice_specieList</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read lattice specieList</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pathToData</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="s2">&quot;lbomd&quot;</span><span class="p">,</span> <span class="s2">&quot;puga_864.dat&quot;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;Pu&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieList</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;Ga&quot;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="TestReadLattice.test_readLattice_specieCount"><a class="viewcode-back" href="../../../LKMC/LKMC.tests.test_Lattice.html#LKMC.tests.test_Lattice.TestReadLattice.test_readLattice_specieCount">[docs]</a>    <span class="k">def</span> <span class="nf">test_readLattice_specieCount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read lattice specieCount</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">readLattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pathToData</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="s2">&quot;lbomd&quot;</span><span class="p">,</span> <span class="s2">&quot;puga_864.dat&quot;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieCount</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieCount</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">821</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">specieCount</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">43</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

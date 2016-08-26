@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Search module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Server module" href="LKMC.Server.html" />
+    <link rel="prev" title="LKMC.Results module" href="LKMC.Results.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Server.html" title="LKMC.Server module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Results.html" title="LKMC.Results module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Search">
+<span id="lkmc-search-module"></span><h1>LKMC.Search module<a class="headerlink" href="#module-LKMC.Search" title="Permalink to this headline">¶</a></h1>
+<p>Transition search module</p>
+<dl class="class">
+<dt id="LKMC.Search.TransitionSearcher">
+<em class="property">class </em><code class="descclassname">LKMC.Search.</code><code class="descname">TransitionSearcher</code><span class="sig-paren">(</span><em>params</em>, <em>storeTransForReuse=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">LKMC.TransitionCalculatorBase.TransitionFinder</span></code></p>
+<p>Transition searcher.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.calcPreFactor">
+<code class="descname">calcPreFactor</code><span class="sig-paren">(</span><em>saddle</em>, <em>prefactorMainIdx</em>, <em>prefactorIclIdx</em>, <em>jobID=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.calcPreFactor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.calcPreFactor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prefactor calculation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.calculateBarrier">
+<code class="descname">calculateBarrier</code><span class="sig-paren">(</span><em>initial</em>, <em>saddle</em>, <em>final</em>, <em>numProcessors=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.calculateBarrier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.calculateBarrier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the barrier.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.checkCalcPrefactor">
+<code class="descname">checkCalcPrefactor</code><span class="sig-paren">(</span><em>barrier</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.checkCalcPrefactor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.checkCalcPrefactor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if we need to calculate the prefactor for this transition.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.checkSaddleConnected">
+<code class="descname">checkSaddleConnected</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.checkSaddleConnected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.checkSaddleConnected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check saddle connected to initial.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.checkVolForCombinedTransition">
+<code class="descname">checkVolForCombinedTransition</code><span class="sig-paren">(</span><em>saddle</em>, <em>final</em>, <em>checkCombinedVolume=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.checkVolForCombinedTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.checkVolForCombinedTransition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a transition from a combined volume belongs to a lone individual volume</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.createDuplicateResult">
+<code class="descname">createDuplicateResult</code><span class="sig-paren">(</span><em>currentVolIndex=None</em>, <em>fixObject=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.createDuplicateResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.createDuplicateResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create duplicate result notification.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.createFailResult">
+<code class="descname">createFailResult</code><span class="sig-paren">(</span><em>currentVolIndex=None</em>, <em>failedReason=None</em>, <em>fixObject=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.createFailResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.createFailResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create fail result.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.createSuccessResult">
+<code class="descname">createSuccessResult</code><span class="sig-paren">(</span><em>initial</em>, <em>saddle</em>, <em>final</em>, <em>barrier</em>, <em>storeTrans</em>, <em>images=None</em>, <em>sadSearchDebugInfo=None</em>, <em>volumeObject=None</em>, <em>searchBarrier=None</em>, <em>calculatorBarrier=None</em>, <em>currentVolIndex=None</em>, <em>reverseBarrier=None</em>, <em>NSmallMoves=None</em>, <em>calcPrefactor=None</em>, <em>rate=None</em>, <em>saddleSumLogEVs=None</em>, <em>fixIndex=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.createSuccessResult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.createSuccessResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create success result.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>currentVolumeIndex</em>, <em>fixSearchObj=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run transition search.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.runMinimisers">
+<code class="descname">runMinimisers</code><span class="sig-paren">(</span><em>obj</em>, <em>pushForwards=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.runMinimisers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.runMinimisers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the extended minimise call on obj.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.saddleSearch">
+<code class="descname">saddleSearch</code><span class="sig-paren">(</span><em>inputState</em>, <em>searchInfoString=None</em>, <em>fixSearchObj=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.saddleSearch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.saddleSearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run searcher, eg. Dimer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.setInitialData">
+<code class="descname">setInitialData</code><span class="sig-paren">(</span><em>dataDict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.setInitialData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.setInitialData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.setInitialState">
+<code class="descname">setInitialState</code><span class="sig-paren">(</span><em>initialState</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.setInitialState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.setInitialState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the initial state.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.setJobID">
+<code class="descname">setJobID</code><span class="sig-paren">(</span><em>jobID</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.setJobID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.setJobID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set job ID.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.setRank">
+<code class="descname">setRank</code><span class="sig-paren">(</span><em>rank</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.setRank"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.setRank" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set rank of running process.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.setRatesList">
+<code class="descname">setRatesList</code><span class="sig-paren">(</span><em>ratesListLock</em>, <em>ratesListProxy</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.setRatesList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.setRatesList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rates list etc.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.setRefState">
+<code class="descname">setRefState</code><span class="sig-paren">(</span><em>refState</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.setRefState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.setRefState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the initial state.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.setup">
+<code class="descname">setup</code><span class="sig-paren">(</span><em>initialState=None</em>, <em>refPos=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup the transition searcher.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.stepBackwards">
+<code class="descname">stepBackwards</code><span class="sig-paren">(</span><em>initial</em>, <em>saddle</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.stepBackwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.stepBackwards" title="Permalink to this definition">¶</a></dt>
+<dd><p>Step forward and minimise to get the final.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Search.TransitionSearcher.stepForwards">
+<code class="descname">stepForwards</code><span class="sig-paren">(</span><em>initial</em>, <em>saddle</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#TransitionSearcher.stepForwards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.TransitionSearcher.stepForwards" title="Permalink to this definition">¶</a></dt>
+<dd><p>Step forward and minimise to get the final.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Search.commandLineArgs">
+<code class="descclassname">LKMC.Search.</code><code class="descname">commandLineArgs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#commandLineArgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.commandLineArgs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse command line arguments</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Search.main">
+<code class="descclassname">LKMC.Search.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Search.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Search.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Results.html"
+                        title="previous chapter">LKMC.Results module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Server.html"
+                        title="next chapter">LKMC.Server module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Search.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Server.html" title="LKMC.Server module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Results.html" title="LKMC.Results module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

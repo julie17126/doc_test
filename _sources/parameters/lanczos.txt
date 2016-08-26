@@ -1,0 +1,102 @@
+Lanczos
+=======
+
+Parameters for the Lanczos method.
+
+lanczosConvByEigenVNo
+^^^^^^^^^^^^^^^^^^^^^
+
+Integer
+
+The index of eigenvalue to use for convergance. Eigenvalues are order in
+ascending order, i.e. the lowest on is first.
+
+Default: 1
+
+lanczosConvTol
+^^^^^^^^^^^^^^
+
+Real
+
+Convergence tolerance of chosen eigenvalue by *lanczosConvByEigenVNo*.
+
+Default: 0.1
+
+lanczosMinIter
+^^^^^^^^^^^^^^
+
+Integer
+
+The minimum number of iterations during the Lanczos method.
+
+Default: 10
+
+hessianDispl
+^^^^^^^^^^^^
+
+Real
+
+The displacement used in the Hessian matrix calculation.
+
+Default: 0.001
+
+hessianApproxMode
+^^^^^^^^^^^^^^^^^
+
+1 or 2
+
+- 1: O(hessianDispl^2)
+- 2: O(hessianDispl^3) (x2 more force evaluations)
+
+Default: 2
+
+lanczosMaxIter
+^^^^^^^^^^^^^^
+
+Integer
+M
+aximum number of iterations within the Lanczos method.
+
+Default: 100
+
+lanczosReuseNegExtCrit
+^^^^^^^^^^^^^^^^^^^^^^
+
+Real
+
+Criteria to check if the negative eigenvalue has been left (i.e. if Lanczos
+failed) while a transition is being reused. If the lowest eigenvalue goes
+above this value the method fails.
+
+Default: 0.1
+
+lanczosSearchNegExtCrit
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Real 
+
+Criteria to check if the negative eigenvalue has been left (i.e. if Lanczos
+failed) during a transition search. If the lowest eigenvalue goes
+above this value the method fails.
+
+Default: 0.1
+
+lanczosLocaliseHessian
+^^^^^^^^^^^^^^^^^^^^^^
+
+0 or 1
+
+If set to 1 the Hessian is only calculated for atoms in the
+defectSubSystem, not the entire saddleConvergeVolume. The whole
+saddleConvergeVolume is still able to move during Lanczos.
+
+Default: 0
+
+debugLanczos
+^^^^^^^^^^^^
+
+0 or 1
+
+If 1: Debug mode (random seed for initial vector set to 10).
+
+Default: 0

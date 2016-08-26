@@ -1,0 +1,423 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.MinModeFollower &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for LKMC.MinModeFollower</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Minimum mode following method.</span>
+
+<span class="sd">SIAM JOURNAL ON SCIENTIFIC COMPUTING  Volume: 33   Issue: 2   Pages: 633-652   DOI: 10.1137/100792743   Published: 2011</span>
+
+<span class="sd">(c) Tomas Lazauskas, 2013</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">copy</span><span class="o">,</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Algebra</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Globals</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Lanczos</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Minimise</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">NEB</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Prefactor</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Timer</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Utilities</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">Vectors</span>
+
+<span class="kn">from</span> <span class="nn">.Utilities</span> <span class="k">import</span> <span class="n">log</span>
+ 
+<div class="viewcode-block" id="MinModeLattice"><a class="viewcode-back" href="../../LKMC/LKMC.MinModeFollower.html#LKMC.MinModeFollower.MinModeLattice">[docs]</a><span class="k">class</span> <span class="nc">MinModeLattice</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">Lattice</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Lattice object for minimum mode following method.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">NAtoms</span><span class="p">,</span> <span class="n">storeEnergies</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Init method</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="nb">super</span><span class="p">(</span><span class="n">MinModeLattice</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">storeEnergies</span><span class="o">=</span><span class="n">storeEnergies</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modFByMinMode</span> <span class="o">=</span> <span class="mi">0</span>
+        
+<div class="viewcode-block" id="MinModeLattice.calcForce"><a class="viewcode-back" href="../../LKMC/LKMC.MinModeFollower.html#LKMC.MinModeFollower.MinModeLattice.calcForce">[docs]</a>    <span class="k">def</span> <span class="nf">calcForce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">MDPath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">defectFlag</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">correctTE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">includeAtoms</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">mainIndexes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)):</span>
+       
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates forces using lattice method and modifies</span>
+<span class="sd">       </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">modFByMinMode</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mainIndexes</span><span class="p">):</span>
+                
+                <span class="n">backupModFByMinMode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modFByMinMode</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">modFByMinMode</span> <span class="o">=</span> <span class="mi">0</span>
+                
+                <span class="n">_</span><span class="p">,</span> <span class="n">eigenValue</span><span class="p">,</span> <span class="n">resultVector</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">rVectorTemp</span><span class="p">,</span> <span class="n">eigevValuesList</span> <span class="o">=</span> <span class="n">Lanczos</span><span class="o">.</span><span class="n">lanczosMethodForASystem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mainIndexes</span><span class="p">,</span> 
+                    <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">normEigenVec</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">includeAtoms</span><span class="p">,</span> <span class="n">lnegmd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">evn</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+                
+                <span class="bp">self</span><span class="o">.</span><span class="n">modFByMinMode</span> <span class="o">=</span> <span class="n">backupModFByMinMode</span>
+                
+                <span class="n">negCnt</span> <span class="o">=</span> <span class="mi">0</span>
+                                
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">eigevValuesList</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="n">eigevValuesList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">negCnt</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">break</span>
+                
+                <span class="k">if</span> <span class="n">negCnt</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="mi">2</span>
+                    <span class="nb">print</span> <span class="s2">&quot;Only one negative eigenvalue&quot;</span><span class="p">,</span> <span class="n">eigenValue</span>
+                    
+                <span class="k">elif</span> <span class="n">negCnt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="nb">print</span> <span class="s2">&quot;ERROR: All eigenvalues are positive&quot;</span><span class="p">,</span> <span class="n">eigevValuesList</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+                
+                <span class="k">elif</span> <span class="n">negCnt</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="nb">print</span> <span class="s2">&quot;ERROR: More than two negative eigenvalues&quot;</span><span class="p">,</span> <span class="n">eigevValuesList</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+                
+                <span class="k">else</span><span class="p">:</span>
+                    
+                    <span class="nb">super</span><span class="p">(</span><span class="n">MinModeLattice</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">MDPath</span><span class="o">=</span><span class="n">MDPath</span><span class="p">,</span> <span class="n">defectFlag</span><span class="o">=</span><span class="n">defectFlag</span><span class="p">,</span> 
+                        <span class="n">correctTE</span><span class="o">=</span><span class="n">correctTE</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">includeAtoms</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mainIndexes</span><span class="p">)</span>
+                    
+                    <span class="n">eigenVect</span> <span class="o">=</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">normalise</span><span class="p">(</span><span class="n">resultVector</span><span class="p">)</span>
+                
+                    <span class="n">FdI</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">,</span> <span class="n">eigenVect</span><span class="p">)</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">-=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">FdI</span> <span class="o">*</span> <span class="n">eigenVect</span>
+                        
+                    <span class="n">deltaX</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">FdI</span> <span class="o">/</span> <span class="n">eigenValue</span>
+                    <span class="n">Xenergy</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">eigenValue</span> <span class="o">*</span> <span class="p">(</span><span class="n">deltaX</span> <span class="o">**</span> <span class="mf">2.0</span><span class="p">)</span>
+                        
+                    <span class="bp">self</span><span class="o">.</span><span class="n">totalEnergy</span> <span class="o">+=</span> <span class="n">Xenergy</span> <span class="o">*</span> <span class="mf">2.0</span>
+                    
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="n">rVectorTemp</span>
+                     
+                    <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="s2">&quot;: ERROR: Force modification according to min mode is not available while using full system...&quot;</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MinModeLattice</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">MDPath</span><span class="o">=</span><span class="n">MDPath</span><span class="p">,</span> <span class="n">defectFlag</span><span class="o">=</span><span class="n">defectFlag</span><span class="p">,</span> 
+                <span class="n">correctTE</span><span class="o">=</span><span class="n">correctTE</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">includeAtoms</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mainIndexes</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">status</span></div></div>
+
+<div class="viewcode-block" id="MinModeFollower"><a class="viewcode-back" href="../../LKMC/LKMC.MinModeFollower.html#LKMC.MinModeFollower.MinModeFollower">[docs]</a><span class="k">class</span> <span class="nc">MinModeFollower</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Minimums mode following method.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="MinModeFollower.setParams"><a class="viewcode-back" href="../../LKMC/LKMC.MinModeFollower.html#LKMC.MinModeFollower.MinModeFollower.setParams">[docs]</a>    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set params object.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="MinModeFollower.setupMinMode"><a class="viewcode-back" href="../../LKMC/LKMC.MinModeFollower.html#LKMC.MinModeFollower.MinModeFollower.setupMinMode">[docs]</a>    <span class="k">def</span> <span class="nf">setupMinMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initialState</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setups the object for seaching.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">iniPos</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">initialState</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+        
+        <span class="c1"># Statistics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elapsedTime</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">searchStepsTot</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">searchStepsIni</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">searchStepsMove</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c1"># Properties</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialTE</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="c1"># Objects</span>
+        <span class="n">paramsMinMode</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">paramsMinMode</span><span class="o">.</span><span class="n">minimisationRequestFinal</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">paramsMinMode</span><span class="o">.</span><span class="n">minimizationLineSearch</span> <span class="o">=</span> <span class="n">paramsMinMode</span><span class="o">.</span><span class="n">minModeMinimiserLineSearch</span>
+        <span class="n">paramsMinMode</span><span class="o">.</span><span class="n">minimizationType</span> <span class="o">=</span> <span class="n">paramsMinMode</span><span class="o">.</span><span class="n">minModeMinimiser</span>
+        <span class="n">paramsMinMode</span><span class="o">.</span><span class="n">minimisationMaxIterations</span> <span class="o">=</span> <span class="n">paramsMinMode</span><span class="o">.</span><span class="n">minModeMaxIterations</span>
+        <span class="n">paramsMinMode</span><span class="o">.</span><span class="n">minimizationTolerance</span> <span class="o">=</span> <span class="n">paramsMinMode</span><span class="o">.</span><span class="n">minModeMinTol</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimiserMinMode</span> <span class="o">=</span> <span class="n">Minimise</span><span class="o">.</span><span class="n">getMinimiser</span><span class="p">(</span><span class="n">paramsMinMode</span><span class="p">)</span>
+        
+        <span class="c1"># checking parameters</span>
+        <span class="k">if</span> <span class="n">Globals</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: Globals.subLatticeIncludeRadius cannot be equal to or less than 0.0&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Globals</span><span class="o">.</span><span class="n">useSubLatticeForceCalc</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">__name__</span><span class="o">+</span><span class="s2">&quot;: ERROR: minimum mode following algorithm does not work with full system. Sorry about that..&quot;</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="MinModeFollower.evaluateCorrectTE"><a class="viewcode-back" href="../../LKMC/LKMC.MinModeFollower.html#LKMC.MinModeFollower.MinModeFollower.evaluateCorrectTE">[docs]</a>    <span class="k">def</span> <span class="nf">evaluateCorrectTE</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lattice</span><span class="p">):</span>
+        
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluates forces and TE of the whole system.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">backupModFByMinMode</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">modFByMinMode</span>
+        
+        <span class="n">lattice</span><span class="o">.</span><span class="n">modFByMinMode</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="n">lattice</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">correctTE</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">TE</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">totalEnergy</span>
+        
+        <span class="n">lattice</span><span class="o">.</span><span class="n">modFByMinMode</span> <span class="o">=</span> <span class="n">backupModFByMinMode</span>
+        
+        <span class="k">return</span> <span class="n">TE</span></div>
+
+<div class="viewcode-block" id="MinModeFollower.run"><a class="viewcode-back" href="../../LKMC/LKMC.MinModeFollower.html#LKMC.MinModeFollower.MinModeFollower.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputState</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the minimum mode method.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">status</span><span class="p">,</span> <span class="n">saddle</span><span class="p">,</span> <span class="n">barrier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runMinMode</span><span class="p">(</span><span class="n">inputState</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">saddle</span><span class="p">,</span> <span class="n">barrier</span></div>
+            
+<div class="viewcode-block" id="MinModeFollower.runMinMode"><a class="viewcode-back" href="../../LKMC/LKMC.MinModeFollower.html#LKMC.MinModeFollower.MinModeFollower.runMinMode">[docs]</a>    <span class="k">def</span> <span class="nf">runMinMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputStateIni</span><span class="p">):</span>
+        
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Main procedure.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupMinMode</span><span class="p">(</span><span class="n">inputStateIni</span><span class="p">)</span>
+        
+        <span class="n">system</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">inputStateIni</span><span class="p">)</span> 
+        
+        <span class="c1"># Getting initial energy and forces of whole system</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialTE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluateCorrectTE</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        
+        <span class="n">backupmodFByMinMode</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">modFByMinMode</span>
+        
+        <span class="n">system</span><span class="o">.</span><span class="n">modFByMinMode</span> <span class="o">=</span> <span class="mi">1</span>
+                
+        <span class="n">system</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimiserMinMode</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        
+        <span class="n">system</span><span class="o">.</span><span class="n">modFByMinMode</span> <span class="o">=</span> <span class="n">backupmodFByMinMode</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">barrier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluateCorrectTE</span><span class="p">(</span><span class="n">system</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialTE</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">barrier</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">barrier</span></div></div>
+
+<div class="viewcode-block" id="convertLattice2MinModeLattice"><a class="viewcode-back" href="../../LKMC/LKMC.MinModeFollower.html#LKMC.MinModeFollower.convertLattice2MinModeLattice">[docs]</a><span class="k">def</span> <span class="nf">convertLattice2MinModeLattice</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">rVector</span><span class="p">):</span>
+        
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Copies all attributes from a lattice object to a minimum mode lattice object.</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+        
+    <span class="n">minModeLattice</span> <span class="o">=</span> <span class="n">MinModeLattice</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">NAtoms</span><span class="p">,</span> <span class="n">storeEnergies</span><span class="o">=</span><span class="n">lattice</span><span class="o">.</span><span class="n">storeEnergies</span><span class="p">)</span>
+    <span class="n">minModeLattice</span><span class="o">.</span><span class="n">__dict__</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    
+    <span class="n">minModeLattice</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">minModeLattice</span><span class="o">.</span><span class="n">modFByMinMode</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="n">minModeLattice</span><span class="o">.</span><span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">)</span>
+    <span class="n">minModeLattice</span><span class="o">.</span><span class="n">includeAtoms</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">includeAtoms</span><span class="p">)</span>
+    
+    <span class="n">minModeLattice</span><span class="o">.</span><span class="n">minModeEigVMethod</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">minModeEigVMethod</span>
+    
+    <span class="n">minModeLattice</span><span class="o">.</span><span class="n">rVector</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">rVector</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">minModeLattice</span></div>
+
+<div class="viewcode-block" id="initialiseMinModeParams"><a class="viewcode-back" href="../../LKMC/LKMC.MinModeFollower.html#LKMC.MinModeFollower.initialiseMinModeParams">[docs]</a><span class="k">def</span> <span class="nf">initialiseMinModeParams</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initializes parameters for minimum mode following method.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">minModeParams</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">minModeParams</span><span class="o">.</span><span class="n">lanczosConvByEigenVNo</span> <span class="o">=</span> <span class="mi">1</span>
+    
+    <span class="k">return</span> <span class="n">minModeParams</span></div>
+       
+<div class="viewcode-block" id="dealWithRank2Saddle"><a class="viewcode-back" href="../../LKMC/LKMC.MinModeFollower.html#LKMC.MinModeFollower.dealWithRank2Saddle">[docs]</a><span class="k">def</span> <span class="nf">dealWithRank2Saddle</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">saddle</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">):</span>
+        
+    <span class="n">midModeLattice</span> <span class="o">=</span> <span class="n">convertLattice2MinModeLattice</span><span class="p">(</span><span class="n">saddle</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> 
+        <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">,</span> <span class="n">saddle</span><span class="o">.</span><span class="n">rVector</span><span class="p">)</span>
+   
+    <span class="n">midModeLattice</span><span class="o">.</span><span class="n">modFByMinMode</span><span class="o">=</span><span class="mi">1</span>
+    
+    <span class="n">follower</span> <span class="o">=</span> <span class="n">MinModeFollower</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">status</span><span class="p">,</span> <span class="n">midModeLatticeSaddle</span><span class="p">,</span> <span class="n">barrier</span> <span class="o">=</span> <span class="n">follower</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">midModeLattice</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
+        <span class="n">newSaddle</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">saddle</span><span class="p">)</span>
+        <span class="n">newSaddle</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">midModeLatticeSaddle</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+        
+        <span class="nb">print</span> <span class="s2">&quot;Barrier change with min mode&quot;</span><span class="p">,</span> <span class="n">barrier</span>
+            
+        <span class="nb">print</span> <span class="s2">&quot;implicit eigenvalues at the RANK1 saddle:&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">newSaddle</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="nb">print</span> <span class="s2">&quot;Min mode failed&quot;</span>
+    
+    <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">newSaddle</span></div>
+
+<div class="viewcode-block" id="checkSaddleRank"><a class="viewcode-back" href="../../LKMC/LKMC.MinModeFollower.html#LKMC.MinModeFollower.checkSaddleRank">[docs]</a><span class="k">def</span> <span class="nf">checkSaddleRank</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">saddle</span><span class="p">,</span> <span class="n">conv2Rank1Md</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks the number of negative eigenvalues (saddle&#39;s rank). If it greater than 2, returns an error. If it is equal to </span>
+<span class="sd">    2, tries to converge to rank 1 saddle with min mode following method. </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">noNegEigenValues</span> <span class="o">=</span> <span class="n">Prefactor</span><span class="o">.</span><span class="n">countNegativeValues</span><span class="p">(</span><span class="n">saddle</span><span class="o">.</span><span class="n">lanczosEigenVals</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">noNegEigenValues</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Saddle point&#39;s rank is higher than 2!&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="mi">1</span><span class="p">,</span> <span class="n">saddle</span>
+    
+    <span class="k">elif</span> <span class="n">noNegEigenValues</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        
+        <span class="k">if</span> <span class="n">conv2Rank1Md</span><span class="p">:</span>
+            <span class="n">saddle</span><span class="o">.</span><span class="n">calcForce</span><span class="p">(</span><span class="n">correctTE</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1">#             barrierBeforeMinMode = saddle.totalEnergy - self.initialEnergy</span>
+<span class="c1">#             </span>
+<span class="c1">#             print &quot;Barrier before MIN MODE: %f&quot; % (barrierBeforeMinMode)</span>
+    
+            <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">saddleConvergeRadius</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">saddle</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">saddle</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">saddleConvergeRadius</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mainIndexes</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">saddle</span><span class="o">.</span><span class="n">defectSubSystem</span><span class="p">)</span>
+                    
+            <span class="n">includeAtoms</span> <span class="o">=</span> <span class="n">saddle</span><span class="o">.</span><span class="n">buildSubLattice</span><span class="p">(</span><span class="n">mainIndexes</span><span class="p">,</span> <span class="n">Globals</span><span class="o">.</span><span class="n">subLatticeIncludeRadius</span><span class="p">)</span>
+            
+            <span class="n">minModeStatus</span><span class="p">,</span> <span class="n">newSaddle</span> <span class="o">=</span> <span class="n">dealWithRank2Saddle</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">saddle</span><span class="p">,</span> <span class="n">mainIndexes</span><span class="p">,</span> <span class="n">includeAtoms</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">minModeStatus</span><span class="p">:</span>
+                <span class="n">noNegEigenValues</span> <span class="o">=</span> <span class="n">Prefactor</span><span class="o">.</span><span class="n">countNegativeValues</span><span class="p">(</span><span class="n">saddle</span><span class="o">.</span><span class="n">lanczosEigenVals</span><span class="p">)</span>
+                <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;After min mode the rank of the saddle is: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">noNegEigenValues</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                 
+                <span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">saddle</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">newSaddle</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+            
+            <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">saddle</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Saddle point&#39;s rank is 2! Skipping without trying to converge to rank 1.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+            <span class="k">return</span> <span class="mi">1</span><span class="p">,</span> <span class="n">saddle</span>
+            
+    <span class="k">elif</span> <span class="n">noNegEigenValues</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Saddle point&#39;s rank is 0! It is not a saddle point!&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="mi">1</span><span class="p">,</span> <span class="n">saddle</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log</span><span class="p">(</span><span class="n">__name__</span><span class="p">,</span> <span class="s2">&quot;Saddle point&#39;s rank&#39;s check is successful! Rank 1.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="n">saddle</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Utilities module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Vectors module" href="LKMC.Vectors.html" />
+    <link rel="prev" title="LKMC.Timer module" href="LKMC.Timer.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Vectors.html" title="LKMC.Vectors module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Timer.html" title="LKMC.Timer module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Utilities">
+<span id="lkmc-utilities-module"></span><h1>LKMC.Utilities module<a class="headerlink" href="#module-LKMC.Utilities" title="Permalink to this headline">¶</a></h1>
+<p>Utility classes and methods.</p>
+<dl class="class">
+<dt id="LKMC.Utilities.FilesObject">
+<em class="property">class </em><code class="descclassname">LKMC.Utilities.</code><code class="descname">FilesObject</code><span class="sig-paren">(</span><em>files</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#FilesObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.FilesObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>File object with zip method.
+So can pass to writer to zip the given files.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Utilities.FilesObject.zip">
+<code class="descname">zip</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#FilesObject.zip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.FilesObject.zip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zip the file(s)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Utilities.SaddleSearchDebugInfo">
+<em class="property">class </em><code class="descclassname">LKMC.Utilities.</code><code class="descname">SaddleSearchDebugInfo</code><span class="sig-paren">(</span><em>algorithm</em>, <em>barrier</em>, <em>elapsedTime</em>, <em>searchSteps=0</em>, <em>totWholeFEvals=0</em>, <em>totExclFEvals=0</em>, <em>minExclFEvalsSteps=0</em>, <em>minExclSubFEvals=0</em>, <em>minExclTime=0.0</em>, <em>minWholeFEvalsSteps=0</em>, <em>minWholeSubFEvals=0</em>, <em>minWholeTime=0.0</em>, <em>dimerRotWholeFEvals=0</em>, <em>dimerRotExclFEvals=0</em>, <em>dimerTransWholeFEvals=0</em>, <em>dimerTransExclFEvals=0</em>, <em>NEBbarrier=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#SaddleSearchDebugInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.SaddleSearchDebugInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Utilities.SaddleSearchDebugInfo.getInfoString">
+<code class="descname">getInfoString</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#SaddleSearchDebugInfo.getInfoString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.SaddleSearchDebugInfo.getInfoString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Utilities.TextObject">
+<em class="property">class </em><code class="descclassname">LKMC.Utilities.</code><code class="descname">TextObject</code><span class="sig-paren">(</span><em>text</em>, <em>textAsLines=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#TextObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.TextObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Utilities.TextObject.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>fileName</em>, <em>append=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#TextObject.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.TextObject.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the text to file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fileName</strong> : str</p>
+<blockquote>
+<div><p>The name of the file to write the text to</p>
+</div></blockquote>
+<p><strong>append</strong> : bool, optional</p>
+<blockquote class="last">
+<div><p>Whether the text should be appended to the file. Default is False.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Utilities.TransitionFix">
+<em class="property">class </em><code class="descclassname">LKMC.Utilities.</code><code class="descname">TransitionFix</code><span class="sig-paren">(</span><em>index</em>, <em>stepSize</em>, <em>displacementVector</em>, <em>NVector</em>, <em>rVector</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#TransitionFix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.TransitionFix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Object that stores data for fixing transition search</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.checkDirectory">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">checkDirectory</code><span class="sig-paren">(</span><em>dirPath</em>, <em>makeIfNotExists=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#checkDirectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.checkDirectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether a directory exists and optionally create it if not.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dirPath</strong> : str</p>
+<blockquote>
+<div><p>The path of the directory to check.</p>
+</div></blockquote>
+<p><strong>makeIfNotExists</strong> : bool, optional</p>
+<blockquote>
+<div><p>If True then make the directory if it does not exist. Defaults to True.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>success</strong> : bool</p>
+<blockquote class="last">
+<div><p>True if the directory exists or was successfully created, False
+otherwise.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.checkForFile">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">checkForFile</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#checkForFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.checkForFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.checkForZipped">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">checkForZipped</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#checkForZipped"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.checkForZipped" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unzip specified file if required.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filePath</strong> : str</p>
+<blockquote>
+<div><p>Path to the file</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>zipFlag</strong> : bool</p>
+<blockquote>
+<div><p>True if the file was unzipped, false otherwise</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>IOError</strong></p>
+<blockquote class="last">
+<div><p>If the filePath or a zipped version of it could not be found</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.compileDstev">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">compileDstev</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#compileDstev"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.compileDstev" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.convertStrToType">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">convertStrToType</code><span class="sig-paren">(</span><em>strValue</em>, <em>typeName</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#convertStrToType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.convertStrToType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.deleteFile">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">deleteFile</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#deleteFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.deleteFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.doZip">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">doZip</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#doZip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.doZip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.fileLineCount">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">fileLineCount</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#fileLineCount"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.fileLineCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return line count of given file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.findFiles">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">findFiles</code><span class="sig-paren">(</span><em>stringToMatch</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#findFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.findFiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of files that match the given string.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.findLastKMCLattice">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">findLastKMCLattice</code><span class="sig-paren">(</span><em>index=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#findLastKMCLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.findLastKMCLattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the last KMC lattice.
+(ie the one with the highest index)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.getPathToDreadnaut">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">getPathToDreadnaut</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#getPathToDreadnaut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.getPathToDreadnaut" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.getPathToThirdparty">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">getPathToThirdparty</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#getPathToThirdparty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.getPathToThirdparty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.getTheLineCount">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">getTheLineCount</code><span class="sig-paren">(</span><em>filePath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#getTheLineCount"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.getTheLineCount" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.idGenerator">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">idGenerator</code><span class="sig-paren">(</span><em>size=16</em>, <em>chars='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'</em>, <em>prefix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#idGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.idGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate random string of size &#8220;size&#8221; (defaults to 16)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.intersect">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">intersect</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#intersect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.intersect" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the intersect of two list/array</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.isMax">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">isMax</code><span class="sig-paren">(</span><em>checkVal</em>, <em>currentMaxVal</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#isMax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.isMax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.isMin">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">isMin</code><span class="sig-paren">(</span><em>checkVal</em>, <em>currentMinVal</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#isMin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.isMin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.is_exe">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">is_exe</code><span class="sig-paren">(</span><em>fpath</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#is_exe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.is_exe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine if the given path is an executable file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fpath</strong> : str</p>
+<blockquote>
+<div><p>The path to check</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>is_exe</strong> : bool</p>
+<blockquote class="last">
+<div><p>True of the path exists and is executable, False otherwise</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.log">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">log</code><span class="sig-paren">(</span><em>caller</em>, <em>message</em>, <em>level</em>, <em>indent=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log output to screen</p>
+<dl class="docutils">
+<dt>level:</dt>
+<dd>0: essential output only (minimal)
+1: normal output level for production run
+2: minimal debugging output
+3: extra debugging output
+4: huge amount of output: all force calls, etc</dd>
+<dt>indent:</dt>
+<dd>how much to indent the output by (defaults to zero)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.makeBarrierCriteria">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">makeBarrierCriteria</code><span class="sig-paren">(</span><em>inputString</em>, <em>maxBarrier</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#makeBarrierCriteria"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.makeBarrierCriteria" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.nodeAddress">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">nodeAddress</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#nodeAddress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.nodeAddress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the address of the node the process is running on.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.runDreadnaut">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">runDreadnaut</code><span class="sig-paren">(</span><em>graphFile=None</em>, <em>graphString=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#runDreadnaut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.runDreadnaut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run dreadnaut on the given graph</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.runSubProcess">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">runSubProcess</code><span class="sig-paren">(</span><em>command</em>, <em>verbose=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#runSubProcess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.runSubProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run command using subprocess module.
+Return tuple containing STDOUT, STDERR, STATUS
+Caller can decide what to do if status is true</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.saveBarriersIntoFile">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">saveBarriersIntoFile</code><span class="sig-paren">(</span><em>filePath</em>, <em>barrierList</em>, <em>addinationalInfo=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#saveBarriersIntoFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.saveBarriersIntoFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.saveLatticesToFiles">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">saveLatticesToFiles</code><span class="sig-paren">(</span><em>directory</em>, <em>barrierList</em>, <em>namePrefix</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#saveLatticesToFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.saveLatticesToFiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.union">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">union</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#union"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.union" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the union of two list/array</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.unique">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">unique</code><span class="sig-paren">(</span><em>a</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the list/array with duplicate elements removed</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.uniqueItems">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">uniqueItems</code><span class="sig-paren">(</span><em>seq</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#uniqueItems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.uniqueItems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of unique items in given list.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.username">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">username</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#username"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.username" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the username of the current user.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.versionTuple">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">versionTuple</code><span class="sig-paren">(</span><em>v</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#versionTuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.versionTuple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert version string into tuple, for comparison</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Utilities.which">
+<code class="descclassname">LKMC.Utilities.</code><code class="descname">which</code><span class="sig-paren">(</span><em>program</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Utilities.html#which"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Utilities.which" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the given path or program exists and is executable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>program</strong> : str</p>
+<blockquote>
+<div><p>Path to a program or the name of a program</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>exe_file</strong> : str</p>
+<blockquote class="last">
+<div><p>The path to call the program or None if it doesn&#8217;t exist</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>See <a class="reference external" href="http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python">http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python</a></p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Timer.html"
+                        title="previous chapter">LKMC.Timer module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Vectors.html"
+                        title="next chapter">LKMC.Vectors module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Utilities.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Vectors.html" title="LKMC.Vectors module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Timer.html" title="LKMC.Timer module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
