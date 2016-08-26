@@ -1,0 +1,207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Lanczos &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="Lanczos minimum mode (LLMinMode)" href="llminmode.html" />
+    <link rel="prev" title="Dimer" href="dimer.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="llminmode.html" title="Lanczos minimum mode (LLMinMode)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="dimer.html" title="Dimer"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="lanczos">
+<h1>Lanczos<a class="headerlink" href="#lanczos" title="Permalink to this headline">¶</a></h1>
+<p>Parameters for the Lanczos method.</p>
+<div class="section" id="lanczosconvbyeigenvno">
+<h2>lanczosConvByEigenVNo<a class="headerlink" href="#lanczosconvbyeigenvno" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>The index of eigenvalue to use for convergance. Eigenvalues are order in
+ascending order, i.e. the lowest on is first.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="lanczosconvtol">
+<h2>lanczosConvTol<a class="headerlink" href="#lanczosconvtol" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Convergence tolerance of chosen eigenvalue by <em>lanczosConvByEigenVNo</em>.</p>
+<p>Default: 0.1</p>
+</div>
+<div class="section" id="lanczosminiter">
+<h2>lanczosMinIter<a class="headerlink" href="#lanczosminiter" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>The minimum number of iterations during the Lanczos method.</p>
+<p>Default: 10</p>
+</div>
+<div class="section" id="hessiandispl">
+<h2>hessianDispl<a class="headerlink" href="#hessiandispl" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>The displacement used in the Hessian matrix calculation.</p>
+<p>Default: 0.001</p>
+</div>
+<div class="section" id="hessianapproxmode">
+<h2>hessianApproxMode<a class="headerlink" href="#hessianapproxmode" title="Permalink to this headline">¶</a></h2>
+<p>1 or 2</p>
+<ul class="simple">
+<li>1: O(hessianDispl^2)</li>
+<li>2: O(hessianDispl^3) (x2 more force evaluations)</li>
+</ul>
+<p>Default: 2</p>
+</div>
+<div class="section" id="lanczosmaxiter">
+<h2>lanczosMaxIter<a class="headerlink" href="#lanczosmaxiter" title="Permalink to this headline">¶</a></h2>
+<p>Integer
+M
+aximum number of iterations within the Lanczos method.</p>
+<p>Default: 100</p>
+</div>
+<div class="section" id="lanczosreusenegextcrit">
+<h2>lanczosReuseNegExtCrit<a class="headerlink" href="#lanczosreusenegextcrit" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Criteria to check if the negative eigenvalue has been left (i.e. if Lanczos
+failed) while a transition is being reused. If the lowest eigenvalue goes
+above this value the method fails.</p>
+<p>Default: 0.1</p>
+</div>
+<div class="section" id="lanczossearchnegextcrit">
+<h2>lanczosSearchNegExtCrit<a class="headerlink" href="#lanczossearchnegextcrit" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Criteria to check if the negative eigenvalue has been left (i.e. if Lanczos
+failed) during a transition search. If the lowest eigenvalue goes
+above this value the method fails.</p>
+<p>Default: 0.1</p>
+</div>
+<div class="section" id="lanczoslocalisehessian">
+<h2>lanczosLocaliseHessian<a class="headerlink" href="#lanczoslocalisehessian" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If set to 1 the Hessian is only calculated for atoms in the
+defectSubSystem, not the entire saddleConvergeVolume. The whole
+saddleConvergeVolume is still able to move during Lanczos.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="debuglanczos">
+<h2>debugLanczos<a class="headerlink" href="#debuglanczos" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: Debug mode (random seed for initial vector set to 10).</p>
+<p>Default: 0</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Lanczos</a><ul>
+<li><a class="reference internal" href="#lanczosconvbyeigenvno">lanczosConvByEigenVNo</a></li>
+<li><a class="reference internal" href="#lanczosconvtol">lanczosConvTol</a></li>
+<li><a class="reference internal" href="#lanczosminiter">lanczosMinIter</a></li>
+<li><a class="reference internal" href="#hessiandispl">hessianDispl</a></li>
+<li><a class="reference internal" href="#hessianapproxmode">hessianApproxMode</a></li>
+<li><a class="reference internal" href="#lanczosmaxiter">lanczosMaxIter</a></li>
+<li><a class="reference internal" href="#lanczosreusenegextcrit">lanczosReuseNegExtCrit</a></li>
+<li><a class="reference internal" href="#lanczossearchnegextcrit">lanczosSearchNegExtCrit</a></li>
+<li><a class="reference internal" href="#lanczoslocalisehessian">lanczosLocaliseHessian</a></li>
+<li><a class="reference internal" href="#debuglanczos">debugLanczos</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="dimer.html"
+                        title="previous chapter">Dimer</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="llminmode.html"
+                        title="next chapter">Lanczos minimum mode (LLMinMode)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/lanczos.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="llminmode.html" title="Lanczos minimum mode (LLMinMode)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="dimer.html" title="Dimer"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
