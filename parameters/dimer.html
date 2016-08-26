@@ -1,0 +1,409 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Dimer &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="Lanczos" href="lanczos.html" />
+    <link rel="prev" title="RAT" href="rat.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lanczos.html" title="Lanczos"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="rat.html" title="RAT"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="dimer">
+<h1>Dimer<a class="headerlink" href="#dimer" title="Permalink to this headline">¶</a></h1>
+<p>Parameters for the Dimer method.</p>
+<div class="section" id="dimerinitialoffset">
+<h2>dimerInitialOffset<a class="headerlink" href="#dimerinitialoffset" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Iinitial offset of defect atoms from minimum.</p>
+<p>Default: 0.01</p>
+</div>
+<div class="section" id="dimerseparation">
+<h2>dimerSeparation<a class="headerlink" href="#dimerseparation" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Separation between each unit of the dimer.</p>
+<p>Default: 0.05</p>
+</div>
+<div class="section" id="dimerrotationalminimiser">
+<h2>dimerRotationalMinimiser<a class="headerlink" href="#dimerrotationalminimiser" title="Permalink to this headline">¶</a></h2>
+<p>&#8216;CG&#8217;</p>
+<p>Minimisation method for rotation in dimer.</p>
+<ul class="simple">
+<li>CG: conjugate gradient</li>
+</ul>
+<p>Default: &#8216;CG&#8217; Note: this should be left as CG, probably nothing else
+will work!</p>
+</div>
+<div class="section" id="dimerlinesearch">
+<h2>dimerLineSearch<a class="headerlink" href="#dimerlinesearch" title="Permalink to this headline">¶</a></h2>
+<p>&#8216;modNewton&#8217;</p>
+<p>Line search.</p>
+<ul class="simple">
+<li>modNewton: modified Newton method (only for</li>
+</ul>
+<p>use within Dimer method)</p>
+<p>Default: &#8216;modNewton&#8217; Note: this has to be set
+to modNewton, nothing else will work!</p>
+</div>
+<div class="section" id="dimerdeltatheta">
+<h2>dimerDeltaTheta<a class="headerlink" href="#dimerdeltatheta" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Angular step for rotation.</p>
+<p>Default: 0.01</p>
+</div>
+<div class="section" id="dimertranslator">
+<h2>dimerTranslator<a class="headerlink" href="#dimertranslator" title="Permalink to this headline">¶</a></h2>
+<p>&#8216;quickmin&#8217;</p>
+<p>Method for translating the dimer.</p>
+<ul class="simple">
+<li>quickmin: Dimer quick minimisation</li>
+</ul>
+<p>Default: &#8216;quickmin&#8217;</p>
+</div>
+<div class="section" id="dimerdeltat">
+<h2>dimerDeltaT<a class="headerlink" href="#dimerdeltat" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Translation step size.</p>
+<p>Default: 0.1</p>
+</div>
+<div class="section" id="dimerstepdirectionmode">
+<h2>dimerStepDirectionMode<a class="headerlink" href="#dimerstepdirectionmode" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<ul class="simple">
+<li>0: uses effective force direction</li>
+<li>1: uses conjugate direction (DOI10.1137/100792743 eq. 2.3)</li>
+</ul>
+<p>Default: 0</p>
+</div>
+<div class="section" id="dimerusevarstepsize">
+<h2>dimerUseVarStepSize<a class="headerlink" href="#dimerusevarstepsize" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Calculates step sizes within translation</p>
+<ul class="simple">
+<li>0: dimerDeltaT</li>
+<li>1: Newton&#8217;s formula (DOI10.1137/100792743</li>
+<li>2: exponential scaling (dimerDeltaT*EXP(curvature)/4.0)</li>
+<li>else: linear scaling (dimerDeltaT*curvature/2.0) Default: 3</li>
+</ul>
+</div>
+<div class="section" id="dimermaxstepsize">
+<h2>dimerMaxStepSize<a class="headerlink" href="#dimermaxstepsize" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Maximum step size, when variable step size algorithm is used.</p>
+<p>Default: 0.1</p>
+</div>
+<div class="section" id="dimerminstepsize">
+<h2>dimerMinStepSize<a class="headerlink" href="#dimerminstepsize" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Minimum step size, when variable step size algorithm is used.</p>
+<p>Default: 0.005</p>
+</div>
+<div class="section" id="dimertolr">
+<h2>dimerTolR<a class="headerlink" href="#dimertolr" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Rotational force tolerance.</p>
+<p>Default: 0.01</p>
+</div>
+<div class="section" id="dimertolt">
+<h2>dimerTolT<a class="headerlink" href="#dimertolt" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Translational force tolerance.</p>
+<p>Default: 0.01</p>
+</div>
+<div class="section" id="dimermaxsteps">
+<h2>dimerMaxSteps<a class="headerlink" href="#dimermaxsteps" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Maximum number of Dimer translation steps.</p>
+<p>Default: 100</p>
+</div>
+<div class="section" id="dimermaxmovecriteria">
+<h2>dimerMaxMoveCriteria<a class="headerlink" href="#dimermaxmovecriteria" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Minimum value of maximum move of an atom when saddle is found (Does
+not apply when Lanczos minimisation emplyed).</p>
+<p>Default: 0.3</p>
+</div>
+<div class="section" id="dimerminbarrier">
+<h2>dimerMinBarrier<a class="headerlink" href="#dimerminbarrier" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Minimum barrier allowed by the Dimer method.</p>
+<p>Default: 0.0</p>
+</div>
+<div class="section" id="dimermaxbarrier">
+<h2>dimerMaxBarrier<a class="headerlink" href="#dimermaxbarrier" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Maximum barrier allowed by the Dimer method.</p>
+<p>Default: 5.0</p>
+</div>
+<div class="section" id="dimermaxmovedistance">
+<h2>dimerMaxMoveDistance<a class="headerlink" href="#dimermaxmovedistance" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Maximum movement of an atom allowed during the Dimer method.</p>
+<p>Default: 10.0</p>
+</div>
+<div class="section" id="dimermaxfunceval">
+<h2>dimerMaxFuncEval<a class="headerlink" href="#dimermaxfunceval" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Maximum number of force evaluations within the Dimer method.</p>
+<p>Default: 200</p>
+</div>
+<div class="section" id="dimersmallsearchsteps">
+<h2>dimerSmallSearchSteps<a class="headerlink" href="#dimersmallsearchsteps" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Number of step within Dimer method using only initial
+displacement subsystem.</p>
+<p>Default: 2</p>
+</div>
+<div class="section" id="dimeruselanczos">
+<h2>dimerUseLanczos<a class="headerlink" href="#dimeruselanczos" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1, uses Lanczos minimisation to converge to the saddle point.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="dimerminstepbeforelanczos">
+<h2>dimerMinStepBeforeLanczos<a class="headerlink" href="#dimerminstepbeforelanczos" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Forces Dimer method to do at least this amount of translation
+steps before running Lanczos.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="dimernegcurv">
+<h2>dimerNegCurv<a class="headerlink" href="#dimernegcurv" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Used for two purposes:</p>
+<ul class="simple">
+<li>when <em>dimerLookForNegEigenValue</em> = 0: launches Lanczos minimisation when curvature is lower or equal to</li>
+</ul>
+<p><em>dimerNegCurv</em> in <em>dimerNumStepsNegBeforeLanczos</em> translation steps in a
+row.
+- when <em>dimerLookForNegEigenValue</em> = 1: checks the lowest eigenvalue when curvature is lower or equal to <em>dimerNegCurv</em> Default:
+-0.1</p>
+</div>
+<div class="section" id="dimerlookfornegeigenvalue">
+<h2>dimerLookForNegEigenValue<a class="headerlink" href="#dimerlookfornegeigenvalue" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>Option to check eigenvalues.</p>
+<ul class="simple">
+<li>0: If system has lowest eigenvalue lower or equal to <em>dimerMaxNegEigenValue</em> in</li>
+</ul>
+<p><em>dimerNumStepsNegBeforeLanczos</em> translation steps in a row, it launches
+Lanczos minimisation.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="dimermaxnegeigenvalue">
+<h2>dimerMaxNegEigenValue<a class="headerlink" href="#dimermaxnegeigenvalue" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Highest negative eigenvalue value to be recognised as negative.</p>
+<p>Default: -0.1</p>
+</div>
+<div class="section" id="dimernumstepsnegbeforelanczos">
+<h2>dimerNumStepsNegBeforeLanczos<a class="headerlink" href="#dimernumstepsnegbeforelanczos" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Number of steps in a row to be checked for the negative
+eigenvalues.</p>
+<p>Default: 2</p>
+</div>
+<div class="section" id="dimerusesublattlanczos">
+<h2>dimerUseSubLattLanczos<a class="headerlink" href="#dimerusesublattlanczos" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1, uses sub-lattice Lanczos minimisation.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="dimerusewholelattlanczos">
+<h2>dimerUseWholeLattLanczos<a class="headerlink" href="#dimerusewholelattlanczos" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1, uses whole-lattice Lanczos minimisation (NOT IMPLEMENTED
+YET!).</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="dimerconv2rank1saddle">
+<h2>dimerConv2Rank1Saddle<a class="headerlink" href="#dimerconv2rank1saddle" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1, uses Minimum mode follower to converge to rank 1 saddle.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="dimerdostepbacktest">
+<h2>dimerDoStepBackTest<a class="headerlink" href="#dimerdostepbacktest" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1, perform step backwards test on the found saddle.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="dimerstepbackbarrcriteria">
+<h2>dimerStepBackBarrCriteria<a class="headerlink" href="#dimerstepbackbarrcriteria" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Maximum barrier of the saddle on which step backwards test will be
+performed.</p>
+<p>Default: 0.2</p>
+</div>
+<div class="section" id="dimerstepbackchecktol">
+<h2>dimerStepBackCheckTol<a class="headerlink" href="#dimerstepbackchecktol" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Maximum separation criteria between initial state and the state
+found by stepbackwards test.</p>
+<p>Default: 0.1</p>
+</div>
+<div class="section" id="debugdimerrotation">
+<h2>debugDimerRotation<a class="headerlink" href="#debugdimerrotation" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: debugs dimer&#8217;s rotation.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="debugdimer">
+<h2>debugDimer<a class="headerlink" href="#debugdimer" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: returns debugging info for LKMC.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="timedimer">
+<h2>timeDimer<a class="headerlink" href="#timedimer" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: times Dimer method within LKMC.</p>
+<p>Default: 1</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Dimer</a><ul>
+<li><a class="reference internal" href="#dimerinitialoffset">dimerInitialOffset</a></li>
+<li><a class="reference internal" href="#dimerseparation">dimerSeparation</a></li>
+<li><a class="reference internal" href="#dimerrotationalminimiser">dimerRotationalMinimiser</a></li>
+<li><a class="reference internal" href="#dimerlinesearch">dimerLineSearch</a></li>
+<li><a class="reference internal" href="#dimerdeltatheta">dimerDeltaTheta</a></li>
+<li><a class="reference internal" href="#dimertranslator">dimerTranslator</a></li>
+<li><a class="reference internal" href="#dimerdeltat">dimerDeltaT</a></li>
+<li><a class="reference internal" href="#dimerstepdirectionmode">dimerStepDirectionMode</a></li>
+<li><a class="reference internal" href="#dimerusevarstepsize">dimerUseVarStepSize</a></li>
+<li><a class="reference internal" href="#dimermaxstepsize">dimerMaxStepSize</a></li>
+<li><a class="reference internal" href="#dimerminstepsize">dimerMinStepSize</a></li>
+<li><a class="reference internal" href="#dimertolr">dimerTolR</a></li>
+<li><a class="reference internal" href="#dimertolt">dimerTolT</a></li>
+<li><a class="reference internal" href="#dimermaxsteps">dimerMaxSteps</a></li>
+<li><a class="reference internal" href="#dimermaxmovecriteria">dimerMaxMoveCriteria</a></li>
+<li><a class="reference internal" href="#dimerminbarrier">dimerMinBarrier</a></li>
+<li><a class="reference internal" href="#dimermaxbarrier">dimerMaxBarrier</a></li>
+<li><a class="reference internal" href="#dimermaxmovedistance">dimerMaxMoveDistance</a></li>
+<li><a class="reference internal" href="#dimermaxfunceval">dimerMaxFuncEval</a></li>
+<li><a class="reference internal" href="#dimersmallsearchsteps">dimerSmallSearchSteps</a></li>
+<li><a class="reference internal" href="#dimeruselanczos">dimerUseLanczos</a></li>
+<li><a class="reference internal" href="#dimerminstepbeforelanczos">dimerMinStepBeforeLanczos</a></li>
+<li><a class="reference internal" href="#dimernegcurv">dimerNegCurv</a></li>
+<li><a class="reference internal" href="#dimerlookfornegeigenvalue">dimerLookForNegEigenValue</a></li>
+<li><a class="reference internal" href="#dimermaxnegeigenvalue">dimerMaxNegEigenValue</a></li>
+<li><a class="reference internal" href="#dimernumstepsnegbeforelanczos">dimerNumStepsNegBeforeLanczos</a></li>
+<li><a class="reference internal" href="#dimerusesublattlanczos">dimerUseSubLattLanczos</a></li>
+<li><a class="reference internal" href="#dimerusewholelattlanczos">dimerUseWholeLattLanczos</a></li>
+<li><a class="reference internal" href="#dimerconv2rank1saddle">dimerConv2Rank1Saddle</a></li>
+<li><a class="reference internal" href="#dimerdostepbacktest">dimerDoStepBackTest</a></li>
+<li><a class="reference internal" href="#dimerstepbackbarrcriteria">dimerStepBackBarrCriteria</a></li>
+<li><a class="reference internal" href="#dimerstepbackchecktol">dimerStepBackCheckTol</a></li>
+<li><a class="reference internal" href="#debugdimerrotation">debugDimerRotation</a></li>
+<li><a class="reference internal" href="#debugdimer">debugDimer</a></li>
+<li><a class="reference internal" href="#timedimer">timeDimer</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="rat.html"
+                        title="previous chapter">RAT</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lanczos.html"
+                        title="next chapter">Lanczos</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/dimer.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lanczos.html" title="Lanczos"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="rat.html" title="RAT"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
