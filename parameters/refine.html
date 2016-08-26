@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Refinement &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="ART" href="art.html" />
+    <link rel="prev" title="Volumes" href="volumes.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="art.html" title="ART"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="volumes.html" title="Volumes"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="refinement">
+<h1>Refinement<a class="headerlink" href="#refinement" title="Permalink to this headline">¶</a></h1>
+<p>Parameters for the refinement and reuse of transitions that have been stored
+in the database.</p>
+<div class="section" id="refinesuccessfracforstorage">
+<h2>refineSuccessFracForStorage<a class="headerlink" href="#refinesuccessfracforstorage" title="Permalink to this headline">¶</a></h2>
+<p>Float</p>
+<p>Fraction of searches that must be successful (unique or duplicate)
+in order for the transitions to be stored for reuse.</p>
+<p>Default: 0.25</p>
+</div>
+<div class="section" id="refinesavedfracforstorage">
+<h2>refineSavedFracForStorage<a class="headerlink" href="#refinesavedfracforstorage" title="Permalink to this headline">¶</a></h2>
+<p>Float</p>
+<p>Fraction of searches that must be being saved for reuse, otherwise
+we discard them (generally lower than above <em>refineSuccessFracForStorage</em>).</p>
+<p>Default: 0.05</p>
+</div>
+<div class="section" id="refineusesublattlanczos">
+<h2>refineUseSubLattLanczos<a class="headerlink" href="#refineusesublattlanczos" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: turn on sub-lattice Lanczos minimisation.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="refineusewholelattlanczos">
+<h2>refineUseWholeLattLanczos<a class="headerlink" href="#refineusewholelattlanczos" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: turn on whole-lattice Lanczos minimisation.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="refinesaddlelbfgslanczosrestart">
+<h2>refineSaddleLBFGSLanczosRestart<a class="headerlink" href="#refinesaddlelbfgslanczosrestart" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>???</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="refinelbfgslanczosloosemaxiter">
+<h2>refineLBFGSLanczosLooseMaxIter<a class="headerlink" href="#refinelbfgslanczosloosemaxiter" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Maximum iterations for the loose LBFGS Lanczos minimisation.</p>
+<p>Default: 5</p>
+</div>
+<div class="section" id="refinelbfgslanczosmaxiter">
+<h2>refineLBFGSLanczosMaxIter<a class="headerlink" href="#refinelbfgslanczosmaxiter" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Maximum iterations for the LBFGS Lanczos minimisation.</p>
+<p>Default: 5</p>
+</div>
+<div class="section" id="refinesaddlemintol">
+<h2>refineSaddleMinTol<a class="headerlink" href="#refinesaddlemintol" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>The minimisation tolerance for refining saddles.</p>
+<p>Default: 1e-2</p>
+</div>
+<div class="section" id="refinefaileduseneb">
+<h2>refineFailedUseNEB<a class="headerlink" href="#refinefaileduseneb" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: use NEB if Lanczos minimisation fails.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="refinefinal">
+<h2>refineFinal<a class="headerlink" href="#refinefinal" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 0: refine the final state just for the selected transition.</p>
+<p>If 1: refine all final states.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="refinefinaluseinclmin">
+<h2>refineFinalUseInclMin<a class="headerlink" href="#refinefinaluseinclmin" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: use inclusive minimiser on a final lattice.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="refinefinalinclmintol">
+<h2>refineFinalInclMinTol<a class="headerlink" href="#refinefinalinclmintol" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Tolerance for the inclusive minimiser.</p>
+<p>Default: 1e-1</p>
+</div>
+<div class="section" id="refinefinaluseexclmin">
+<h2>refineFinalUseExclMin<a class="headerlink" href="#refinefinaluseexclmin" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: use exclusive minimiser on a final lattice.</p>
+<p>Note if you refinements are failing then try turing this off, it
+does not work well with all systems.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="refinefinalexclmintol">
+<h2>refineFinalExclMinTol<a class="headerlink" href="#refinefinalexclmintol" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Tolerance for the exclusive minimiser.</p>
+<p>Default: 1e-3</p>
+</div>
+<div class="section" id="refinefinalmintol">
+<h2>refineFinalMinTol<a class="headerlink" href="#refinefinalmintol" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Tolerance for the final state minimiser.</p>
+<p>Default: 1e-3</p>
+</div>
+<div class="section" id="id1">
+<h2>refineSaddleMinTol<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>Real tolerance for the saddle lattice minimiser Default: 1e-3</p>
+</div>
+<div class="section" id="refinedimermintolr">
+<h2>refineDimerMinTolR<a class="headerlink" href="#refinedimermintolr" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Tolerance for finding the approximation to the lowest eigenvector while
+refining the saddle point (by running a Dimer rotation).</p>
+<p>Default: 0.0001</p>
+</div>
+<div class="section" id="refinemaxbarrier">
+<h2>refineMaxBarrier<a class="headerlink" href="#refinemaxbarrier" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Value of the maximum acceptable barrier after refinement.</p>
+<p>Default: 5.0</p>
+</div>
+<div class="section" id="refineconv2rank1saddle">
+<h2>refineConv2Rank1Saddle<a class="headerlink" href="#refineconv2rank1saddle" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: converge to rank 1 saddle in the case that we find a rank 2 saddle.</p>
+<p>Default: 1</p>
+</div>
+<div class="section" id="timerefinement">
+<h2>timeRefinement<a class="headerlink" href="#timerefinement" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>If 1: use timer on refinement.</p>
+<p>Default: 1</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Refinement</a><ul>
+<li><a class="reference internal" href="#refinesuccessfracforstorage">refineSuccessFracForStorage</a></li>
+<li><a class="reference internal" href="#refinesavedfracforstorage">refineSavedFracForStorage</a></li>
+<li><a class="reference internal" href="#refineusesublattlanczos">refineUseSubLattLanczos</a></li>
+<li><a class="reference internal" href="#refineusewholelattlanczos">refineUseWholeLattLanczos</a></li>
+<li><a class="reference internal" href="#refinesaddlelbfgslanczosrestart">refineSaddleLBFGSLanczosRestart</a></li>
+<li><a class="reference internal" href="#refinelbfgslanczosloosemaxiter">refineLBFGSLanczosLooseMaxIter</a></li>
+<li><a class="reference internal" href="#refinelbfgslanczosmaxiter">refineLBFGSLanczosMaxIter</a></li>
+<li><a class="reference internal" href="#refinesaddlemintol">refineSaddleMinTol</a></li>
+<li><a class="reference internal" href="#refinefaileduseneb">refineFailedUseNEB</a></li>
+<li><a class="reference internal" href="#refinefinal">refineFinal</a></li>
+<li><a class="reference internal" href="#refinefinaluseinclmin">refineFinalUseInclMin</a></li>
+<li><a class="reference internal" href="#refinefinalinclmintol">refineFinalInclMinTol</a></li>
+<li><a class="reference internal" href="#refinefinaluseexclmin">refineFinalUseExclMin</a></li>
+<li><a class="reference internal" href="#refinefinalexclmintol">refineFinalExclMinTol</a></li>
+<li><a class="reference internal" href="#refinefinalmintol">refineFinalMinTol</a></li>
+<li><a class="reference internal" href="#id1">refineSaddleMinTol</a></li>
+<li><a class="reference internal" href="#refinedimermintolr">refineDimerMinTolR</a></li>
+<li><a class="reference internal" href="#refinemaxbarrier">refineMaxBarrier</a></li>
+<li><a class="reference internal" href="#refineconv2rank1saddle">refineConv2Rank1Saddle</a></li>
+<li><a class="reference internal" href="#timerefinement">timeRefinement</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="volumes.html"
+                        title="previous chapter">Volumes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="art.html"
+                        title="next chapter">ART</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/refine.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="art.html" title="ART"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="volumes.html" title="Volumes"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
