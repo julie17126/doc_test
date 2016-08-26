@@ -1,0 +1,7 @@
+LKMC.Algebra module
+===================
+
+.. automodule:: LKMC.Algebra
+    :members:
+    :undoc-members:
+    :show-inheritance:
