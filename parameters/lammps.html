@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LAMMPS &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="LKMC" href="../LKMC/modules.html" />
+    <link rel="prev" title="Hooks" href="hooks.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../LKMC/modules.html" title="LKMC"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="hooks.html" title="Hooks"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="lammps">
+<h1>LAMMPS<a class="headerlink" href="#lammps" title="Permalink to this headline">¶</a></h1>
+<p>Parameters for using LAMMPS to calculate the forces.</p>
+<p>For details of using
+LAMMPS see the <a class="reference external" href="http://lammps.sandia.gov/doc/Manual.html">LAMMPS Users
+Manual</a>.</p>
+<p>For information on building the python
+shared library see the <a class="reference external" href="http://lammps.sandia.gov/doc/Section_python.html">Python interface to
+LAMMPS</a>.</p>
+<p>For brief instructions on compiling LAMMPS see <a class="reference internal" href="lammps_short_instruction.html"><span class="doc">here</span></a> also.</p>
+<div class="section" id="lammpsinfile">
+<h2>lammpsInFile<a class="headerlink" href="#lammpsinfile" title="Permalink to this headline">¶</a></h2>
+<p>String</p>
+<p>The name of LAMMPS configuration file within the
+<em>`MDLocation &lt;parameters_main#MDLocation&gt;`__</em> directory. This file
+should contains the settings of potentials, group region settings (e.g.
+thermal regions) [optional] and other special needs while calculating
+forces (e.g. fixed region) [optional].
+See the <a class="reference external" href="http://lammps.sandia.gov/doc/Section_commands.html">LAMMPS
+Command</a> for detailed
+usage documentation.</p>
+<p>Default: &#8216;in.lammps&#8217;</p>
+<p>An example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># File: in.lammps</span>
+<span class="c1"># The potential to be used: bond order potential for CdTe</span>
+<span class="n">pair_style</span> <span class="n">bop</span> <span class="n">sigmaoff</span>
+<span class="n">pair_coeff</span> <span class="o">*</span> <span class="o">*</span> <span class="n">CdTe</span><span class="o">.</span><span class="n">bop</span> <span class="n">Cd</span> <span class="n">Te</span>
+<span class="n">communicate</span> <span class="n">single</span> <span class="n">cutoff</span> <span class="mf">14.70</span>
+
+<span class="c1"># [optional] Fix atoms in the fixed region</span>
+<span class="n">region</span> <span class="n">fixed</span> <span class="n">block</span> <span class="n">INF</span> <span class="n">INF</span> <span class="mi">0</span> <span class="mf">2.56</span> <span class="n">INF</span> <span class="n">INF</span> <span class="n">units</span> <span class="n">box</span>
+<span class="n">group</span> <span class="n">fixed</span> <span class="n">region</span> <span class="n">fixed</span>
+<span class="n">velocity</span> <span class="n">fixed</span> <span class="nb">set</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="n">units</span> <span class="n">box</span>
+<span class="n">fix</span> <span class="mi">1</span> <span class="n">fixed</span> <span class="n">setforce</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span>
+<span class="n">group</span> <span class="n">rest</span> <span class="n">subtract</span> <span class="nb">all</span> <span class="n">fixed</span>
+
+<span class="c1"># [optional] Other pre-defined regions: e.g. thermal region</span>
+<span class="n">region</span> <span class="n">heated</span> <span class="n">block</span> <span class="n">INF</span> <span class="n">INF</span> <span class="mf">2.56</span> <span class="mf">6.6</span> <span class="n">INF</span> <span class="n">INF</span> <span class="n">units</span> <span class="n">box</span>
+<span class="n">group</span> <span class="n">heated</span> <span class="n">region</span> <span class="n">heated</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="lammpsforcespecielist">
+<h2>lammpsForceSpecieList<a class="headerlink" href="#lammpsforcespecielist" title="Permalink to this headline">¶</a></h2>
+<p>String</p>
+<p>Comma separated list of symbols.</p>
+<p>Forces the species list to be as given.
+Normally, the species list is generated while reading a given lattice
+data file, therefore the order of species in the list is not guaranteed
+to always be the same. (e.g. after reading a CdTe lattice file, the
+species list can either be <code class="docutils literal"><span class="pre">Cd</span> <span class="pre">Te</span></code> or <code class="docutils literal"><span class="pre">Te</span> <span class="pre">Cd</span></code>) This option guarantees
+you always have the same order in the species list. This is useful
+because while using LAMMPS, settings with respect to different species
+are related to the order (not species symbols).</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">LAMMPS</a><ul>
+<li><a class="reference internal" href="#lammpsinfile">lammpsInFile</a></li>
+<li><a class="reference internal" href="#lammpsforcespecielist">lammpsForceSpecieList</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="hooks.html"
+                        title="previous chapter">Hooks</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../LKMC/modules.html"
+                        title="next chapter">LKMC</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/lammps.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../LKMC/modules.html" title="LKMC"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="hooks.html" title="Hooks"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
