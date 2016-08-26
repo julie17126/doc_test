@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Algebra module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Atoms module" href="LKMC.Atoms.html" />
+    <link rel="prev" title="LKMC.ART module" href="LKMC.ART.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Atoms.html" title="LKMC.Atoms module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.ART.html" title="LKMC.ART module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Algebra">
+<span id="lkmc-algebra-module"></span><h1>LKMC.Algebra module<a class="headerlink" href="#module-LKMC.Algebra" title="Permalink to this headline">¶</a></h1>
+<p>Module to handle algebraic and LAPACK routines.</p>
+<ol class="loweralpha simple" start="3">
+<li>Tomas Lazauskas, 2013</li>
+</ol>
+<dl class="class">
+<dt id="LKMC.Algebra.AlgebraPerform">
+<em class="property">class </em><code class="descclassname">LKMC.Algebra.</code><code class="descname">AlgebraPerform</code><span class="sig-paren">(</span><em>dsyevTime=0.0</em>, <em>dstevTime=0.0</em>, <em>noHessianWorkers=0</em>, <em>hessianConstTime=0.0</em>, <em>hessianConstFEvals=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Algebra.html#AlgebraPerform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Algebra.AlgebraPerform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Log class for algebra calculations.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Algebra.calcHessian">
+<code class="descclassname">LKMC.Algebra.</code><code class="descname">calcHessian</code><span class="sig-paren">(</span><em>system</em>, <em>mainIndexes</em>, <em>includeAtoms</em>, <em>displacement</em>, <em>noOfWorkers=1</em>, <em>includeMasses=0</em>, <em>jobID=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Algebra.html#calcHessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Algebra.calcHessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates Hessian matrix of a system. Multiprocessing is possible.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Algebra.calcHessianColumn">
+<code class="descclassname">LKMC.Algebra.</code><code class="descname">calcHessianColumn</code><span class="sig-paren">(</span><em>atomIndex</em>, <em>system</em>, <em>mainIndexes</em>, <em>includeAtoms</em>, <em>displacement</em>, <em>includeMasses</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Algebra.html#calcHessianColumn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Algebra.calcHessianColumn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Algebra.calcHessianMultiprocess">
+<code class="descclassname">LKMC.Algebra.</code><code class="descname">calcHessianMultiprocess</code><span class="sig-paren">(</span><em>hessianMatrix</em>, <em>atomsArrLen</em>, <em>system</em>, <em>mainIndexes</em>, <em>includeAtoms</em>, <em>displacement</em>, <em>noOfWorkers</em>, <em>includeMasses</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Algebra.html#calcHessianMultiprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Algebra.calcHessianMultiprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates implicit Hessian matrix using multiprocessing module</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Algebra.calcHessianStandalone">
+<code class="descclassname">LKMC.Algebra.</code><code class="descname">calcHessianStandalone</code><span class="sig-paren">(</span><em>hessianMatrix</em>, <em>atomsArrLen</em>, <em>system</em>, <em>mainIndexes</em>, <em>includeAtoms</em>, <em>displacement</em>, <em>includeMasses</em>, <em>jobID=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Algebra.html#calcHessianStandalone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Algebra.calcHessianStandalone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates implicit Hessian matrix as a standalone module</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Algebra.calcHessianWorker">
+<code class="descclassname">LKMC.Algebra.</code><code class="descname">calcHessianWorker</code><span class="sig-paren">(</span><em>jobQ</em>, <em>resultQ</em>, <em>system</em>, <em>mainIndexes</em>, <em>includeAtoms</em>, <em>displacement</em>, <em>includeMasses</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Algebra.html#calcHessianWorker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Algebra.calcHessianWorker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Worker to calculate Hessian matrix.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Algebra.getEigenvaluesST">
+<code class="descclassname">LKMC.Algebra.</code><code class="descname">getEigenvaluesST</code><span class="sig-paren">(</span><em>alphaVec</em>, <em>betaVec</em>, <em>evn</em>, <em>noEigenVects=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Algebra.html#getEigenvaluesST"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Algebra.getEigenvaluesST" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates eigenvalues and eigenvectors of symmetric tridiagonal matrix.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Algebra.getEigenvaluesSY">
+<code class="descclassname">LKMC.Algebra.</code><code class="descname">getEigenvaluesSY</code><span class="sig-paren">(</span><em>hessianMatrix</em>, <em>N</em>, <em>evn</em>, <em>noEigenVects=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Algebra.html#getEigenvaluesSY"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Algebra.getEigenvaluesSY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates eigenvalues and eigenvectors of symmetric matrix.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Algebra.getMinModeDirection">
+<code class="descclassname">LKMC.Algebra.</code><code class="descname">getMinModeDirection</code><span class="sig-paren">(</span><em>system</em>, <em>mainIndexes</em>, <em>includeAtoms</em>, <em>params</em>, <em>evn=-1</em>, <em>noOfWorkers=1</em>, <em>jobID=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Algebra.html#getMinModeDirection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Algebra.getMinModeDirection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Algebra.getOptimumBlocksize">
+<code class="descclassname">LKMC.Algebra.</code><code class="descname">getOptimumBlocksize</code><span class="sig-paren">(</span><em>N</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Algebra.html#getOptimumBlocksize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Algebra.getOptimumBlocksize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates optimum block size.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Algebra.getSystemsImplicitEigenvalues">
+<code class="descclassname">LKMC.Algebra.</code><code class="descname">getSystemsImplicitEigenvalues</code><span class="sig-paren">(</span><em>system</em>, <em>mainIndexes</em>, <em>includeAtoms</em>, <em>params</em>, <em>evn=-1</em>, <em>noEigenVects=0</em>, <em>includeMasses=0</em>, <em>noOfWorkers=1</em>, <em>jobID=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Algebra.html#getSystemsImplicitEigenvalues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Algebra.getSystemsImplicitEigenvalues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates system implicit eigenvalues and eigenvectors (optionally).</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.ART.html"
+                        title="previous chapter">LKMC.ART module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Atoms.html"
+                        title="next chapter">LKMC.Atoms module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Algebra.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Atoms.html" title="LKMC.Atoms module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.ART.html" title="LKMC.ART module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
