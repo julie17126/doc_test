@@ -1,0 +1,554 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Defects module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Deposition module" href="LKMC.Deposition.html" />
+    <link rel="prev" title="LKMC.Constants module" href="LKMC.Constants.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Deposition.html" title="LKMC.Deposition module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Constants.html" title="LKMC.Constants module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Defects">
+<span id="lkmc-defects-module"></span><h1>LKMC.Defects module<a class="headerlink" href="#module-LKMC.Defects" title="Permalink to this headline">¶</a></h1>
+<p>Module to find defects in system (and surrounding atoms)</p>
+<p>&#64;author: Chris Scott</p>
+<dl class="class">
+<dt id="LKMC.Defects.CoordNumDefectFinder">
+<em class="property">class </em><code class="descclassname">LKMC.Defects.</code><code class="descname">CoordNumDefectFinder</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#CoordNumDefectFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.CoordNumDefectFinder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Identify point defects in the given lattice by coordination number.</p>
+<p class="rubric">Notes</p>
+<p>This requires the visualiser libraries be installed.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Defects.CoordNumDefectFinder.findDefects">
+<code class="descname">findDefects</code><span class="sig-paren">(</span><em>inputState</em>, <em>refState</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#CoordNumDefectFinder.findDefects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.CoordNumDefectFinder.findDefects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identify point defects in the given lattice by finding under coordination atoms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>inputLattice</strong> : Lattice.Lattice</p>
+<blockquote>
+<div><p>Input Lattice object.</p>
+</div></blockquote>
+<p><strong>refLattice</strong> : Lattice.Lattice</p>
+<blockquote>
+<div><p>Reference Lattice object (though not used).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>defectsObj</strong> : Rendering.DefectsObject</p>
+<blockquote class="last">
+<div><p>Object that contains information about defects, including indices of vacancies,
+interstitials, etc. 
+- Under coordinated atom defects are treated as interstitials only.
+- Other information set to zero</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Defects.DefectRenderer">
+<em class="property">class </em><code class="descclassname">LKMC.Defects.</code><code class="descname">DefectRenderer</code><span class="sig-paren">(</span><em>inputState</em>, <em>refState</em>, <em>params</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#DefectRenderer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.DefectRenderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Defect renderer.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Defects.DefectRenderer.render">
+<code class="descname">render</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#DefectRenderer.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.DefectRenderer.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Defects.DefectVolume">
+<em class="property">class </em><code class="descclassname">LKMC.Defects.</code><code class="descname">DefectVolume</code><span class="sig-paren">(</span><em>volIndex</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#DefectVolume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.DefectVolume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Holds information about a single defect volume.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>volIndex</strong> : int</p>
+<blockquote class="last">
+<div><p>The unique index of this volume.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>volIndex</td>
+<td>(int) The unique index of this volume.</td>
+</tr>
+<tr class="row-even"><td>searchInitialVol</td>
+<td>(<cite>numpy.ndarray</cite>) Array containing the indices of the atoms in the search initial list.</td>
+</tr>
+<tr class="row-odd"><td>searchMoveVol</td>
+<td>(<cite>numpy.ndarray</cite>) Array containing the indices of the atoms in the search move list.</td>
+</tr>
+<tr class="row-even"><td>graphVol</td>
+<td>(<cite>numpy.ndarray</cite>) Array containing the indices of the atoms in the graph list.</td>
+</tr>
+<tr class="row-odd"><td>graphKey</td>
+<td>(string) The label generated by Nauty for this defect volume.</td>
+</tr>
+<tr class="row-even"><td>NVacancies</td>
+<td>(int) The number of vacancies in the defect volume.</td>
+</tr>
+<tr class="row-odd"><td>NInterstitials</td>
+<td>(int) The number of interstitials in the defect volume.</td>
+</tr>
+<tr class="row-even"><td>NAntisites</td>
+<td>(int) The number of antisites in the defect volume.</td>
+</tr>
+<tr class="row-odd"><td>com</td>
+<td>(<cite>numpy.ndarray</cite>) The centre of mass of the defect volume.</td>
+</tr>
+<tr class="row-even"><td>moment</td>
+<td>(<cite>numpy.ndarray</cite>) The moment of the defect volume.</td>
+</tr>
+<tr class="row-odd"><td>combinedVol</td>
+<td>(boolean) True if the volume is a combined volume, False otherwise.</td>
+</tr>
+<tr class="row-even"><td>partOfCombinedVol</td>
+<td>(boolean) True if this volume forms part of a combined volume, False otherwise.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Defects.DefectVolume.construct">
+<code class="descname">construct</code><span class="sig-paren">(</span><em>initialList</em>, <em>moveList</em>, <em>graphList</em>, <em>graphKey</em>, <em>com</em>, <em>com_extent_info</em>, <em>defectCounter</em>, <em>moment</em>, <em>combinedVol=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#DefectVolume.construct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.DefectVolume.construct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct defect volume.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Defects.DefectVolume.merge">
+<code class="descname">merge</code><span class="sig-paren">(</span><em>vols</em>, <em>params</em>, <em>lattice</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#DefectVolume.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.DefectVolume.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge defect volumes into one.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Defects.DefectVolumesBuilder">
+<em class="property">class </em><code class="descclassname">LKMC.Defects.</code><code class="descname">DefectVolumesBuilder</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#DefectVolumesBuilder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.DefectVolumesBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Build defects volumes from the identified defects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>params</strong> : Input.InputParams</p>
+<blockquote class="last">
+<div><p>The input parameters object.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Defects.DefectVolumesBuilder.buildDefectVolumes">
+<code class="descname">buildDefectVolumes</code><span class="sig-paren">(</span><em>inputState</em>, <em>refState</em>, <em>defectsObj</em>, <em>verbose=True</em>, <em>writer=None</em>, <em>outdir='.'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#DefectVolumesBuilder.buildDefectVolumes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.DefectVolumesBuilder.buildDefectVolumes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build defect volumes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>inputLattice</strong> : Lattice.Lattice</p>
+<blockquote>
+<div><p>Input Lattice object.</p>
+</div></blockquote>
+<p><strong>refLattice</strong> : Lattice.Lattice</p>
+<blockquote>
+<div><p>Reference Lattice object.</p>
+</div></blockquote>
+<p><strong>defectsObj</strong> : Rendering.DefectsObject</p>
+<blockquote>
+<div><p>Defects object for the input lattice.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>defectVolumes</strong> : list</p>
+<blockquote class="last">
+<div><p>The list of defect volumes in the input lattice.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Defects.DefectVolumesFinder">
+<em class="property">class </em><code class="descclassname">LKMC.Defects.</code><code class="descname">DefectVolumesFinder</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#DefectVolumesFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.DefectVolumesFinder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Find defects and construct defect volumes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>params</strong> : Input.InputParams</p>
+<blockquote class="last">
+<div><p>The input parameters object.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The workflow is to first identify defects and then to construct the defect
+volumes. The method for identifying defects is set in the parameter file,
+for example it can be by comparison to a reference lattice or by looking
+for undercoordinated atoms.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Defects.DefectVolumesFinder.findDefectVolumes">
+<code class="descname">findDefectVolumes</code><span class="sig-paren">(</span><em>inputState</em>, <em>refState</em>, <em>verbose=True</em>, <em>writer=None</em>, <em>outdir='.'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#DefectVolumesFinder.findDefectVolumes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.DefectVolumesFinder.findDefectVolumes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find defect volumes in the lattice.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>inputLattice</strong> : Lattice.Lattice</p>
+<blockquote>
+<div><p>Input Lattice object.</p>
+</div></blockquote>
+<p><strong>refLattice</strong> : Lattice.Lattice</p>
+<blockquote class="last">
+<div><p>Reference Lattice object.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Defects.PointDefectFinder">
+<em class="property">class </em><code class="descclassname">LKMC.Defects.</code><code class="descname">PointDefectFinder</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#PointDefectFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.PointDefectFinder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Locate point defects in a Lattice.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Defects.PointDefectFinder.findDefects">
+<code class="descname">findDefects</code><span class="sig-paren">(</span><em>inputState</em>, <em>refState</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#PointDefectFinder.findDefects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.PointDefectFinder.findDefects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identify point defects in the given lattice.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>inputLattice</strong> : Lattice.Lattice</p>
+<blockquote>
+<div><p>Input Lattice object.</p>
+</div></blockquote>
+<p><strong>refLattice</strong> : Lattice.Lattice</p>
+<blockquote>
+<div><p>Reference Lattice object.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>defectsObj</strong> : Rendering.DefectsObject</p>
+<blockquote class="last">
+<div><p>Object that contains information about defects, including indices of vacancies,
+interstitials, etc.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Defects.TransitionObject">
+<em class="property">class </em><code class="descclassname">LKMC.Defects.</code><code class="descname">TransitionObject</code><span class="sig-paren">(</span><em>saddlePos</em>, <em>finalPos</em>, <em>barrier</em>, <em>index=None</em>, <em>hashKey=None</em>, <em>volumeAtoms=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#TransitionObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.TransitionObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Stores information about a single transition.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Defects.TransitionObject.setTransitionIndex">
+<code class="descname">setTransitionIndex</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#TransitionObject.setTransitionIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.TransitionObject.setTransitionIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the index of this transition.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Defects.TransitionObjectFull">
+<em class="property">class </em><code class="descclassname">LKMC.Defects.</code><code class="descname">TransitionObjectFull</code><span class="sig-paren">(</span><em>cellDims</em>, <em>specie</em>, <em>specieList</em>, <em>initialPos</em>, <em>saddlePos</em>, <em>finalPos</em>, <em>barrier</em>, <em>index=None</em>, <em>hashKey=None</em>, <em>volumeAtoms=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#TransitionObjectFull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.TransitionObjectFull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Stores information about a single transition.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Defects.VolumeTransitionsObject">
+<em class="property">class </em><code class="descclassname">LKMC.Defects.</code><code class="descname">VolumeTransitionsObject</code><span class="sig-paren">(</span><em>params</em>, <em>moreSearch=False</em>, <em>searchDone=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#VolumeTransitionsObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.VolumeTransitionsObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Stores all transitions for a given volume.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Defects.VolumeTransitionsObject.addTransition">
+<code class="descname">addTransition</code><span class="sig-paren">(</span><em>saddlePos</em>, <em>finalPos</em>, <em>barrier</em>, <em>index=None</em>, <em>hashKey=None</em>, <em>volumeAtoms=[]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#VolumeTransitionsObject.addTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.VolumeTransitionsObject.addTransition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a transition to the list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Defects.VolumeTransitionsObject.addTransitionObject">
+<code class="descname">addTransitionObject</code><span class="sig-paren">(</span><em>transitionObject</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#VolumeTransitionsObject.addTransitionObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.VolumeTransitionsObject.addTransitionObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add transition object to the list. And calc finalHashkey as well.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Defects.VolumeTransitionsObject.merge">
+<code class="descname">merge</code><span class="sig-paren">(</span><em>volTransObj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#VolumeTransitionsObject.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.VolumeTransitionsObject.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generally volTransObj should have moreSearch flag. This routine will merge transitions in volTransObj into self.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Defects.VolumeTransitionsObject.mergeTransition">
+<code class="descname">mergeTransition</code><span class="sig-paren">(</span><em>transitionObject</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#VolumeTransitionsObject.mergeTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.VolumeTransitionsObject.mergeTransition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge a single transition into this object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Defects.VolumeTransitionsObject.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>filename</em>, <em>currentState</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#VolumeTransitionsObject.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.VolumeTransitionsObject.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read in transitions from a file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Defects.VolumeTransitionsObject.setup">
+<code class="descname">setup</code><span class="sig-paren">(</span><em>volumeAtoms</em>, <em>initialState</em>, <em>hashKey</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#VolumeTransitionsObject.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.VolumeTransitionsObject.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup object (not required if running read).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Defects.VolumeTransitionsObject.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#VolumeTransitionsObject.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.VolumeTransitionsObject.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the defect volume to file.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Defects.call_find_defects">
+<code class="descclassname">LKMC.Defects.</code><code class="descname">call_find_defects</code><span class="sig-paren">(</span><em>currentState</em>, <em>ref</em>, <em>parameters</em>, <em>verbose</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#call_find_defects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.call_find_defects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call clib</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Defects.checkForNeighbourVolumes">
+<code class="descclassname">LKMC.Defects.</code><code class="descname">checkForNeighbourVolumes</code><span class="sig-paren">(</span><em>volIndex</em>, <em>groupIndex</em>, <em>volumes</em>, <em>volumeGroupID</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#checkForNeighbourVolumes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.checkForNeighbourVolumes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for neighbouring vols.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Defects.checkVolumesLinked">
+<code class="descclassname">LKMC.Defects.</code><code class="descname">checkVolumesLinked</code><span class="sig-paren">(</span><em>volumes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#checkVolumesLinked"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.checkVolumesLinked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks to see if defect volumes overlap</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Defects.commandLineArgs">
+<code class="descclassname">LKMC.Defects.</code><code class="descname">commandLineArgs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#commandLineArgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.commandLineArgs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse command line arguments</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Defects.constructCombinedVolumes">
+<code class="descclassname">LKMC.Defects.</code><code class="descname">constructCombinedVolumes</code><span class="sig-paren">(</span><em>lattice</em>, <em>volGroupCounter</em>, <em>params</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#constructCombinedVolumes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.constructCombinedVolumes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add combined volumes.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Defects.defectVolumeSeparation">
+<code class="descclassname">LKMC.Defects.</code><code class="descname">defectVolumeSeparation</code><span class="sig-paren">(</span><em>currentFullPos</em>, <em>previousDefectPos</em>, <em>cellDims</em>, <em>defectAtoms</em>, <em>getPos=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#defectVolumeSeparation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.defectVolumeSeparation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calc separation between defect volume in two states.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Defects.defectVolumeSeparationFull">
+<code class="descclassname">LKMC.Defects.</code><code class="descname">defectVolumeSeparationFull</code><span class="sig-paren">(</span><em>currentPos</em>, <em>previousPos</em>, <em>cellDims</em>, <em>defectAtoms</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#defectVolumeSeparationFull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.defectVolumeSeparationFull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calc separation between defect volume in two states.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Defects.excludedSpecies">
+<code class="descclassname">LKMC.Defects.</code><code class="descname">excludedSpecies</code><span class="sig-paren">(</span><em>params</em>, <em>inputSpecieList</em>, <em>refSpecieList</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#excludedSpecies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.excludedSpecies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return lists of species that are excluded from defect search, ie
+they cannot be defects.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Defects.fillDefectsExcludingVolume">
+<code class="descclassname">LKMC.Defects.</code><code class="descname">fillDefectsExcludingVolume</code><span class="sig-paren">(</span><em>volumeToKeep</em>, <em>inputLattice</em>, <em>ref</em>, <em>parameters</em>, <em>storeSubSystem=1</em>, <em>writer=None</em>, <em>outdir='.'</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#fillDefectsExcludingVolume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.fillDefectsExcludingVolume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill defects in other volumes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Defects.forcedSpecies">
+<code class="descclassname">LKMC.Defects.</code><code class="descname">forcedSpecies</code><span class="sig-paren">(</span><em>params</em>, <em>specieList</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#forcedSpecies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.forcedSpecies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of species that are automatically included
+in defect list.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Defects.initiateDefectDisplacement">
+<code class="descclassname">LKMC.Defects.</code><code class="descname">initiateDefectDisplacement</code><span class="sig-paren">(</span><em>lattice</em>, <em>step</em>, <em>parameters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#initiateDefectDisplacement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.initiateDefectDisplacement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initiate search vector.</p>
+<dl class="docutils">
+<dt>Atoms that are:</dt>
+<dd><ol class="first last arabic simple">
+<li>within &#8220;localiseRadius&#8221; of the chosen atom, AND</li>
+<li>on the primary defect list</li>
+</ol>
+</dd>
+</dl>
+<p>will be given an initial displacement.</p>
+<p>Atoms that are on the full defect list are included in the subsystem.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Defects.main">
+<code class="descclassname">LKMC.Defects.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Defects.randomVectorSubSystem">
+<code class="descclassname">LKMC.Defects.</code><code class="descname">randomVectorSubSystem</code><span class="sig-paren">(</span><em>obj</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#randomVectorSubSystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.randomVectorSubSystem" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Defects.visualiseSubSystem">
+<code class="descclassname">LKMC.Defects.</code><code class="descname">visualiseSubSystem</code><span class="sig-paren">(</span><em>filename</em>, <em>lattice</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Defects.html#visualiseSubSystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Defects.visualiseSubSystem" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Constants.html"
+                        title="previous chapter">LKMC.Constants module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Deposition.html"
+                        title="next chapter">LKMC.Deposition module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Defects.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Deposition.html" title="LKMC.Deposition module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Constants.html" title="LKMC.Constants module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
