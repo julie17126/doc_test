@@ -1,0 +1,342 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Atoms module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Basin module" href="LKMC.Basin.html" />
+    <link rel="prev" title="LKMC.Algebra module" href="LKMC.Algebra.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Basin.html" title="LKMC.Basin module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Algebra.html" title="LKMC.Algebra module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Atoms">
+<span id="lkmc-atoms-module"></span><h1>LKMC.Atoms module<a class="headerlink" href="#module-LKMC.Atoms" title="Permalink to this headline">¶</a></h1>
+<p>Get information about the elements.</p>
+<dl class="function">
+<dt id="LKMC.Atoms.RGB">
+<code class="descclassname">LKMC.Atoms.</code><code class="descname">RGB</code><span class="sig-paren">(</span><em>sym</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Atoms.html#RGB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Atoms.RGB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns RGB values for the element with the given symbol.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sym</strong> : str[2]</p>
+<blockquote>
+<div><p>The symbol of the element.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>rgb</strong> : list[3]</p>
+<blockquote>
+<div><p>List containing RGB values for the element.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>KeyError</strong></p>
+<blockquote class="last">
+<div><p>If the given symbol is not recognised.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Atoms.atomName">
+<code class="descclassname">LKMC.Atoms.</code><code class="descname">atomName</code><span class="sig-paren">(</span><em>sym</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Atoms.html#atomName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Atoms.atomName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the name of the element with the given symbol.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sym</strong> : str[2]</p>
+<blockquote>
+<div><p>The symbol of the element.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>atomName</strong> : str</p>
+<blockquote>
+<div><p>The name of the given element.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>KeyError</strong></p>
+<blockquote class="last">
+<div><p>If the given symbol is not recognised.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Atoms.atomicMass">
+<code class="descclassname">LKMC.Atoms.</code><code class="descname">atomicMass</code><span class="sig-paren">(</span><em>sym</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Atoms.html#atomicMass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Atoms.atomicMass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the mass of the element with the given symbol.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sym</strong> : str[2]</p>
+<blockquote>
+<div><p>The symbol of the element.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>atomicMass</strong> : float</p>
+<blockquote>
+<div><p>Atomic mass of the element in MD code units.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>KeyError</strong></p>
+<blockquote class="last">
+<div><p>If the given symbol is not recognised.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The mass is calculated as:</p>
+<p>MASS = ATOMIC_MASS(AMU)*AMUTKG*AFSTMS*AFSTMS/EVTJUL,</p>
+<p>where:</p>
+<p>AMUTKG = 1.672E-27 ; AFSTMS= 1.0E5 ; EVTJUL= 1.6021E-19</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Atoms.atomicMassAMU">
+<code class="descclassname">LKMC.Atoms.</code><code class="descname">atomicMassAMU</code><span class="sig-paren">(</span><em>sym</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Atoms.html#atomicMassAMU"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Atoms.atomicMassAMU" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the mass of the element with the given symbol.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sym</strong> : str[2]</p>
+<blockquote>
+<div><p>The symbol of the element.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>atomicMassAMU</strong> : float</p>
+<blockquote>
+<div><p>Atomic mass of the element in AMU.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>KeyError</strong></p>
+<blockquote class="last">
+<div><p>If the given symbol is not recognised.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Atoms.atomicNumber">
+<code class="descclassname">LKMC.Atoms.</code><code class="descname">atomicNumber</code><span class="sig-paren">(</span><em>sym</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Atoms.html#atomicNumber"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Atoms.atomicNumber" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns atomic number of the element with the given symbol.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sym</strong> : str[2]</p>
+<blockquote>
+<div><p>The symbol of the element.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>atomicNumber</strong> : int</p>
+<blockquote>
+<div><p>Atomic number of the element.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>KeyError</strong></p>
+<blockquote class="last">
+<div><p>If the given symbol is not recognised.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Atoms.atomicSymbol">
+<code class="descclassname">LKMC.Atoms.</code><code class="descname">atomicSymbol</code><span class="sig-paren">(</span><em>amu</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Atoms.html#atomicSymbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Atoms.atomicSymbol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the symbol of an element given the mass.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>amu</strong> : float</p>
+<blockquote>
+<div><p>The mass of the element in question, in AMU.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>sym</strong> : str[2]</p>
+<blockquote>
+<div><p>The symbol of the element with the given mass.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>If there is no match for the given mass.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Atoms.covalentRadius">
+<code class="descclassname">LKMC.Atoms.</code><code class="descname">covalentRadius</code><span class="sig-paren">(</span><em>sym</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Atoms.html#covalentRadius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Atoms.covalentRadius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the covalent radius of the element with the given symbol.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sym</strong> : str[2]</p>
+<blockquote>
+<div><p>The symbol of the element.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>covRad</strong> : float</p>
+<blockquote>
+<div><p>Covalent radius of the element.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>KeyError</strong></p>
+<blockquote class="last">
+<div><p>If the given symbol is not recognised.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Atoms.initialise">
+<code class="descclassname">LKMC.Atoms.</code><code class="descname">initialise</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Atoms.html#initialise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Atoms.initialise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read data in Atoms.IN file into dictionaries.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Algebra.html"
+                        title="previous chapter">LKMC.Algebra module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Basin.html"
+                        title="next chapter">LKMC.Basin module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Atoms.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Basin.html" title="LKMC.Basin module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Algebra.html" title="LKMC.Algebra module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
