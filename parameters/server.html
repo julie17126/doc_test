@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Server &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="Minimisation" href="minimisation.html" />
+    <link rel="prev" title="Output" href="output.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="minimisation.html" title="Minimisation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="output.html" title="Output"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="server">
+<h1>Server<a class="headerlink" href="#server" title="Permalink to this headline">¶</a></h1>
+<p>Parameters for the server. These values should probably be left at their defaults
+unless you know what you are doing.</p>
+<div class="section" id="serverminport">
+<h2>serverMinPort<a class="headerlink" href="#serverminport" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Set the minimum port the server can run on.</p>
+<p>If serverMinPort &lt; serverMaxPort a port within the range is randomly chosen.</p>
+<p>If set to -1 a port is chosen automatically.</p>
+<p>Default is 8888</p>
+</div>
+<div class="section" id="servermaxport">
+<h2>serverMaxPort<a class="headerlink" href="#servermaxport" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>Set the maximum port the server can run on.</p>
+<p>If serverMinPort &lt; serverMaxPort a port within the range is randomly chosen.</p>
+<p>If set to -1 a
+port is chosen automatically.</p>
+<p>Default is 9999</p>
+</div>
+<div class="section" id="numberofwriterprocesses">
+<h2>numberOfWriterProcesses<a class="headerlink" href="#numberofwriterprocesses" title="Permalink to this headline">¶</a></h2>
+<p>Integer &gt;= 1</p>
+<p>This is not used currently and setting it has no effect.</p>
+</div>
+<div class="section" id="clientindividualoutput">
+<h2>clientIndividualOutput<a class="headerlink" href="#clientindividualoutput" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>Each worker process writes to its own standard output and error
+files. Obviously this generates a lot more files (total size will be the
+same) but is very useful when debugging/checking everything is working.
+For production runs it may be better to set to 0 but if you want to be
+able to easily see what the workers are doing leave it as 1.</p>
+<p>Default is 1</p>
+</div>
+<div class="section" id="maxidletime">
+<h2>maxIdleTime<a class="headerlink" href="#maxidletime" title="Permalink to this headline">¶</a></h2>
+<p>Real (seconds)</p>
+<p>During transition searches if no result is received during this period of time
+the programme will terminate.</p>
+<p>Default is 1800.0</p>
+</div>
+<div class="section" id="debugserver">
+<h2>debugServer<a class="headerlink" href="#debugserver" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>Plot load/timings from worker processes at the end of a task.</p>
+<p>Default is 0</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Server</a><ul>
+<li><a class="reference internal" href="#serverminport">serverMinPort</a></li>
+<li><a class="reference internal" href="#servermaxport">serverMaxPort</a></li>
+<li><a class="reference internal" href="#numberofwriterprocesses">numberOfWriterProcesses</a></li>
+<li><a class="reference internal" href="#clientindividualoutput">clientIndividualOutput</a></li>
+<li><a class="reference internal" href="#maxidletime">maxIdleTime</a></li>
+<li><a class="reference internal" href="#debugserver">debugServer</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="output.html"
+                        title="previous chapter">Output</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="minimisation.html"
+                        title="next chapter">Minimisation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/server.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="minimisation.html" title="Minimisation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="output.html" title="Output"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
