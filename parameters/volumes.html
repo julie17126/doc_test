@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Volumes &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="Refinement" href="refine.html" />
+    <link rel="prev" title="Defects" href="defects.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="refine.html" title="Refinement"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="defects.html" title="Defects"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="volumes">
+<h1>Volumes<a class="headerlink" href="#volumes" title="Permalink to this headline">¶</a></h1>
+<p>Parameters regarding defect volumes</p>
+<div class="section" id="searchinitialradius">
+<h2>searchInitialRadius<a class="headerlink" href="#searchinitialradius" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Atoms within this distance of a defect form part of the initial search
+vector, from which an atom is picked for the
+initial displacement. Only atoms within this vector can be given an
+initial displacement.</p>
+<p>Typical value is 2NN.</p>
+</div>
+<div class="section" id="localisesearchradius">
+<h2>localiseSearchRadius<a class="headerlink" href="#localisesearchradius" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Once an atom has been randomly chosen, only
+atoms that are within both <em>localiseSearchRadius</em> of the chosen atom and
+<em>searchInitialRadius</em> of a defect are given an initial displacement.</p>
+</div>
+<div class="section" id="searchmoveradius">
+<h2>searchMoveRadius<a class="headerlink" href="#searchmoveradius" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Atoms within this distance of a defect can move
+during the search (eg. Dimer) before switching to the convergence
+algorithm.</p>
+</div>
+<div class="section" id="searchconvergeradius">
+<h2>searchConvergeRadius<a class="headerlink" href="#searchconvergeradius" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>This is a skin on top of the searchMoveRadius.
+Atoms within (<em>searchMoveRadius</em> + <em>searchConvergenceRadius</em>) can move
+during the convergence to the saddle point (eg. Lanczos).</p>
+</div>
+<div class="section" id="graphradius">
+<h2>graphRadius<a class="headerlink" href="#graphradius" title="Permalink to this headline">¶</a></h2>
+<p>Real</p>
+<p>Radius to use when building the graph key.</p>
+</div>
+<div class="section" id="volumesconstructnew">
+<h2>volumesConstructNew<a class="headerlink" href="#volumesconstructnew" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>Treat nearby volumes differently. Instead of fusing into one
+volume, keep as individual and have a combined volume. Don&#8217;t use unless
+you know what it does.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Volumes</a><ul>
+<li><a class="reference internal" href="#searchinitialradius">searchInitialRadius</a></li>
+<li><a class="reference internal" href="#localisesearchradius">localiseSearchRadius</a></li>
+<li><a class="reference internal" href="#searchmoveradius">searchMoveRadius</a></li>
+<li><a class="reference internal" href="#searchconvergeradius">searchConvergeRadius</a></li>
+<li><a class="reference internal" href="#graphradius">graphRadius</a></li>
+<li><a class="reference internal" href="#volumesconstructnew">volumesConstructNew</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="defects.html"
+                        title="previous chapter">Defects</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="refine.html"
+                        title="next chapter">Refinement</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/volumes.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="refine.html" title="Refinement"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="defects.html" title="Defects"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
