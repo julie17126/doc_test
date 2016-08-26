@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Defects &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="Parameters" href="parameters.html" />
+    <link rel="next" title="Volumes" href="volumes.html" />
+    <link rel="prev" title="String" href="string.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="volumes.html" title="Volumes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="string.html" title="String"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" accesskey="U">Parameters</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="defects">
+<h1>Defects<a class="headerlink" href="#defects" title="Permalink to this headline">¶</a></h1>
+<p>Parameters for finding defects in the lattice.</p>
+<div class="section" id="defectmethod">
+<h2>defectMethod<a class="headerlink" href="#defectmethod" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>The method to use for identifying defects in the lattice. 0 identifies
+point defects by comparison to the reference lattice. 1 looks for
+under coordinated atoms and creates a defect volume for each one. This
+is useful when performing growth simulations where the whole surface
+may be treated as a single volume using method 0.</p>
+<p>Default: 0</p>
+</div>
+<div class="section" id="vacancyradius">
+<h2>vacancyRadius<a class="headerlink" href="#vacancyradius" title="Permalink to this headline">¶</a></h2>
+<p>Real number</p>
+<p>If there is no atom within this distance of a
+lattice site then the site is a vacancy; if an atom is not within this
+distance of a lattice site it is an interstitial.</p>
+<p>Default: 1.0</p>
+</div>
+<div class="section" id="antisitedefects">
+<h2>antisiteDefects<a class="headerlink" href="#antisitedefects" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>Whether antisite defects should be considered as defects during
+the simulation.</p>
+</div>
+<div class="section" id="vacancydefects">
+<h2>vacancyDefects<a class="headerlink" href="#vacancydefects" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>Whether vacancies should be considered as defects during the
+simulation.</p>
+</div>
+<div class="section" id="interstitialdefects">
+<h2>interstitialDefects<a class="headerlink" href="#interstitialdefects" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>Whether interstitials should be considered as defects during the
+simulation.</p>
+</div>
+<div class="section" id="forcespeciedefect">
+<h2>forceSpecieDefect<a class="headerlink" href="#forcespeciedefect" title="Permalink to this headline">¶</a></h2>
+<p>String</p>
+<p>Comma separated list of symbols (eg. &#8220;H_,He&#8221; or &#8220;H_&#8221;). Force these
+elements to be considered as defects.</p>
+</div>
+<div class="section" id="excludespeciedefect">
+<h2>excludeSpecieDefect<a class="headerlink" href="#excludespeciedefect" title="Permalink to this headline">¶</a></h2>
+<p>String</p>
+<p>Comma separated list of symbols (eg &#8220;H_,He&#8221; or &#8220;H_&#8221;). These elements
+cannot be considered as defects</p>
+</div>
+<div class="section" id="debugdefects">
+<h2>debugDefects<a class="headerlink" href="#debugdefects" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>Write lattice files containing interstitials, vacancies,
+antisites and the subsystem</p>
+</div>
+<div class="section" id="debugsearch">
+<h2>debugSearch<a class="headerlink" href="#debugsearch" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>Initial displacement is a normalised vector of 1&#8217;s.</p>
+</div>
+<div class="section" id="timedefectsearch">
+<h2>timeDefectSearch<a class="headerlink" href="#timedefectsearch" title="Permalink to this headline">¶</a></h2>
+<p>0 or 1</p>
+<p>Report timings for defect searches.</p>
+</div>
+<div class="section" id="speciescoordmax">
+<h2>speciesCoordMax<a class="headerlink" href="#speciescoordmax" title="Permalink to this headline">¶</a></h2>
+<p>String</p>
+<p>Comma separated list of pairs containing the species symbol and the
+maximum coordination of an under coordinated atom. For example:
+&#8220;Ag,11,Zn,10&#8221;.</p>
+</div>
+<div class="section" id="coordmaxdefault">
+<h2>coordMaxDefault<a class="headerlink" href="#coordmaxdefault" title="Permalink to this headline">¶</a></h2>
+<p>Integer</p>
+<p>The maximum coordination value for under coordinated atoms to
+use for species that are not specified in <a class="reference internal" href="#speciescoordmax">speciesCoordMax</a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Defects</a><ul>
+<li><a class="reference internal" href="#defectmethod">defectMethod</a></li>
+<li><a class="reference internal" href="#vacancyradius">vacancyRadius</a></li>
+<li><a class="reference internal" href="#antisitedefects">antisiteDefects</a></li>
+<li><a class="reference internal" href="#vacancydefects">vacancyDefects</a></li>
+<li><a class="reference internal" href="#interstitialdefects">interstitialDefects</a></li>
+<li><a class="reference internal" href="#forcespeciedefect">forceSpecieDefect</a></li>
+<li><a class="reference internal" href="#excludespeciedefect">excludeSpecieDefect</a></li>
+<li><a class="reference internal" href="#debugdefects">debugDefects</a></li>
+<li><a class="reference internal" href="#debugsearch">debugSearch</a></li>
+<li><a class="reference internal" href="#timedefectsearch">timeDefectSearch</a></li>
+<li><a class="reference internal" href="#speciescoordmax">speciesCoordMax</a></li>
+<li><a class="reference internal" href="#coordmaxdefault">coordMaxDefault</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="string.html"
+                        title="previous chapter">String</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="volumes.html"
+                        title="next chapter">Volumes</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/defects.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="volumes.html" title="Volumes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="string.html" title="String"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="parameters.html" >Parameters</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
