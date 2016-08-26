@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.clibs.lattice module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC.clibs package" href="LKMC.clibs.html" />
+    <link rel="next" title="LKMC.clibs.nauty_iface module" href="LKMC.clibs.nauty_iface.html" />
+    <link rel="prev" title="LKMC.clibs.lanczos module" href="LKMC.clibs.lanczos.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.clibs.nauty_iface.html" title="LKMC.clibs.nauty_iface module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.clibs.lanczos.html" title="LKMC.clibs.lanczos module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="LKMC.clibs.html" accesskey="U">LKMC.clibs package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.clibs.lattice">
+<span id="lkmc-clibs-lattice-module"></span><h1>LKMC.clibs.lattice module<a class="headerlink" href="#module-LKMC.clibs.lattice" title="Permalink to this headline">¶</a></h1>
+<p>Wrapper to lattice.c</p>
+<p>Copyright 2013 Chris Scott</p>
+<dl class="function">
+<dt id="LKMC.clibs.lattice.buildSubLattice">
+<code class="descclassname">LKMC.clibs.lattice.</code><code class="descname">buildSubLattice</code><span class="sig-paren">(</span><em>NAtoms</em>, <em>mainIndexes</em>, <em>pos</em>, <em>cellDims</em>, <em>PBC</em>, <em>includeRadius</em>, <em>includeIndexes</em>, <em>minPos</em>, <em>maxPos</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/clibs/lattice.html#buildSubLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.clibs.lattice.buildSubLattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build sub-lattice.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.clibs.lattice.findAtomsNeighbours">
+<code class="descclassname">LKMC.clibs.lattice.</code><code class="descname">findAtomsNeighbours</code><span class="sig-paren">(</span><em>atomIndex</em>, <em>maxSep</em>, <em>NAtoms</em>, <em>pos</em>, <em>minPos</em>, <em>maxPos</em>, <em>cellDims</em>, <em>PBC</em>, <em>neighbours</em>, <em>neighbourSeps</em>, <em>sortNeighbours</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/clibs/lattice.html#findAtomsNeighbours"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.clibs.lattice.findAtomsNeighbours" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find atoms neighbours</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.clibs.lattice.findMinSepPosList">
+<code class="descclassname">LKMC.clibs.lattice.</code><code class="descname">findMinSepPosList</code><span class="sig-paren">(</span><em>indicesSize</em>, <em>indices</em>, <em>pos</em>, <em>inputPos</em>, <em>PBC</em>, <em>cellDims</em>, <em>minPos</em>, <em>maxPos</em>, <em>maxSpacing</em>, <em>result</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/clibs/lattice.html#findMinSepPosList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.clibs.lattice.findMinSepPosList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find min sep to atoms in list</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.clibs.lattice.findMovedAtoms">
+<code class="descclassname">LKMC.clibs.lattice.</code><code class="descname">findMovedAtoms</code><span class="sig-paren">(</span><em>threshold</em>, <em>NAtoms</em>, <em>pos_ini</em>, <em>pos_fin</em>, <em>cellDims</em>, <em>PBC</em>, <em>movedIndexes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/clibs/lattice.html#findMovedAtoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.clibs.lattice.findMovedAtoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find atoms that have moved</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.clibs.lattice.getIndicesFromPositions">
+<code class="descclassname">LKMC.clibs.lattice.</code><code class="descname">getIndicesFromPositions</code><span class="sig-paren">(</span><em>inputPos</em>, <em>pos</em>, <em>maxSep</em>, <em>pbc</em>, <em>cellDims</em>, <em>minPos</em>, <em>maxPos</em>, <em>indices</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/clibs/lattice.html#getIndicesFromPositions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.clibs.lattice.getIndicesFromPositions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the atoms that correspond to the input positions</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.clibs.lattice.wrapLattice">
+<code class="descclassname">LKMC.clibs.lattice.</code><code class="descname">wrapLattice</code><span class="sig-paren">(</span><em>NAtoms</em>, <em>pos</em>, <em>cellDims</em>, <em>PBC</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/clibs/lattice.html#wrapLattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.clibs.lattice.wrapLattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrap atoms into lattice.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.clibs.lanczos.html"
+                        title="previous chapter">LKMC.clibs.lanczos module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.clibs.nauty_iface.html"
+                        title="next chapter">LKMC.clibs.nauty_iface module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.clibs.lattice.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.clibs.nauty_iface.html" title="LKMC.clibs.nauty_iface module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.clibs.lanczos.html" title="LKMC.clibs.lanczos module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="LKMC.clibs.html" >LKMC.clibs package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
