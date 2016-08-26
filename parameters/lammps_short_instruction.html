@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LAMMPS instructions &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="lammps-instructions">
+<h1>LAMMPS instructions<a class="headerlink" href="#lammps-instructions" title="Permalink to this headline">¶</a></h1>
+<p>Full instructions are in  the <a class="reference external" href="http://lammps.sandia.gov/doc/Manual.html">LAMMPS
+Manual</a>. Here are a
+selection of commands for downloading and building LAMMPS.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>You need to set two environment variables; you only have to do it once.
+For the csh or tcsh shells, add something like this to your
+<code class="docutils literal"><span class="pre">$HOME/.cshrc</span></code> file, one line for each of the two files:</p>
+<div class="code sh highlight-default"><div class="highlight"><pre><span></span>setenv PYTHONPATH $PYTHONPATH:$HOME/git/lammps-ro/python
+setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH:$HOME/git/lammps-ro/src
+</pre></div>
+</div>
+<p>where <code class="docutils literal"><span class="pre">$HOME/git/lammps-ro</span></code> is the top directory of LAMMPS.</p>
+</div>
+<div class="section" id="download-update-lammps">
+<h2>Download/Update LAMMPS<a class="headerlink" href="#download-update-lammps" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="way-1-download-a-tarball">
+<h3>Way 1: Download a tarball<a class="headerlink" href="#way-1-download-a-tarball" title="Permalink to this headline">¶</a></h3>
+<p>You can download LAMMPS packages from
+<a class="reference external" href="http://lammps.sandia.gov/download.html#download">here</a>. Select the
+code you want, click the &#8220;Download Now&#8221; button, and your browser should
+download a gzipped tar file. Unpack it with the following commands, and
+look for a README to get you started.</p>
+<div class="code sh highlight-default"><div class="highlight"><pre><span></span><span class="n">gunzip</span> <span class="n">lammps</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">tar</span> <span class="n">xvf</span> <span class="n">lammps</span><span class="o">.</span><span class="n">tar</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="way-2-git-checkout-and-update">
+<h3>Way 2: Git checkout and update<a class="headerlink" href="#way-2-git-checkout-and-update" title="Permalink to this headline">¶</a></h3>
+<p>You can also checkout using git. For details see
+<a class="reference external" href="http://lammps.sandia.gov/download.html#git">here</a>.</p>
+<div class="code sh highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">git</span><span class="o">.</span><span class="n">lammps</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">lammps</span><span class="o">-</span><span class="n">ro</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>and pull changes within the LAMMPS directory</p>
+<div class="code sh highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">pull</span>
+</pre></div>
+</div>
+<p>To update, after you pull changes, you need to update the src files first.
+To do this, you should cd to the <code class="docutils literal"><span class="pre">src</span></code> directory and type:</p>
+<div class="code sh highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">purge</span>
+<span class="n">make</span> <span class="n">package</span><span class="o">-</span><span class="n">update</span>
+</pre></div>
+</div>
+<p>and then follow the instructions below to re-build LAMMPS</p>
+</div>
+</div>
+<div class="section" id="build-python-shared-library">
+<h2>Build python shared library<a class="headerlink" href="#build-python-shared-library" title="Permalink to this headline">¶</a></h2>
+<p>Within the <code class="docutils literal"><span class="pre">src/STUBS</span></code> directory, run</p>
+<div class="code sh highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">clean</span>
+<span class="n">make</span>
+</pre></div>
+</div>
+<p>then goes back to the <code class="docutils literal"><span class="pre">src</span></code> directory and run</p>
+<div class="code sh highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">clean</span><span class="o">-</span><span class="nb">all</span>
+<span class="n">make</span> <span class="n">makeshlib</span>
+<span class="n">make</span> <span class="o">-</span><span class="n">f</span> <span class="n">Makefile</span><span class="o">.</span><span class="n">shlib</span> <span class="n">serial</span>
+</pre></div>
+</div>
+<p>where you might need to edit the <code class="docutils literal"><span class="pre">src/MAKE/Makefile.*</span></code> for you own
+machine. For details see <a class="reference external" href="http://lammps.sandia.gov/doc/Section_start.html#start_2">Making
+LAMMPS</a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">LAMMPS instructions</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#download-update-lammps">Download/Update LAMMPS</a><ul>
+<li><a class="reference internal" href="#way-1-download-a-tarball">Way 1: Download a tarball</a></li>
+<li><a class="reference internal" href="#way-2-git-checkout-and-update">Way 2: Git checkout and update</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#build-python-shared-library">Build python shared library</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/parameters/lammps_short_instruction.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
