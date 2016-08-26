@@ -1,0 +1,1033 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>LKMC.Basin module &mdash; LKMC 150623-237-g6ff714a documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '150623-237-g6ff714a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="LKMC 150623-237-g6ff714a documentation" href="../index.html" />
+    <link rel="up" title="LKMC package" href="LKMC.html" />
+    <link rel="next" title="LKMC.Cascades module" href="LKMC.Cascades.html" />
+    <link rel="prev" title="LKMC.Atoms module" href="LKMC.Atoms.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Cascades.html" title="LKMC.Cascades module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Atoms.html" title="LKMC.Atoms module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" accesskey="U">LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-LKMC.Basin">
+<span id="lkmc-basin-module"></span><h1>LKMC.Basin module<a class="headerlink" href="#module-LKMC.Basin" title="Permalink to this headline">¶</a></h1>
+<p>This module provide superbasin method to solve low-barrier flicker problems.</p>
+<p>Copyright Miao Yu 2014</p>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>L.K. Beland, P. Brommer, F. El-Mellouhi, J.-F. Joly and N. Mousseau. 
+Kinetic activation-relaxation techinique.
+Phy. Rev. E 84, 046704 (2011) doi: 10.1103/PhysRevE.84.046704</li>
+<li>B. Puchala, M.L. Falk and K. Garikipati. 
+An energy basin finding algorithm for kinetic Monte Carlo acceleration.
+J. Chem. Phys. 132, 134104 (2010) doi: 10.1063/1.3369627</li>
+<li>K.A. Fichthorn and Y. Lin. 
+A local superbasin kinetic Monte Carlo method.
+J. Chem. Phys. 138, 164104 (2013) doi: 10.1063/1.4801869</li>
+</ul>
+<p>Note: The script is coded base on Beland&#8217;s work.</p>
+<dl class="class">
+<dt id="LKMC.Basin.BasinObject">
+<em class="property">class </em><code class="descclassname">LKMC.Basin.</code><code class="descname">BasinObject</code><span class="sig-paren">(</span><em>KMCRunner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#BasinObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.BasinObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>The <cite>BasinObject</cite> class holds information about a superbasin.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>KMCRunner</strong> : <cite>KMC.KMCRunner</cite> object</p>
+<blockquote class="last">
+<div><p>We need some information/methods from this object.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="5%" />
+<col width="95%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>defectVolumes</td>
+<td>(list) List of <cite>DefectVolumeObject</cite> objects, holds information about all basin states in this superbasin.</td>
+</tr>
+<tr class="row-even"><td>connectivity</td>
+<td>(list (2D matrix)) Hold information about the connectivity within this superbasin.</td>
+</tr>
+<tr class="row-odd"><td>params</td>
+<td>(<cite>Input.InputParams</cite> object) This object contains all parameters which are read from <code class="docutils literal"><span class="pre">lkmcInput.IN</span></code> by default.</td>
+</tr>
+<tr class="row-even"><td>cellDims</td>
+<td>(ndarray) Cell dimensions of the system. Used for PBC.</td>
+</tr>
+<tr class="row-odd"><td>pointer</td>
+<td>(list of integer) Store the start/end point for each basin state. e.g. For a superbasin with three basin states, which, respectively, have 3,4,5 transitions. The pointer will be [0,3,7,12].</td>
+</tr>
+<tr class="row-even"><td>currentDV</td>
+<td>(integer) The index of basin state where the system currently is.</td>
+</tr>
+<tr class="row-odd"><td>currentTrans</td>
+<td>(integer) The index of transition which has been chosen in the last step.</td>
+</tr>
+<tr class="row-even"><td>previousDV</td>
+<td>(integer) The index of basin state where the system is on previous step. This is a backup for previous <cite>currentDV</cite>. <cite>currentDV</cite> will fall back to this value if we failed to perform chosen transitions in the superbasin in current step.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Basin.BasinObject.buildConnectivity">
+<code class="descname">buildConnectivity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#BasinObject.buildConnectivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.BasinObject.buildConnectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the connectivity within the superbasin. Used for find pathways while perform transition in the superbasin.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Basin.BasinObject.createDV">
+<code class="descname">createDV</code><span class="sig-paren">(</span><em>lattice</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#BasinObject.createDV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.BasinObject.createDV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create and store a new basin states into the superbasin.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lattice</strong> : <cite>Lattice.Lattice</cite> object</p>
+<blockquote>
+<div><p>The object holds information about the system.</p>
+</div></blockquote>
+<p><strong>index</strong> : integer</p>
+<blockquote class="last">
+<div><p>The currentVolIndex in the list of defectVolumes of the system.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Basin.BasinObject.createTrans">
+<code class="descname">createTrans</code><span class="sig-paren">(</span><em>DVNum</em>, <em>barrier</em>, <em>reverseBarrier</em>, <em>rate</em>, <em>finalHashkey</em>, <em>finalCOM</em>, <em>finalAtomPos</em>, <em>flag</em>, <em>finalDV=None</em>, <em>final=None</em>, <em>index=None</em>, <em>savePos=True</em>, <em>moment=None</em>, <em>currentVolIndex=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#BasinObject.createTrans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.BasinObject.createTrans" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Store a transition associated with the given basin state. </dt>
+<dd><ul class="first last simple">
+<li>If already stored, pass;</li>
+<li>If not stored, create a <cite>TransitionObject</cite> object and store it.</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>DVNum</strong> : integer</p>
+<blockquote>
+<div><p>The index of basin state in the superbasin to be associated with the transition.</p>
+</div></blockquote>
+<p><strong>barrier</strong> : float</p>
+<blockquote>
+<div><p>The (forward) barrier of the transition.</p>
+</div></blockquote>
+<p><strong>reverseBarrier</strong> : float</p>
+<blockquote>
+<div><p>The backward (reverse) barrier of the transition.</p>
+</div></blockquote>
+<p><strong>rate</strong> : float</p>
+<blockquote>
+<div><p>The original (uncorrected) rate of the transition.</p>
+</div></blockquote>
+<p><strong>finalHashkey</strong> : string</p>
+<blockquote>
+<div><p>The (primary) hashkey of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>finalCOM</strong> : ndarray</p>
+<blockquote>
+<div><p>The (primary) Center Of Mass of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>finalAtomPos</strong> : integer</p>
+<blockquote>
+<div><p>The index of transitions in the Volume file. 
+i.e. where does this transition save in the Volume file.</p>
+</div></blockquote>
+<p><strong>flag</strong> : integer</p>
+<blockquote>
+<div><ul class="simple">
+<li>If 0 : ordinary event;</li>
+<li>If 1 : potential basin event;</li>
+<li>If 2 : basin event.</li>
+</ul>
+</div></blockquote>
+<p><strong>finalDV</strong> : integer, optional</p>
+<blockquote>
+<div><p>The index of basin state where the final state of the transition pointed. 
+i.e. the connection between basin states.</p>
+</div></blockquote>
+<p><strong>final</strong> : <cite>Lattice.Lattice</cite> object, optional</p>
+<blockquote>
+<div><p>The object holds information of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>index</strong> : integer, optional</p>
+<blockquote>
+<div><p>The finalVolIndex in the list of defectVolumes of the final state of the transition. 
+This might different from the currentVolIndex.</p>
+</div></blockquote>
+<p><strong>savePos</strong> : bool, optional</p>
+<blockquote>
+<div><ul class="simple">
+<li>If True : (default, only if <cite>final</cite> object is given) Store information about the defect volume atoms.</li>
+</ul>
+</div></blockquote>
+<p><strong>moment</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>The (primary) Moment of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>currentVolIndex</strong> : integer, optional</p>
+<blockquote>
+<div><p>The currentVolIndex in the list of defectVolumes of the initial state of the transtion. 
+i.e. the index of current working volume.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>status</strong> : integer</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>If 0 : successfully create and store the transition;</li>
+<li>If 1 : cannot store the transition due to already stored.</li>
+</ul>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Basin.BasinObject.meanRate">
+<code class="descname">meanRate</code><span class="sig-paren">(</span><em>startDV=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#BasinObject.meanRate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.BasinObject.meanRate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Correct the rates for all transitions stored in the superbasin by using the Mean Rate Method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>startDV</strong> : integer, optional</p>
+<blockquote>
+<div><p>Index of basin state where the system entered the superbasin. Default: 0.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>result</strong> : list</p>
+<blockquote class="last">
+<div><p>List of corrected rates for all transitions stored in the superbasin.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Basin.BasinObject.performTransition">
+<code class="descname">performTransition</code><span class="sig-paren">(</span><em>start</em>, <em>end</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#BasinObject.performTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.BasinObject.performTransition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform transitions between basin states within the superbasin.
+i.e. perform series of refinements within the superbasin such that the current working basin state 
+is transformed from <code class="docutils literal"><span class="pre">start</span></code> to <code class="docutils literal"><span class="pre">end</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>start</strong> : integer</p>
+<blockquote>
+<div><p>Index of the starting basin state in <cite>self.defectVolumes</cite>.</p>
+</div></blockquote>
+<p><strong>end</strong> : integer</p>
+<blockquote>
+<div><p>Index of the ending basin state in <cite>self.defectVolumes</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>status</strong> : integer</p>
+<blockquote>
+<div><ul class="simple">
+<li>If 0 : success</li>
+<li>else : error</li>
+</ul>
+</div></blockquote>
+<p><strong>currentState</strong> : <cite>Lattice.Lattice</cite> object</p>
+<blockquote class="last">
+<div><p>The object holds information about the lattice at the <code class="docutils literal"><span class="pre">end</span></code> basin state.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Basin.BasinObject.printout">
+<code class="descname">printout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#BasinObject.printout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.BasinObject.printout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Usually for debug use. Print out all information about the current superbasin.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Basin.BasinObject.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#BasinObject.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.BasinObject.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read information about the stored superbasin from a file. Create and store corresponding objects. 
+Used form resuming an unfinished work.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line</strong> : string</p>
+<blockquote class="last">
+<div><p>Lines read from a file, which store informations about the superbasin.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Basin.BasinObject.shortestPath">
+<code class="descname">shortestPath</code><span class="sig-paren">(</span><em>start</em>, <em>end</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#BasinObject.shortestPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.BasinObject.shortestPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the shortest pathway from the starting basin state to the ending basin state by using the Dijkstra&#8217;s algorithm.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>start</strong> : integer</p>
+<blockquote>
+<div><p>Index of the starting basin state in <cite>self.defectVolumes</cite>.</p>
+</div></blockquote>
+<p><strong>end</strong> : integer</p>
+<blockquote>
+<div><p>Index of the ending basin state in <cite>self.defectVolumes</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>S</strong> : list</p>
+<blockquote class="last">
+<div><p>The pathway from start to end.
+<em>Notes</em> :</p>
+<blockquote>
+<div><ul class="simple">
+<li>If return empty list : there&#8217;s no path from start to end;</li>
+<li>If the start == end : return a list with a single point;</li>
+<li>If start == -1 : start = last DV.</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Basin.BasinObject.whichDV">
+<code class="descname">whichDV</code><span class="sig-paren">(</span><em>lattice</em>, <em>index</em>, <em>createFlag=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#BasinObject.whichDV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.BasinObject.whichDV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the basin state which have the same defect volume as given. 
+Used for build connectivities of a superbasin.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lattice</strong> : <cite>Lattice.Lattice</cite> object</p>
+<blockquote>
+<div><p>The object holds information about the system.</p>
+</div></blockquote>
+<p><strong>index</strong> : integer</p>
+<blockquote>
+<div><p>The currentVolIndex in the list of defectVolumes of the system.</p>
+</div></blockquote>
+<p><strong>createFlag</strong> : bool, optional</p>
+<blockquote>
+<div><ul class="simple">
+<li>If True: If the given state is not found in stored basin states, create one for it.</li>
+</ul>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>DVNum</strong> : integer</p>
+<blockquote>
+<div><p>Index of basin state stored in <cite>self.defectVolumes</cite>.</p>
+</div></blockquote>
+<p><strong>dupFlag</strong> : bool</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>If True: The basin state found have different hashkey form the given one, 
+but they are identical defect volumes.</li>
+</ul>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Basin.BasinObject.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>filename</em>, <em>outdir</em>, <em>basinNo</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#BasinObject.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.BasinObject.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the built superbasin into a file. Used for resuming an unfinished work.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : string</p>
+<blockquote>
+<div><p>The name of the file to be written.</p>
+</div></blockquote>
+<p><strong>outdir</strong> : string</p>
+<blockquote>
+<div><p>The location of the file to be written.</p>
+</div></blockquote>
+<p><strong>basinNo</strong> : integer</p>
+<blockquote class="last">
+<div><p>Index of the superbasin to be written.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Basin.DefectVolumeObject">
+<em class="property">class </em><code class="descclassname">LKMC.Basin.</code><code class="descname">DefectVolumeObject</code><span class="sig-paren">(</span><em>lattice</em>, <em>index</em>, <em>BasinObject</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#DefectVolumeObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.DefectVolumeObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>The <cite>DefectVolumeObject</cite> class holds information about a basin state.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lattice</strong> : <cite>Lattice.Lattice</cite> object</p>
+<blockquote>
+<div><p>The object holds information about the system.</p>
+</div></blockquote>
+<p><strong>index</strong> : integer</p>
+<blockquote>
+<div><p>The currentVolIndex in the list of defectVolumes of the system.</p>
+</div></blockquote>
+<p><strong>BasinObject</strong> : <cite>BasinObject</cite> object</p>
+<blockquote class="last">
+<div><p>The object holds information about a superbasin, where the current basin state is belonged.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>hashkey</td>
+<td>(string) The (primary) hashkey of the basin state.</td>
+</tr>
+<tr class="row-even"><td>COM</td>
+<td>(ndarray) The (primary) Center Of Mass of the basin state.</td>
+</tr>
+<tr class="row-odd"><td>moment</td>
+<td>(ndarray, optional) The (primary) Moment of the basin state.</td>
+</tr>
+<tr class="row-even"><td>dupHashkey</td>
+<td>(string, optional) The (secondary) hashkey of the basin state.</td>
+</tr>
+<tr class="row-odd"><td>dupCOM</td>
+<td>(ndarray, optional) The (secondary) Center Of Mass of the basin state.</td>
+</tr>
+<tr class="row-even"><td>dupMoment</td>
+<td>(ndarray, optional) The (secondary) Moment of the basin state.</td>
+</tr>
+<tr class="row-odd"><td>primaryVol</td>
+<td>(ndarray) Indexes of primary atoms (searchMoveVol) in the defect volume of the basin state.</td>
+</tr>
+<tr class="row-even"><td>graphVol</td>
+<td>(ndarray) Indexes of graph atoms (used to calculate hashkey) in the defect volume of the basin state.</td>
+</tr>
+<tr class="row-odd"><td>dvPos</td>
+<td>(ndarray) Possitions of primary atoms of the basin state.</td>
+</tr>
+<tr class="row-even"><td>NDefects</td>
+<td>(integer) Number of atoms in the given defect volume.</td>
+</tr>
+<tr class="row-odd"><td>vacancies</td>
+<td>(ndarray) Indexes of atoms (in the reference system) which are vacancies in the given defect volume of the basin state.</td>
+</tr>
+<tr class="row-even"><td>interstitials</td>
+<td>(ndarray) Indexes of atoms (in the given lattice) which are interstitials in the given defect volume of the basin state.</td>
+</tr>
+<tr class="row-odd"><td>antisites</td>
+<td>(ndarray) Indexes of atoms (in the reference system) which are antisites in the given defect volume of the basin state.</td>
+</tr>
+<tr class="row-even"><td>onAntisites</td>
+<td>(ndarray) Indexes of atoms (in the given lattice) which are onAntisites in the given defect volume of the basin state.</td>
+</tr>
+<tr class="row-odd"><td>defectPos</td>
+<td>(ndarray) Possitions of all defect atoms, in the order of vacancies, interstitials, onAntisites.</td>
+</tr>
+<tr class="row-even"><td>transitions</td>
+<td>(list) List of <cite>TransitionObject</cite> objects. Holds information of transitions associated with this basin state.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Basin.DefectVolumeObject.createTrans">
+<code class="descname">createTrans</code><span class="sig-paren">(</span><em>barrier</em>, <em>reverseBarrier</em>, <em>rate</em>, <em>finalHashkey</em>, <em>finalCOM</em>, <em>finalAtomPos</em>, <em>flag</em>, <em>finalDV=None</em>, <em>final=None</em>, <em>index=None</em>, <em>savePos=True</em>, <em>moment=None</em>, <em>currentVolIndex=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#DefectVolumeObject.createTrans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.DefectVolumeObject.createTrans" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Store a transition associated with current basin state. </dt>
+<dd><ul class="first last simple">
+<li>If already stored, pass;</li>
+<li>If not stored, create a <cite>TransitionObject</cite> object and store it.</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>barrier</strong> : float</p>
+<blockquote>
+<div><p>The (forward) barrier of the transition.</p>
+</div></blockquote>
+<p><strong>reverseBarrier</strong> : float</p>
+<blockquote>
+<div><p>The backward (reverse) barrier of the transition.</p>
+</div></blockquote>
+<p><strong>rate</strong> : float</p>
+<blockquote>
+<div><p>The original (uncorrected) rate of the transition.</p>
+</div></blockquote>
+<p><strong>finalHashkey</strong> : string</p>
+<blockquote>
+<div><p>The (primary) hashkey of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>finalCOM</strong> : ndarray</p>
+<blockquote>
+<div><p>The (primary) Center Of Mass of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>finalAtomPos</strong> : integer</p>
+<blockquote>
+<div><p>The index of transitions in the Volume file. 
+i.e. where does this transition save in the Volume file.</p>
+</div></blockquote>
+<p><strong>flag</strong> : integer</p>
+<blockquote>
+<div><ul class="simple">
+<li>If 0 : ordinary event;</li>
+<li>If 1 : potential basin event;</li>
+<li>If 2 : basin event.</li>
+</ul>
+</div></blockquote>
+<p><strong>finalDV</strong> : integer</p>
+<blockquote>
+<div><p>The index of basin state where the final state of the transition pointed. 
+i.e. the connection between basin states.</p>
+</div></blockquote>
+<p><strong>final</strong> : <cite>Lattice.Lattice</cite> object</p>
+<blockquote>
+<div><p>The object holds information of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>index</strong> : integer</p>
+<blockquote>
+<div><p>The finalVolIndex in the list of defectVolumes of the final state of the transition. 
+This might different from the currentVolIndex.</p>
+</div></blockquote>
+<p><strong>savePos</strong> : bool, optional</p>
+<blockquote>
+<div><ul class="simple">
+<li>If True : (default, only if <cite>final</cite> object is given) Store information about the defect volume atoms.</li>
+</ul>
+</div></blockquote>
+<p><strong>moment</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>The (primary) Moment of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>currentVolIndex</strong> : integer, optional</p>
+<blockquote>
+<div><p>The currentVolIndex in the list of defectVolumes of the initial state of the transtion. 
+i.e. the index of current working volume.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>status</strong> : integer</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>If 0 : successfully create and store the transition;</li>
+<li>If 1 : cannot store the transition due to already stored.</li>
+</ul>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Basin.DefectVolumeObject.dupInfo">
+<code class="descname">dupInfo</code><span class="sig-paren">(</span><em>dupHashkey=None</em>, <em>dupCOM=None</em>, <em>dupMoment=None</em>, <em>moment=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#DefectVolumeObject.dupInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.DefectVolumeObject.dupInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save information about the basin state, if the basin states 
+have different hashkeys due to small variation.</p>
+<p>Sometimes the same basin state may have different hashkeys 
+due to small variation. Store information about the basin states, which will be 
+used to get the correct connectivities within a superbasin.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dupHashkey</strong> : string, optional</p>
+<blockquote>
+<div><p>The (secondary) hashkey of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>dupCOM</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>The (secondary) Center Of Mass of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>dupMoment</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>The (secondary) Moment of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>moment</strong> : ndarray, optional</p>
+<blockquote class="last">
+<div><p>The (primary) Moment of the final state of the transition.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Basin.DefectVolumeObject.whichTrans">
+<code class="descname">whichTrans</code><span class="sig-paren">(</span><em>lattice</em>, <em>index</em>, <em>ignoreFlag=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#DefectVolumeObject.whichTrans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.DefectVolumeObject.whichTrans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all transitions which have the same final state as given. 
+Used for build connectivities of a superbasin.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lattice</strong> : <cite>Lattice.Lattice</cite> object</p>
+<blockquote>
+<div><p>The object holds information about the system.</p>
+</div></blockquote>
+<p><strong>index</strong> : integer</p>
+<blockquote>
+<div><p>The currentVolIndex in the list of defectVolumes of the system.</p>
+</div></blockquote>
+<p><strong>ignoreFlag</strong> : bool, optional</p>
+<blockquote>
+<div><ul class="simple">
+<li>If False: only check transitions with flag 1 or 2 (Basin event/Potential basin event);</li>
+<li>If True: check all transitions.</li>
+</ul>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>transNum</strong> : list</p>
+<blockquote class="last">
+<div><p>Indexes of transitions stored in <cite>self.transitions</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="LKMC.Basin.TransitionObject">
+<em class="property">class </em><code class="descclassname">LKMC.Basin.</code><code class="descname">TransitionObject</code><span class="sig-paren">(</span><em>barrier</em>, <em>reverseBarrier</em>, <em>rate</em>, <em>finalHashkey</em>, <em>finalCOM</em>, <em>finalAtomPos</em>, <em>flag</em>, <em>finalDV</em>, <em>final</em>, <em>index</em>, <em>savePos=True</em>, <em>moment=None</em>, <em>currentVolIndex=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#TransitionObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.TransitionObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>The <cite>TransitionObject</cite> class holds information about a transition event, 
+which is associated with a basin state.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>barrier</strong> : float</p>
+<blockquote>
+<div><p>The (forward) barrier of the transition.</p>
+</div></blockquote>
+<p><strong>reverseBarrier</strong> : float</p>
+<blockquote>
+<div><p>The backward (reverse) barrier of the transition.</p>
+</div></blockquote>
+<p><strong>rate</strong> : float</p>
+<blockquote>
+<div><p>The original (uncorrected) rate of the transition.</p>
+</div></blockquote>
+<p><strong>finalHashkey</strong> : string</p>
+<blockquote>
+<div><p>The (primary) hashkey of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>finalCOM</strong> : ndarray</p>
+<blockquote>
+<div><p>The (primary) Center Of Mass of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>finalAtomPos</strong> : integer</p>
+<blockquote>
+<div><p>The index of transitions in the Volume file. 
+i.e. where does this transition save in the Volume file.</p>
+</div></blockquote>
+<p><strong>flag</strong> : integer</p>
+<blockquote>
+<div><ul class="simple">
+<li>If 0 : ordinary event;</li>
+<li>If 1 : potential basin event;</li>
+<li>If 2 : basin event.</li>
+</ul>
+</div></blockquote>
+<p><strong>finalDV</strong> : integer</p>
+<blockquote>
+<div><p>The index of basin state where the final state of the transition pointed. 
+i.e. the connection between basin states.</p>
+</div></blockquote>
+<p><strong>final</strong> : <cite>Lattice.Lattice</cite> object</p>
+<blockquote>
+<div><p>The object holds information of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>index</strong> : integer</p>
+<blockquote>
+<div><p>The finalVolIndex in the list of defectVolumes of the final state of the transition. 
+This might different from the currentVolIndex.</p>
+</div></blockquote>
+<p><strong>savePos</strong> : bool, optional</p>
+<blockquote>
+<div><ul class="simple">
+<li>If True : (default, only if <cite>final</cite> object is given) Store information about the defect volume atoms.</li>
+</ul>
+</div></blockquote>
+<p><strong>moment</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>The (primary) Moment of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>currentVolIndex</strong> : integer, optional</p>
+<blockquote class="last">
+<div><p>The currentVolIndex in the list of defectVolumes of the initial state of the transtion. 
+i.e. the index of current working volume.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>NDefects</td>
+<td>(integer) Number of atoms in the given defect volume.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="LKMC.Basin.TransitionObject.dupInfo">
+<code class="descname">dupInfo</code><span class="sig-paren">(</span><em>dupHashkey=None</em>, <em>dupCOM=None</em>, <em>dupMoment=None</em>, <em>moment=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#TransitionObject.dupInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.TransitionObject.dupInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save information about the final state of the transition, if the final states 
+have different hashkeys due to small variation.</p>
+<p>Sometimes the same final state of a transition may have different hashkeys 
+due to small variation. Store information about the final states, which will be 
+used to get the correct connectivities within a superbasin.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dupHashkey</strong> : string, optional</p>
+<blockquote>
+<div><p>The (secondary) hashkey of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>dupCOM</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>The (secondary) Center Of Mass of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>dupMoment</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>The (secondary) Moment of the final state of the transition.</p>
+</div></blockquote>
+<p><strong>moment</strong> : ndarray, optional</p>
+<blockquote class="last">
+<div><p>The (primary) Moment of the final state of the transition.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="LKMC.Basin.TransitionObject.storeFinalDVInfo">
+<code class="descname">storeFinalDVInfo</code><span class="sig-paren">(</span><em>lattice</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#TransitionObject.storeFinalDVInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.TransitionObject.storeFinalDVInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store information about the defect volume atoms of the transition.
+These information will be used to compare whether two states with different hashkeys
+are actually the same or not.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lattice</strong> : <cite>Lattice.Lattice</cite> object</p>
+<blockquote>
+<div><p>The object holds information about final state of the transition.</p>
+</div></blockquote>
+<p><strong>index</strong> : integer</p>
+<blockquote class="last">
+<div><p>The finalVolIndex in the list of defectVolumes of the final state of the transition.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="89%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>primaryVol</td>
+<td>(ndarray) Indexes of primary atoms (searchMoveVol) in the defect volume.</td>
+</tr>
+<tr class="row-even"><td>graphVol</td>
+<td>(ndarray) Indexes of graph atoms (used to calculate hashkey) in the defect volume.</td>
+</tr>
+<tr class="row-odd"><td>dvPos</td>
+<td>(ndarray) Possitions of primary atoms.</td>
+</tr>
+<tr class="row-even"><td>NDefects</td>
+<td>(integer) Number of atoms in the given defect volume.</td>
+</tr>
+<tr class="row-odd"><td>vacancies</td>
+<td>(ndarray) Indexes of atoms (in the reference system) which are vacancies in the given defect volume.</td>
+</tr>
+<tr class="row-even"><td>interstitials</td>
+<td>(ndarray) Indexes of atoms (in the given lattice) which are interstitials in the given defect volume.</td>
+</tr>
+<tr class="row-odd"><td>antisites</td>
+<td>(ndarray) Indexes of atoms (in the reference system) which are antisites in the given defect volume.</td>
+</tr>
+<tr class="row-even"><td>onAntisites</td>
+<td>(ndarray) Indexes of atoms (in the given lattice) which are onAntisites in the given defect volume.</td>
+</tr>
+<tr class="row-odd"><td>defectPos</td>
+<td>(ndarray) Possitions of all defect atoms, in the order of vacancies, interstitials, onAntisites.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Basin.defectInfo">
+<code class="descclassname">LKMC.Basin.</code><code class="descname">defectInfo</code><span class="sig-paren">(</span><em>lattice</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#defectInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.defectInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the information about defect atoms in a given defect volume.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lattice</strong> : &#8216;Lattice&#8217; object</p>
+<blockquote>
+<div><p>The object holds information about the whole lattice</p>
+</div></blockquote>
+<p><strong>index</strong> : integer</p>
+<blockquote>
+<div><p>The Volume Index in the list of defectVolumes of the lattice.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>NDefects</strong> : integer</p>
+<blockquote>
+<div><p>Number of atoms in the given defect volume.</p>
+</div></blockquote>
+<p><strong>vacancies</strong> : ndarray</p>
+<blockquote>
+<div><p>Indexes of atoms (in the reference system) which are vacancies in the given defect volume.</p>
+</div></blockquote>
+<p><strong>interstitials</strong> : ndarray</p>
+<blockquote>
+<div><p>Indexes of atoms (in the given lattice) which are interstitials in the given defect volume.</p>
+</div></blockquote>
+<p><strong>antisites</strong> : ndarray</p>
+<blockquote>
+<div><p>Indexes of atoms (in the reference system) which are antisites in the given defect volume.</p>
+</div></blockquote>
+<p><strong>onAntisites</strong> : ndarray</p>
+<blockquote>
+<div><p>Indexes of atoms (in the given lattice) which are onAntisites in the given defect volume.</p>
+</div></blockquote>
+<p><strong>defectPos</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Possitions of all defect atoms, in the order of vacancies, interstitials, onAntisites.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Basin.readBasin">
+<code class="descclassname">LKMC.Basin.</code><code class="descname">readBasin</code><span class="sig-paren">(</span><em>KMCRunner</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#readBasin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.readBasin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read information about the stored superbasin from a file. Create and store corresponding objects. 
+Used form resuming an unfinished work.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>KMCRunner</strong> : <cite>KMC.KMCRunner</cite> object</p>
+<blockquote>
+<div><p>We need some information/methods from this object.</p>
+</div></blockquote>
+<p><strong>filename</strong> : string</p>
+<blockquote class="last">
+<div><p>The name of the file to be read in.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="LKMC.Basin.writeBasin">
+<code class="descclassname">LKMC.Basin.</code><code class="descname">writeBasin</code><span class="sig-paren">(</span><em>KMCRunner</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/LKMC/Basin.html#writeBasin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#LKMC.Basin.writeBasin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the built superbasins into a file. Used for resuming an unfinished work.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>KMCRunner</strong> : <cite>KMC.KMCRunner</cite> object</p>
+<blockquote class="last">
+<div><p>We need some information/methods from this object.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">LKMC.Basin module</a><ul>
+<li><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="LKMC.Atoms.html"
+                        title="previous chapter">LKMC.Atoms module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LKMC.Cascades.html"
+                        title="next chapter">LKMC.Cascades module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/LKMC/LKMC.Basin.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Cascades.html" title="LKMC.Cascades module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="LKMC.Atoms.html" title="LKMC.Atoms module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">LKMC 150623-237-g6ff714a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >LKMC</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="LKMC.html" >LKMC package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Chris Scott, Tomas Lazauskas, Miao Yu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
